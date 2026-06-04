@@ -11,6 +11,16 @@ const fontVt323 = VT323({ weight: '400', subsets: ['latin'] })
 const fontPressStart = Press_Start_2P({ weight: '400', subsets: ['latin'] })
 const fontShareTech = Share_Tech_Mono({ weight: '400', subsets: ['latin'] })
 
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      afterimagePass: any
+      unrealBloomPass: any
+      shaderPass: any
+    }
+  }
+}
+
 const FONTS = [
   { name: 'VT323', css: fontVt323.style.fontFamily, yOffset: -2, size: 36 },
   { name: 'C64 / APPLE II', css: fontPressStart.style.fontFamily, yOffset: 8, size: 18 },
@@ -420,8 +430,11 @@ function CRTScreen({
       <MouseCursor color={activeTheme.fg} />
 
       <Effects disableGamma>
+        {/* @ts-ignore */}
         <afterimagePass ref={afterimageRef} args={[0.85]} />
+        {/* @ts-ignore */}
         <unrealBloomPass ref={bloomRef} args={[undefined, bloomAmt, bloomRadius, bloomThresh]} />
+        {/* @ts-ignore */}
         <shaderPass ref={shaderPassRef} args={[CRTShader]} />
       </Effects>
     </>
@@ -488,6 +501,10 @@ export default function WebGLTerminalPage() {
   }
 
   const handlePointerInteraction = (e: any, isClick: boolean) => {
+    if (isClick && inputRef.current) {
+      inputRef.current.focus()
+    }
+
     const COLS = gridSizeRef.current.cols
     const ROWS = gridSizeRef.current.rows
 
