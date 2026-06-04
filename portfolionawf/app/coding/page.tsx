@@ -28,7 +28,7 @@ const FONTS = [
 ]
 
 const THEMES = [
-  { name: 'WHITE',  fg: '#FFFFFF', bg: '#000000', dim: '#666666', bloom: 0.7, radius: 0.5, thresh: 0.2 },
+  { name: 'WHITE',  fg: '#FFFFFF', bg: '#000000', dim: '#666666', bloom: 0.40, radius: 1.40, thresh: 0.40 },
   { name: 'AMBER',  fg: '#F29C27', bg: '#211408', dim: '#855615', bloom: 0.7, radius: 0.5, thresh: 0.2 },
   { name: 'GREEN',  fg: '#A8F386', bg: '#182912', dim: '#4A6B32', bloom: 0.7, radius: 0.5, thresh: 0.2 },
   { name: 'PINK',   fg: '#FF66FF', bg: '#220022', dim: '#883388', bloom: 0.7, radius: 0.5, thresh: 0.2 },
@@ -100,14 +100,6 @@ const CRTShader = {
     void main() {
         vec2 curvatureCoords = distortCoordinates(vUv);
         
-        float isScreen = min(step(0.0, curvatureCoords.x) - step(1.0, curvatureCoords.x),
-                             step(0.0, curvatureCoords.y) - step(1.0, curvatureCoords.y));
-        
-        if (isScreen < 0.5) {
-            gl_FragColor = vec4(0.02, 0.015, 0.01, 1.0); // Classic dark brown bezel
-            return;
-        }
-
         float rgbShift = 0.0015;
         vec2 displacement = vec2(rgbShift, 0.0);
         
@@ -134,6 +126,19 @@ const CRTShader = {
         float vignette = 1.0 - (r * 1.5);
         vignette = smoothstep(0.0, 0.9, vignette);
         finalColor *= vignette;
+
+        // Radial bloom leak from the physical screen edges
+        float distX = max(0.0, max(-curvatureCoords.x, curvatureCoords.x - 1.0));
+        float distY = max(0.0, max(-curvatureCoords.y, curvatureCoords.y - 1.0));
+        float dist = length(vec2(distX, distY));
+
+        // Soft screen boundary. Over a short distance (0.025), the screen organically fades into the bezel.
+        // This creates a glowing light leak radially around the CRT glass edge without streaking.
+        float screenMask = 1.0 - smoothstep(0.0, 0.025, dist);
+
+        vec3 bezelColor = vec3(0.02, 0.015, 0.01);
+        
+        finalColor = mix(bezelColor, finalColor, screenMask);
 
         gl_FragColor = vec4(finalColor, 1.0);
     }
@@ -332,7 +337,7 @@ function CRTScreen({
        ]
        SLIDER_CFG.forEach((s, i) => {
          const fraction = (s.val - s.min) / (s.max - s.min);
-         const trackLen = 10;
+         const trackLen = 20;
          const pos = Math.round(fraction * trackLen);
          let trackStr = '[';
          for(let k=0; k<=trackLen; k++) {
@@ -528,7 +533,7 @@ export default function WebGLTerminalPage() {
 
        if (activeSliderRef.current >= 0) {
            const trackStart = boxX + 14;
-           let fraction = (gridX - trackStart) / 10;
+           let fraction = (gridX - trackStart) / 20;
            fraction = Math.max(0, Math.min(1, fraction));
            
            const SLIDER_CFG = [
@@ -557,7 +562,7 @@ export default function WebGLTerminalPage() {
                const sliderIdx = gridY - (boxY + 17);
                activeSliderRef.current = sliderIdx;
                const trackStart = boxX + 14;
-               let fraction = (gridX - trackStart) / 10;
+               let fraction = (gridX - trackStart) / 20;
                fraction = Math.max(0, Math.min(1, fraction));
                const SLIDER_CFG = [
                  { min: 0, max: 2, set: setBloomAmt },
@@ -609,7 +614,10 @@ export default function WebGLTerminalPage() {
       className="w-screen h-screen bg-[#0A0500] overflow-hidden relative cursor-none touch-none"
       onPointerDown={(e) => handlePointerInteraction(e, true)}
       onPointerMove={(e) => handlePointerInteraction(e, false)}
-      onPointerUp={() => { activeSliderRef.current = -1 }}
+      onPointerUp={() => { 
+        activeSliderRef.current = -1;
+        if (inputRef.current) inputRef.current.focus();
+      }}
       onPointerLeave={() => { activeSliderRef.current = -1 }}
     >
       <Canvas camera={{ position: [0, 0, 7], fov: 60 }}>
