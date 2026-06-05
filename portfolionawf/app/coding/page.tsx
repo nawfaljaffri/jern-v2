@@ -147,24 +147,114 @@ const CRTShader = {
         finalColor = mix(bezelColor, finalColor, screenMask);
 
         // OPTICAL CONTROLS
-        // 1. Contrast Crush (Downsample)
-        // Only apply the Hermite curve (smoothstep) if u_downsample > 0
         float crunch = u_downsample * 0.15; 
         vec3 crushedColor = smoothstep(crunch, 1.0 - crunch, finalColor);
         finalColor = mix(finalColor, crushedColor, u_downsample);
 
-        // 2. Saturation
         const vec3 W = vec3(0.2125, 0.7154, 0.0721);
         vec3 intensity = vec3(dot(finalColor, W));
         finalColor = mix(intensity, finalColor, u_saturation);
 
-        // 3. Brightness
         finalColor *= u_brightness;
 
         gl_FragColor = vec4(finalColor, 1.0);
     }
   `
 }
+
+// ---- HELPER CLASSES & FUNCS ----
+class TextBuffer {
+  cols: number;
+  rows: number;
+  buffer: string[][];
+  colorBuffer: number[][];
+
+  constructor(cols: number, rows: number) {
+    this.cols = cols;
+    this.rows = rows;
+    this.buffer = Array.from({ length: rows }, () => Array(cols).fill(' '));
+    this.colorBuffer = Array.from({ length: rows }, () => Array(cols).fill(0));
+  }
+
+  writeStr(x: number, y: number, str: string, color = 0) {
+    x = Math.floor(x); y = Math.floor(y);
+    if (y < 0 || y >= this.rows) return;
+    for (let i = 0; i < str.length; i++) {
+      if (x + i < 0 || x + i >= this.cols) continue;
+      this.buffer[y][x + i] = str[i];
+      this.colorBuffer[y][x + i] = color;
+    }
+  }
+
+  drawBox(x: number, y: number, w: number, h: number, title = '') {
+    x = Math.floor(x); y = Math.floor(y); w = Math.floor(w); h = Math.floor(h);
+    if (w <= 0 || h <= 0) return;
+    this.writeStr(x, y, '┌' + '─'.repeat(Math.max(0, w - 2)) + '┐', 1);
+    if (title) this.writeStr(x + 2, y, `┤${title}├`, 0);
+    this.writeStr(x, y + h - 1, '└' + '─'.repeat(Math.max(0, w - 2)) + '┘', 1);
+    for (let i = 1; i < h - 1; i++) {
+      this.writeStr(x, y + i, '│', 1);
+      this.writeStr(x + w - 1, y + i, '│', 1);
+    }
+  }
+
+  renderToCanvas(ctx: CanvasRenderingContext2D, charW: number, charH: number, activeFont: any, activeTheme: any) {
+    const colorFg = activeTheme.fg;
+    const colorDim = activeTheme.dim;
+    const colorInvertedBg = activeTheme.fg;
+    const colorInvertedFg = activeTheme.bg;
+
+    ctx.fillStyle = activeTheme.bg;
+    ctx.fillRect(0, 0, this.cols * charW, this.rows * charH);
+
+    for (let y = 0; y < this.rows; y++) {
+      let currentString = '';
+      let currentColor = -1;
+      let startX = 0;
+
+      const renderSegment = () => {
+        if (currentString.length > 0) {
+          if (currentColor === 2) { 
+              ctx.shadowBlur = 0;
+              ctx.fillStyle = colorInvertedBg;
+              ctx.fillRect(startX * charW, y * charH - 2, currentString.length * charW, charH + 4);
+              ctx.fillStyle = colorInvertedFg;
+          } else if (currentColor === 1) { 
+              ctx.fillStyle = colorDim;
+          } else { 
+              ctx.fillStyle = colorFg;
+          }
+          ctx.shadowBlur = 0;
+          ctx.fillText(currentString, startX * charW, y * charH + activeFont.yOffset);
+        }
+      }
+
+      for (let x = 0; x < this.cols; x++) {
+        const char = this.buffer[y][x];
+        const col = this.colorBuffer[y][x];
+
+        if (col !== currentColor) {
+          renderSegment();
+          currentString = char;
+          currentColor = col;
+          startX = x;
+        } else {
+          currentString += char;
+        }
+      }
+      renderSegment();
+    }
+  }
+}
+
+const getSliders = (effects: any, setEffects: any) => [
+  { label: 'SATUR',  val: effects.saturation,  min: 0.0, max: 2.0, set: (v: number) => setEffects((e: any) => ({...e, saturation: v})) },
+  { label: 'THRESH', val: effects.bloomThresh, min: 0.0, max: 1.0, set: (v: number) => setEffects((e: any) => ({...e, bloomThresh: v})) },
+  { label: 'BLOOM',  val: effects.bloomAmt,    min: 0.0, max: 2.0, set: (v: number) => setEffects((e: any) => ({...e, bloomAmt: v})) },
+  { label: 'SPREAD', val: effects.bloomRadius, min: 0.0, max: 2.0, set: (v: number) => setEffects((e: any) => ({...e, bloomRadius: v})) },
+  { label: 'BRIGHT', val: effects.brightness,  min: 0.5, max: 2.0, set: (v: number) => setEffects((e: any) => ({...e, brightness: v})) },
+  { label: 'CRUSH',  val: effects.downsample,  min: 0.0, max: 1.0, set: (v: number) => setEffects((e: any) => ({...e, downsample: v})) }
+];
 
 function MouseCursor({ color }: { color: string }) {
   const meshRef = useRef<THREE.Mesh>(null)
@@ -187,13 +277,8 @@ function MouseCursor({ color }: { color: string }) {
 }
 
 function CRTScreen({ 
-  selectedIndex, setSelectedIndex, textRef, cursorRef, setRedrawFn, 
-  themeIdx, fontIdx, settingsOpen, setSettingsOpen, setThemeIdx, setFontIdx,
-  bloomAmt, bloomRadius, bloomThresh, burnIn,
-  brightness, setBrightness, saturation, setSaturation,
-  curvature, setCurvature, downsample, setDownsample,
-  grain, setGrain, settingsCursorIdx, setSettingsCursorIdx,
-  gridSizeRef, aspectRatio, setAspectRatio, hoverRef
+  uiState, setUiState, effects, setEffects,
+  textRef, cursorRef, setRedrawFn, gridSizeRef, hoverRef
 }: any) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const textureRef = useRef<THREE.CanvasTexture | null>(null)
@@ -204,9 +289,8 @@ function CRTScreen({
   const afterimageRef = useRef<any>(null)
   const cursorVisible = useRef(true)
 
-  const activeTheme = THEMES[themeIdx]
-  const activeFont = FONTS[fontIdx]
-
+  const activeTheme = THEMES[uiState.themeIdx]
+  const activeFont = FONTS[uiState.fontIdx]
 
   const sysInfo = useMemo(() => {
     if (typeof window === 'undefined') return { cores: 4, mem: 8, os: 'UNKNOWN' }
@@ -244,12 +328,6 @@ function CRTScreen({
     const W = canvasRef.current.width
     const H = canvasRef.current.height
 
-    const colorBg = activeTheme.bg
-    const colorFg = activeTheme.fg
-    const colorDim = activeTheme.dim
-    const colorInvertedBg = activeTheme.fg
-    const colorInvertedFg = activeTheme.bg
-
     ctx.font = `${activeFont.size}px ${activeFont.css}`
     const charW = ctx.measureText('M').width
     const charH = 32
@@ -259,35 +337,12 @@ function CRTScreen({
     
     gridSizeRef.current = { cols: COLS, rows: ROWS, charW, charH }
 
-    ctx.fillStyle = colorBg
-    ctx.fillRect(0, 0, W, H)
     ctx.imageSmoothingEnabled = false
     ctx.textBaseline = 'top'
 
-    const buffer = Array.from({ length: ROWS }, () => Array(COLS).fill(' '))
-    const colorBuffer = Array.from({ length: ROWS }, () => Array(COLS).fill(0))
-
-    const writeStr = (x: number, y: number, str: string, color = 0) => {
-      x = Math.floor(x); y = Math.floor(y)
-      if (y < 0 || y >= ROWS) return
-      for (let i = 0; i < str.length; i++) {
-        if (x + i < 0 || x + i >= COLS) continue
-        buffer[y][x + i] = str[i]
-        colorBuffer[y][x + i] = color
-      }
-    }
-
-    const drawBox = (x: number, y: number, w: number, h: number, title = '') => {
-      x = Math.floor(x); y = Math.floor(y); w = Math.floor(w); h = Math.floor(h)
-      if (w <= 0 || h <= 0) return
-      writeStr(x, y, '┌' + '─'.repeat(Math.max(0, w - 2)) + '┐', 1)
-      if (title) writeStr(x + 2, y, `┤${title}├`, 0)
-      writeStr(x, y + h - 1, '└' + '─'.repeat(Math.max(0, w - 2)) + '┘', 1)
-      for (let i = 1; i < h - 1; i++) {
-        writeStr(x, y + i, '│', 1)
-        writeStr(x + w - 1, y + i, '│', 1)
-      }
-    }
+    const buffer = new TextBuffer(COLS, ROWS);
+    const writeStr = buffer.writeStr.bind(buffer);
+    const drawBox = buffer.drawBox.bind(buffer);
 
     drawBox(0, 0, COLS, 8, 'cpu & mem')
     const timeStr = new Date().toLocaleTimeString('en-US', { hour12: false })
@@ -298,17 +353,13 @@ function CRTScreen({
         return '|'.repeat(fill).padEnd(width, ' ')
     }
     
-    const cpuBar = getBar(12, 29)
-    const memBar = getBar(32, 29)
-    const swpBar = getBar(8, 29)
-    
-    writeStr(2, 2, `CPU [${cpuBar}`, 0)
+    writeStr(2, 2, `CPU [${getBar(12, 29)}`, 0)
     writeStr(36, 2, `] 12%  ${sysInfo.cores} Cores`, 3)
 
-    writeStr(2, 3, `MEM [${memBar}`, 0)
+    writeStr(2, 3, `MEM [${getBar(32, 29)}`, 0)
     writeStr(36, 3, `] 32%  ${sysInfo.mem} GB`, 3)
 
-    writeStr(2, 4, `SWP [${swpBar}`, 0)
+    writeStr(2, 4, `SWP [${getBar(8, 29)}`, 0)
     writeStr(36, 4, `] 08%  OS: ${sysInfo.os}`, 3)
     writeStr(2, 6, `Uptime: 14:22:10   Threads: 142   Procs: 84`, 1)
 
@@ -327,15 +378,15 @@ function CRTScreen({
     
     PROJECTS.forEach((proj, idx) => {
       const y = 10 + idx
-      const isSelected = idx === selectedIndex
-      const padding = settingsOpen ? 1 : leftW - proj.name.length - 4
+      const isSelected = idx === uiState.selectedIndex
+      const padding = uiState.settingsOpen ? 1 : leftW - proj.name.length - 4
       const str = ` ${proj.name}` + ' '.repeat(Math.max(0, padding))
-      const isHovered = !settingsOpen && hy === y && hx >= 1 && hx < 1 + str.length
+      const isHovered = !uiState.settingsOpen && hy === y && hx >= 1 && hx < 1 + str.length
       writeStr(1, y, str, isSelected || isHovered ? 2 : 0)
     })
 
     drawBox(leftW, 8, COLS - leftW, ROWS - 12, 'PROJECT DETAILS')
-    const activeProj = PROJECTS[selectedIndex]
+    const activeProj = PROJECTS[uiState.selectedIndex]
     
     writeStr(leftW + 2, 10, `PROJECT: ${activeProj.name.toUpperCase()}`, 0)
     writeStr(leftW + 2, 11, '─'.repeat(COLS - leftW - 4), 1)
@@ -360,7 +411,7 @@ function CRTScreen({
         writeStr(2 + prefix.length + cursorRef.current, ROWS - 2, '█', 0)
     }
 
-    if (settingsOpen) {
+    if (uiState.settingsOpen) {
        const w = 60; const h = 19;
        const boxX = Math.floor((COLS - w) / 2);
        const boxY = Math.floor((ROWS - h) / 2);
@@ -373,29 +424,22 @@ function CRTScreen({
        writeStr(boxX + 4, boxY + 2, 'THEME:', 0);
        THEMES.forEach((t, i) => {
           const isMouseHover = hy === boxY + 3 + i && hx >= boxX + 6 && hx <= boxX + 26;
-          const isHighlighted = settingsCursorIdx === i || isMouseHover;
-          writeStr(boxX + 6, boxY + 3 + i, `[${themeIdx === i ? '*' : ' '}] ${t.name}`, isHighlighted ? 2 : 0);
+          const isHighlighted = uiState.settingsCursorIdx === i || isMouseHover;
+          writeStr(boxX + 6, boxY + 3 + i, `[${uiState.themeIdx === i ? '*' : ' '}] ${t.name}`, isHighlighted ? 2 : 0);
        });
 
        writeStr(boxX + 4, boxY + 11, 'FONT:', 0);
        FONTS.forEach((f, i) => {
           const isMouseHover = hy === boxY + 12 + i && hx >= boxX + 6 && hx <= boxX + 26;
-          const isHighlighted = settingsCursorIdx === 6 + i || isMouseHover;
-          writeStr(boxX + 6, boxY + 12 + i, `[${fontIdx === i ? '*' : ' '}] ${f.name}`, isHighlighted ? 2 : 0);
+          const isHighlighted = uiState.settingsCursorIdx === 6 + i || isMouseHover;
+          writeStr(boxX + 6, boxY + 12 + i, `[${uiState.fontIdx === i ? '*' : ' '}] ${f.name}`, isHighlighted ? 2 : 0);
        });
 
        const col2HdrX = boxX + 31;
        const col2ItmX = boxX + 33;
 
        writeStr(col2HdrX, boxY + 2, 'EFFECTS:', 0);
-       const SLIDER_CFG = [
-         { label: 'SATUR',  val: saturation,  min: 0.0, max: 2.0 },
-         { label: 'THRESH', val: bloomThresh, min: 0.0, max: 1.0 },
-         { label: 'BLOOM',  val: bloomAmt,    min: 0.0, max: 2.0 },
-         { label: 'SPREAD', val: bloomRadius, min: 0.0, max: 2.0 },
-         { label: 'BRIGHT', val: brightness,  min: 0.5, max: 2.0 },
-         { label: 'CRUSH',  val: downsample,  min: 0.0, max: 1.0 }
-       ]
+       const SLIDER_CFG = getSliders(effects, setEffects);
        SLIDER_CFG.forEach((s, i) => {
          const fraction = (s.val - s.min) / (s.max - s.min);
          const trackInside = 8;
@@ -410,71 +454,33 @@ function CRTScreen({
          const valStr = (pct.toString() + '%').padStart(4, ' ');
          const label = s.label.padEnd(8, ' ');
          const isMouseHover = hy === boxY + 3 + i && hx >= col2ItmX && hx <= col2ItmX + 24;
-         const isHighlighted = settingsCursorIdx === 9 + i || isMouseHover;
+         const isHighlighted = uiState.settingsCursorIdx === 9 + i || isMouseHover;
          writeStr(col2ItmX, boxY + 3 + i, `${label}${trackStr} ${valStr}`, isHighlighted ? 2 : 0);
        });
        
        writeStr(col2HdrX, boxY + 11, 'DISPLAY:', 0);
        const ratios = ['4:3', '5:4', 'FIT SCREEN'];
        ratios.forEach((r, i) => {
-           const isSel = aspectRatio === (r === 'FIT SCREEN' ? 'FLUID' : r);
+           const isSel = uiState.aspectRatio === (r === 'FIT SCREEN' ? 'FLUID' : r);
            const str = `[${isSel ? '*' : ' '}] ${r}`;
            const isMouseHover = hy === boxY + 12 + i && hx >= col2ItmX && hx < col2ItmX + str.length;
-           const isHighlighted = settingsCursorIdx === 15 + i || isMouseHover;
+           const isHighlighted = uiState.settingsCursorIdx === 15 + i || isMouseHover;
            writeStr(col2ItmX, boxY + 12 + i, str, isHighlighted ? 2 : 0);
        });
 
        const isCloseHover = hy === boxY + h - 3 && hx >= boxX + 25 && hx <= boxX + 33;
-       const isCloseHighlighted = settingsCursorIdx === 18 || isCloseHover;
+       const isCloseHighlighted = uiState.settingsCursorIdx === 18 || isCloseHover;
        writeStr(boxX + 25, boxY + h - 3, '[ CLOSE ]', isCloseHighlighted ? 2 : 0);
     }
 
-    for (let y = 0; y < ROWS; y++) {
-      let currentString = ''
-      let currentColor = -1
-      let startX = 0
-
-      const renderSegment = () => {
-        if (currentString.length > 0) {
-          if (currentColor === 2) { 
-              ctx.shadowBlur = 0
-              ctx.fillStyle = colorInvertedBg
-              ctx.fillRect(startX * charW, y * charH - 2, currentString.length * charW, charH + 4)
-              ctx.fillStyle = colorInvertedFg
-          } else if (currentColor === 1) { 
-              ctx.fillStyle = colorDim
-          } else { 
-              ctx.fillStyle = colorFg
-          }
-
-          ctx.shadowBlur = 0
-          ctx.fillText(currentString, startX * charW, y * charH + activeFont.yOffset)
-        }
-      }
-
-      for (let x = 0; x < COLS; x++) {
-        const char = buffer[y][x]
-        const col = colorBuffer[y][x]
-
-        if (col !== currentColor) {
-          renderSegment()
-          currentString = char
-          currentColor = col
-          startX = x
-        } else {
-          currentString += char
-        }
-      }
-      renderSegment() 
-    }
-
+    buffer.renderToCanvas(ctx, charW, charH, activeFont, activeTheme);
     textureRef.current.needsUpdate = true
   }
 
   useEffect(() => {
     setRedrawFn.current = drawCanvas
     drawCanvas()
-  }, [selectedIndex, themeIdx, fontIdx, settingsOpen, bloomAmt, bloomRadius, bloomThresh, burnIn, aspectRatio, brightness, saturation, curvature, downsample, grain, settingsCursorIdx])
+  }, [uiState, effects])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -484,26 +490,26 @@ function CRTScreen({
     
     document.fonts.ready.then(() => drawCanvas())
     return () => clearInterval(interval)
-  }, [selectedIndex, themeIdx, fontIdx, settingsOpen, bloomAmt, bloomRadius, bloomThresh, burnIn, aspectRatio, brightness, saturation, curvature, downsample, grain, settingsCursorIdx])
+  }, [uiState, effects])
 
   useFrame((state) => {
     if (shaderPassRef.current) {
       shaderPassRef.current.uniforms.uTime.value = state.clock.elapsedTime
     }
     if (bloomRef.current) {
-      bloomRef.current.strength = bloomAmt
-      bloomRef.current.radius = bloomRadius
-      bloomRef.current.threshold = bloomThresh
+      bloomRef.current.strength = effects.bloomAmt
+      bloomRef.current.radius = effects.bloomRadius
+      bloomRef.current.threshold = effects.bloomThresh
     }
     if (afterimageRef.current) {
-      afterimageRef.current.uniforms.damp.value = burnIn
+      afterimageRef.current.uniforms.damp.value = effects.burnIn
     }
     if (shaderPassRef.current) {
-      shaderPassRef.current.uniforms.u_brightness.value = brightness
-      shaderPassRef.current.uniforms.u_saturation.value = saturation
-      shaderPassRef.current.uniforms.u_curvature.value = curvature
-      shaderPassRef.current.uniforms.u_downsample.value = downsample
-      shaderPassRef.current.uniforms.u_grain.value = grain
+      shaderPassRef.current.uniforms.u_brightness.value = effects.brightness
+      shaderPassRef.current.uniforms.u_saturation.value = effects.saturation
+      shaderPassRef.current.uniforms.u_curvature.value = effects.curvature
+      shaderPassRef.current.uniforms.u_downsample.value = effects.downsample
+      shaderPassRef.current.uniforms.u_grain.value = effects.grain
     }
   })
 
@@ -520,7 +526,7 @@ function CRTScreen({
         {/* @ts-ignore */}
         <afterimagePass ref={afterimageRef} args={[0.85]} />
         {/* @ts-ignore */}
-        <unrealBloomPass ref={bloomRef} args={[undefined, bloomAmt, bloomRadius, bloomThresh]} />
+        <unrealBloomPass ref={bloomRef} args={[undefined, effects.bloomAmt, effects.bloomRadius, effects.bloomThresh]} />
         {/* @ts-ignore */}
         <shaderPass ref={shaderPassRef} args={[CRTShader]} />
       </Effects>
@@ -529,25 +535,28 @@ function CRTScreen({
 }
 
 export default function WebGLTerminalPage() {
-  const [selectedIndex, setSelectedIndex] = useState(0)
-  const [themeIdx, setThemeIdx] = useState(0)
-  const [fontIdx, setFontIdx] = useState(0)
-  const [settingsOpen, setSettingsOpen] = useState(false)
-  const [aspectRatio, setAspectRatio] = useState('4:3')
+  const [uiState, setUiState] = useState({
+    selectedIndex: 0,
+    themeIdx: 0,
+    fontIdx: 0,
+    settingsOpen: false,
+    aspectRatio: '4:3',
+    settingsCursorIdx: 0
+  })
+
+  const [effects, setEffects] = useState({
+    bloomAmt: THEMES[0].bloom,
+    bloomRadius: THEMES[0].radius,
+    bloomThresh: THEMES[0].thresh,
+    burnIn: THEMES[0].burnIn,
+    brightness: THEMES[0].bright,
+    saturation: THEMES[0].satur,
+    curvature: THEMES[0].curve,
+    downsample: THEMES[0].crush,
+    grain: THEMES[0].grain
+  })
+
   const hoverRef = useRef({ x: -1, y: -1 })
-  
-  const [bloomAmt, setBloomAmt] = useState(THEMES[0].bloom)
-  const [bloomRadius, setBloomRadius] = useState(THEMES[0].radius)
-  const [bloomThresh, setBloomThresh] = useState(THEMES[0].thresh)
-  const [burnIn, setBurnIn] = useState(THEMES[0].burnIn)
-
-  const [brightness, setBrightness] = useState(THEMES[0].bright)
-  const [saturation, setSaturation] = useState(THEMES[0].satur)
-  const [curvature, setCurvature] = useState(THEMES[0].curve)
-  const [downsample, setDownsample] = useState(THEMES[0].crush)
-  const [grain, setGrain] = useState(THEMES[0].grain)
-
-  const [settingsCursorIdx, setSettingsCursorIdx] = useState(0)
   const activeSliderRef = useRef(-1)
   
   const inputRef = useRef<HTMLInputElement>(null)
@@ -557,16 +566,19 @@ export default function WebGLTerminalPage() {
   const gridSizeRef = useRef({ cols: 142, rows: 32, charW: 14.4, charH: 32 })
 
   useEffect(() => {
-    setBloomAmt(THEMES[themeIdx].bloom)
-    setBloomRadius(THEMES[themeIdx].radius)
-    setBloomThresh(THEMES[themeIdx].thresh)
-    setBurnIn(THEMES[themeIdx].burnIn)
-    setBrightness(THEMES[themeIdx].bright)
-    setSaturation(THEMES[themeIdx].satur)
-    setCurvature(THEMES[themeIdx].curve)
-    setDownsample(THEMES[themeIdx].crush)
-    setGrain(THEMES[themeIdx].grain)
-  }, [themeIdx])
+    const t = THEMES[uiState.themeIdx]
+    setEffects({
+      bloomAmt: t.bloom,
+      bloomRadius: t.radius,
+      bloomThresh: t.thresh,
+      burnIn: t.burnIn,
+      brightness: t.bright,
+      saturation: t.satur,
+      curvature: t.curve,
+      downsample: t.crush,
+      grain: t.grain
+    })
+  }, [uiState.themeIdx])
 
   useEffect(() => {
     const prev = document.body.style.overflow
@@ -591,58 +603,48 @@ export default function WebGLTerminalPage() {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'ArrowUp') {
       e.preventDefault()
-      if (settingsOpen) {
-          setSettingsCursorIdx(s => Math.max(0, s - 1))
+      if (uiState.settingsOpen) {
+          setUiState(s => ({ ...s, settingsCursorIdx: Math.max(0, s.settingsCursorIdx - 1) }))
       } else {
-          setSelectedIndex(s => Math.max(0, s - 1))
+          setUiState(s => ({ ...s, selectedIndex: Math.max(0, s.selectedIndex - 1) }))
       }
     } else if (e.key === 'ArrowDown') {
       e.preventDefault()
-      if (settingsOpen) {
-          setSettingsCursorIdx(s => Math.min(18, s + 1))
+      if (uiState.settingsOpen) {
+          setUiState(s => ({ ...s, settingsCursorIdx: Math.min(18, s.settingsCursorIdx + 1) }))
       } else {
-          setSelectedIndex(s => Math.min(PROJECTS.length - 1, s + 1))
+          setUiState(s => ({ ...s, selectedIndex: Math.min(PROJECTS.length - 1, s.selectedIndex + 1) }))
       }
     } else if (e.key === 'Escape') {
-      setSettingsOpen(false)
+      setUiState(s => ({ ...s, settingsOpen: false }))
     } else if (e.key === 'Enter') {
       e.preventDefault()
-      if (settingsOpen) {
-          if (settingsCursorIdx < 6) {
-              setThemeIdx(settingsCursorIdx)
-          } else if (settingsCursorIdx < 9) {
-              setFontIdx(settingsCursorIdx - 6)
-          } else if (settingsCursorIdx >= 15 && settingsCursorIdx < 18) {
+      if (uiState.settingsOpen) {
+          if (uiState.settingsCursorIdx < 6) {
+              setUiState(s => ({ ...s, themeIdx: s.settingsCursorIdx }))
+          } else if (uiState.settingsCursorIdx < 9) {
+              setUiState(s => ({ ...s, fontIdx: s.settingsCursorIdx - 6 }))
+          } else if (uiState.settingsCursorIdx >= 15 && uiState.settingsCursorIdx < 18) {
               const ratios = ['4:3', '5:4', 'FLUID']
-              setAspectRatio(ratios[settingsCursorIdx - 15])
-          } else if (settingsCursorIdx === 18) {
-              setSettingsOpen(false)
+              setUiState(s => ({ ...s, aspectRatio: ratios[s.settingsCursorIdx - 15] }))
+          } else if (uiState.settingsCursorIdx === 18) {
+              setUiState(s => ({ ...s, settingsOpen: false }))
           }
       }
     } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-      if (settingsOpen && settingsCursorIdx >= 9 && settingsCursorIdx < 15) {
+      if (uiState.settingsOpen && uiState.settingsCursorIdx >= 9 && uiState.settingsCursorIdx < 15) {
           e.preventDefault()
-          const sliderIdx = settingsCursorIdx - 9
+          const sliderIdx = uiState.settingsCursorIdx - 9
           const delta = e.key === 'ArrowRight' ? 0.05 : -0.05
-          
-          const SLIDER_CFG = [
-            { min: 0.0, max: 2.0, set: setSaturation },
-            { min: 0.0, max: 1.0, set: setBloomThresh },
-            { min: 0.0, max: 2.0, set: setBloomAmt },
-            { min: 0.0, max: 2.0, set: setBloomRadius },
-            { min: 0.5, max: 2.0, set: setBrightness },
-            { min: 0.0, max: 1.0, set: setDownsample }
-          ]
+          const SLIDER_CFG = getSliders(effects, setEffects);
           const cfg = SLIDER_CFG[sliderIdx]
-          cfg.set((prev: number) => Math.max(cfg.min, Math.min(cfg.max, prev + delta)))
+          cfg.set(Math.max(cfg.min, Math.min(cfg.max, cfg.val + delta)))
       }
     }
   }
 
   const handlePointerInteraction = (e: any, isClick: boolean) => {
-    if (isClick && inputRef.current) {
-      inputRef.current.focus()
-    }
+    if (isClick && inputRef.current) inputRef.current.focus()
 
     const COLS = gridSizeRef.current.cols
     const ROWS = gridSizeRef.current.rows
@@ -652,14 +654,8 @@ export default function WebGLTerminalPage() {
     const ny = -((e.clientY - rect.top) / rect.height) * 2 + 1
     
     const mult = 1.15
-    const sceneX = nx * mult
-    const sceneY = ny * mult
-    
-    const gridNormX = (sceneX + 1) / 2
-    const gridNormY = (-sceneY + 1) / 2
-    
-    const gridX = Math.floor(gridNormX * COLS)
-    const gridY = Math.floor(gridNormY * ROWS)
+    const gridX = Math.floor(((nx * mult + 1) / 2) * COLS)
+    const gridY = Math.floor(((-ny * mult + 1) / 2) * ROWS)
 
     const prevHoverX = hoverRef.current.x
     const prevHoverY = hoverRef.current.y
@@ -668,94 +664,71 @@ export default function WebGLTerminalPage() {
         if (setRedrawFn.current) setRedrawFn.current()
     }
 
-    if (settingsOpen) {
+    if (uiState.settingsOpen) {
         const w = 60; const h = 19;
         const boxX = Math.floor((COLS - w) / 2);
         const boxY = Math.floor((ROWS - h) / 2);
         const col2ItmX = boxX + 33;
 
        if (activeSliderRef.current >= 0) {
-           const trackStart = col2ItmX + 9;
-           let fraction = (gridX - trackStart) / 8;
-           fraction = Math.max(0, Math.min(1, fraction));
-           
-           const SLIDER_CFG = [
-             { min: 0.0, max: 2.0, set: setSaturation },
-             { min: 0.0, max: 1.0, set: setBloomThresh },
-             { min: 0.0, max: 2.0, set: setBloomAmt },
-             { min: 0.0, max: 2.0, set: setBloomRadius },
-             { min: 0.5, max: 2.0, set: setBrightness },
-             { min: 0.0, max: 1.0, set: setDownsample }
-           ];
+           let fraction = Math.max(0, Math.min(1, (gridX - (col2ItmX + 9)) / 8));
+           const SLIDER_CFG = getSliders(effects, setEffects);
            const cfg = SLIDER_CFG[activeSliderRef.current];
            cfg.set(cfg.min + fraction * (cfg.max - cfg.min));
            return;
        }
        
        if (isClick && gridX >= boxX && gridX <= boxX + w && gridY >= boxY && gridY <= boxY + h) {
-            for (let i = 0; i < THEMES.length; i++) {
-                if (gridY === boxY + 3 + i && gridX >= boxX + 6 && gridX <= boxX + 26) {
-                    setThemeIdx(i); return;
-                }
-            }
-             for (let i = 0; i < FONTS.length; i++) {
-                 if (gridY === boxY + 12 + i && gridX >= boxX + 6 && gridX <= boxX + 26) {
-                     setFontIdx(i); return;
+             for (let i = 0; i < THEMES.length; i++) {
+                 if (gridY === boxY + 3 + i && gridX >= boxX + 6 && gridX <= boxX + 26) {
+                     setUiState(s => ({ ...s, themeIdx: i })); return;
                  }
              }
-           if (gridY >= boxY + 3 && gridY <= boxY + 8 && gridX >= col2ItmX && gridX <= col2ItmX + 24) {
-                const sliderIdx = gridY - (boxY + 3);
-                const SLIDER_CFG = [
-                  { min: 0.0, max: 2.0, set: setSaturation },
-                  { min: 0.0, max: 1.0, set: setBloomThresh },
-                  { min: 0.0, max: 2.0, set: setBloomAmt },
-                  { min: 0.0, max: 2.0, set: setBloomRadius },
-                  { min: 0.5, max: 2.0, set: setBrightness },
-                  { min: 0.0, max: 1.0, set: setDownsample }
-                ];
-                activeSliderRef.current = sliderIdx;
-                const trackStart = col2ItmX + 9;
-                let fraction = (gridX - trackStart) / 8;
-                fraction = Math.max(0, Math.min(1, fraction));
-                const cfg = SLIDER_CFG[sliderIdx];
-                cfg.set(cfg.min + fraction * (cfg.max - cfg.min));
-                return;
-            }
-             if (gridY === boxY + h - 3 && gridX >= boxX + 25 && gridX <= boxX + 33) {
-                 setSettingsOpen(false); return;
+             for (let i = 0; i < FONTS.length; i++) {
+                 if (gridY === boxY + 12 + i && gridX >= boxX + 6 && gridX <= boxX + 26) {
+                     setUiState(s => ({ ...s, fontIdx: i })); return;
+                 }
              }
-            if (gridY >= boxY + 12 && gridY <= boxY + 14 && gridX >= col2ItmX && gridX <= col2ItmX + 24) {
-                 if (gridY === boxY + 12) setAspectRatio('4:3');
-                 else if (gridY === boxY + 13) setAspectRatio('5:4');
-                 else if (gridY === boxY + 14) setAspectRatio('FLUID');
+             if (gridY >= boxY + 3 && gridY <= boxY + 8 && gridX >= col2ItmX && gridX <= col2ItmX + 24) {
+                 const sliderIdx = gridY - (boxY + 3);
+                 activeSliderRef.current = sliderIdx;
+                 let fraction = Math.max(0, Math.min(1, (gridX - (col2ItmX + 9)) / 8));
+                 const SLIDER_CFG = getSliders(effects, setEffects);
+                 const cfg = SLIDER_CFG[sliderIdx];
+                 cfg.set(cfg.min + fraction * (cfg.max - cfg.min));
                  return;
-            }
-           return; 
+             }
+             if (gridY === boxY + h - 3 && gridX >= boxX + 25 && gridX <= boxX + 33) {
+                 setUiState(s => ({ ...s, settingsOpen: false })); return;
+             }
+             if (gridY >= boxY + 12 && gridY <= boxY + 14 && gridX >= col2ItmX && gridX <= col2ItmX + 24) {
+                  const ratios = ['4:3', '5:4', 'FLUID'];
+                  setUiState(s => ({ ...s, aspectRatio: ratios[gridY - (boxY + 12)] }));
+                  return;
+             }
+            return; 
        }
     }
 
-    const topBarRight = '[ SETTINGS ]  [ ← BACK ]'
-    const startX = COLS - topBarRight.length - 2
+    const startX = COLS - ('[ SETTINGS ]  [ ← BACK ]'.length) - 2
     if (gridY === 1 && isClick) {
        if (gridX >= startX + 14 && gridX <= startX + 23) {
            window.location.href = '/'
            return
        }
        if (gridX >= startX && gridX <= startX + 11) {
-           setSettingsOpen(true)
+           setUiState(s => ({ ...s, settingsOpen: true }))
            return
        }
     }
 
     const leftW = Math.floor(COLS * 0.35)
-    if (isClick && !settingsOpen && gridX > 0 && gridX < leftW) {
+    if (isClick && !uiState.settingsOpen && gridX > 0 && gridX < leftW) {
       if (gridY >= 10 && gridY < 10 + PROJECTS.length) {
-        setSelectedIndex(gridY - 10)
+        setUiState(s => ({ ...s, selectedIndex: gridY - 10 }))
         if (inputRef.current) inputRef.current.focus()
       }
     }
-    
-    if (isClick && inputRef.current) inputRef.current.focus()
   }
 
   return (
@@ -764,9 +737,9 @@ export default function WebGLTerminalPage() {
         style={{ 
           width: '100%', 
           height: '100%', 
-          maxWidth: aspectRatio === '4:3' ? 'calc(100vh * 4/3)' : aspectRatio === '5:4' ? 'calc(100vh * 5/4)' : 'none',
-          maxHeight: aspectRatio === '4:3' ? 'calc(100vw * 3/4)' : aspectRatio === '5:4' ? 'calc(100vw * 4/5)' : 'none',
-          aspectRatio: aspectRatio === '4:3' ? '4/3' : aspectRatio === '5:4' ? '5/4' : 'auto'
+          maxWidth: uiState.aspectRatio === '4:3' ? 'calc(100vh * 4/3)' : uiState.aspectRatio === '5:4' ? 'calc(100vh * 5/4)' : 'none',
+          maxHeight: uiState.aspectRatio === '4:3' ? 'calc(100vw * 3/4)' : uiState.aspectRatio === '5:4' ? 'calc(100vw * 4/5)' : 'none',
+          aspectRatio: uiState.aspectRatio === '4:3' ? '4/3' : uiState.aspectRatio === '5:4' ? '5/4' : 'auto'
         }}
         className="relative cursor-none touch-none"
         onPointerDown={(e) => handlePointerInteraction(e, true)}
@@ -779,33 +752,22 @@ export default function WebGLTerminalPage() {
       >
         <Canvas camera={{ position: [0, 0, 7], fov: 60 }}>
           <CRTScreen 
-            selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}
-            themeIdx={themeIdx} setThemeIdx={setThemeIdx}
-            fontIdx={fontIdx} setFontIdx={setFontIdx}
-            settingsOpen={settingsOpen} setSettingsOpen={setSettingsOpen}
+            uiState={uiState} setUiState={setUiState}
+            effects={effects} setEffects={setEffects}
             textRef={textRef} cursorRef={cursorRef} setRedrawFn={setRedrawFn}
-            bloomAmt={bloomAmt} bloomRadius={bloomRadius} bloomThresh={bloomThresh} burnIn={burnIn}
-            brightness={brightness} setBrightness={setBrightness}
-            saturation={saturation} setSaturation={setSaturation}
-            curvature={curvature} setCurvature={setCurvature}
-            downsample={downsample} setDownsample={setDownsample}
-            grain={grain} setGrain={setGrain}
-            settingsCursorIdx={settingsCursorIdx} setSettingsCursorIdx={setSettingsCursorIdx}
-            gridSizeRef={gridSizeRef} aspectRatio={aspectRatio} setAspectRatio={setAspectRatio}
-            hoverRef={hoverRef}
+            gridSizeRef={gridSizeRef} hoverRef={hoverRef}
           />
         </Canvas>
 
       <input
         ref={inputRef}
         type="text"
+        className="absolute opacity-0 pointer-events-none"
         onChange={handleInput}
         onKeyDown={handleKeyDown}
         onKeyUp={syncCursor}
-        onClick={syncCursor}
-        className="absolute left-[-9999px] top-[-9999px] opacity-0"
+        onMouseUp={syncCursor}
         autoFocus
-        spellCheck={false}
       />
       </div>
     </div>
