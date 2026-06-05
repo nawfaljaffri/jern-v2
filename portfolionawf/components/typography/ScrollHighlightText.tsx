@@ -18,14 +18,9 @@ export default function ScrollHighlightText({ text, className }: ScrollHighlight
   useEffect(() => {
     if (!containerRef.current) return
 
-    const words = Array.from(containerRef.current.querySelectorAll('span.word'))
-
-    // Set initial state — very faded gray
-    gsap.set(words, { color: '#D4D4D4' })
-
-    gsap.to(words, {
-      color: '#0000FF', // Cobalt blue highlight
-      stagger: 0.1,
+    // Animate the background position
+    gsap.to(containerRef.current, {
+      backgroundPositionX: '100%',
       ease: 'none',
       scrollTrigger: {
         trigger: containerRef.current,
@@ -36,15 +31,20 @@ export default function ScrollHighlightText({ text, className }: ScrollHighlight
     })
   }, [])
 
-  const splitWords = text.split(' ').map((word, i) => (
-    <span key={i} className="word inline-block mr-[0.25em]">
-      {word}
-    </span>
-  ))
-
   return (
-    <p ref={containerRef} className={cn('flex flex-wrap', className)}>
-      {splitWords}
+    <p 
+      ref={containerRef} 
+      className={cn('inline-block !leading-snug', className)}
+      style={{
+        backgroundImage: 'linear-gradient(to right, black 50%, #D4D4D4 50%)',
+        backgroundSize: '200% 100%',
+        backgroundPositionX: '0%',
+        WebkitBackgroundClip: 'text',
+        backgroundClip: 'text',
+        color: 'transparent',
+      }}
+    >
+      {text}
     </p>
   )
 }
