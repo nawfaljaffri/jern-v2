@@ -37,6 +37,11 @@ const THEMES = [
   { name: 'PURPLE', fg: '#E080FF', bg: '#1A0A2A', dim: '#663388', bloom: 0.76, radius: 1.00, thresh: 0.30, burnIn: 0.80, bright: 1.30, satur: 0.66, crush: 0.70, grain: 0.10, curve: 0.20 }
 ]
 
+const SNAKE_COLORS = [
+  '#FF1A1A', '#FF6600', '#FFFF00', '#1AFF1A', '#00FFFF', 
+  '#3333FF', '#FF00FF'
+];
+
 extend({ ShaderPass, UnrealBloomPass, AfterimagePass })
 
 // ---- DATA ----
@@ -168,7 +173,7 @@ class TextBuffer {
   cols: number;
   rows: number;
   buffer: string[][];
-  colorBuffer: number[][];
+  colorBuffer: any[][];
 
   constructor(cols: number, rows: number) {
     this.cols = cols;
@@ -177,7 +182,7 @@ class TextBuffer {
     this.colorBuffer = Array.from({ length: rows }, () => Array(cols).fill(0));
   }
 
-  writeStr(x: number, y: number, str: string, color = 0) {
+  writeStr(x: number, y: number, str: string, color: any = 0) {
     x = Math.floor(x); y = Math.floor(y);
     if (y < 0 || y >= this.rows) return;
     for (let i = 0; i < str.length; i++) {
@@ -222,6 +227,8 @@ class TextBuffer {
               ctx.fillStyle = colorInvertedFg;
           } else if (currentColor === 1) { 
               ctx.fillStyle = colorDim;
+          } else if (typeof currentColor === 'string') {
+              ctx.fillStyle = currentColor;
           } else { 
               ctx.fillStyle = colorFg;
           }
@@ -289,7 +296,14 @@ function CRTScreen({
   const bloomRef = useRef<any>(null)
   const afterimageRef = useRef<any>(null)
   const cursorVisible = useRef(true)
-    const snakeState = useRef({ body: [{x: 10, y: 10}, {x: 9, y: 10}, {x: 8, y: 10}], dir: {x: 1, y: 0}, food: {x: 20, y: 15}, lastMove: 0 });
+    const snakeState = useRef({ 
+      body: [
+        {x: 10, y: 10, color: SNAKE_COLORS[Math.floor(Math.random() * SNAKE_COLORS.length)]}, 
+        {x: 9, y: 10, color: SNAKE_COLORS[Math.floor(Math.random() * SNAKE_COLORS.length)]}, 
+        {x: 8, y: 10, color: SNAKE_COLORS[Math.floor(Math.random() * SNAKE_COLORS.length)]}
+      ], 
+      dir: {x: 1, y: 0}, food: {x: 20, y: 15}, lastMove: 0 
+    });
 
   const activeTheme = THEMES[uiState.themeIdx]
   const activeFont = FONTS[uiState.fontIdx]
@@ -351,7 +365,7 @@ function CRTScreen({
         // Draw Snake
         const s = snakeState.current;
         s.body.forEach((segment: any) => {
-            buffer.writeStr(segment.x, segment.y, '█', 0);
+            buffer.writeStr(segment.x, segment.y, '█', segment.color);
         });
         buffer.writeStr(s.food.x, s.food.y, '●', 0);
 
@@ -582,7 +596,11 @@ function CRTScreen({
                 let nx = (head.x + s.dir.x + cols) % cols;
                 let ny = (head.y + s.dir.y + rows) % rows;
                 
-                s.body.unshift({x: nx, y: ny});
+                s.body.unshift({
+                    x: nx, 
+                    y: ny,
+                    color: SNAKE_COLORS[Math.floor(Math.random() * SNAKE_COLORS.length)]
+                });
                 
                 if (nx === s.food.x && ny === s.food.y) {
                     s.food = {
