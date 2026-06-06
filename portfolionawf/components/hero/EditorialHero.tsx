@@ -2,7 +2,6 @@
 
 import React, { useRef } from 'react'
 import Sticker from '@/components/ui/Sticker'
-import AsciiCanvas from '@/components/AsciiCanvas'
 
 export default function EditorialHero() {
   const heroRef = useRef<HTMLDivElement>(null)
@@ -19,13 +18,21 @@ export default function EditorialHero() {
         backgroundColor: '#1A1A1A',
       }}
     >
-      {/* ── Ink Bleed Filter ── */}
-      <svg style={{ width: 0, height: 0, position: 'absolute', pointerEvents: 'none' }}>
+      {/* ── Global SVG Filters ── */}
+      <svg width="0" height="0" style={{ position: 'absolute', pointerEvents: 'none' }}>
         <defs>
           <filter id="ink-bleed">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="0.8" result="blurred" />
-            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" result="noise" />
-            <feDisplacementMap in="blurred" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.6" result="blurred" />
+            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" result="noise" />
+            <feDisplacementMap in="blurred" in2="noise" scale="2.5" xChannelSelector="R" yChannelSelector="G" result="displaced" />
+            <feComponentTransfer in="displaced">
+              <feFuncA type="linear" slope="5" intercept="-1.5" />
+            </feComponentTransfer>
+          </filter>
+          <filter id="ink-bleed-sm">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.3" result="blurred" />
+            <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" result="noise" />
+            <feDisplacementMap in="blurred" in2="noise" scale="1.0" xChannelSelector="R" yChannelSelector="G" result="displaced" />
             <feComponentTransfer in="displaced">
               <feFuncA type="linear" slope="5" intercept="-1.5" />
             </feComponentTransfer>
@@ -33,51 +40,95 @@ export default function EditorialHero() {
         </defs>
       </svg>
 
-      {/* ── Left Side: Live WebGL ASCII Canvas ── */}
-        <div
-          style={{
-            width: '50%',
-            height: '100%',
-            backgroundColor: '#1A1A1A',
-            position: 'relative',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-end',
-            padding: '2rem',
-          }}
-        >
-          {/* Archived for now as requested:
-          <AsciiCanvas />
-          */}
-
-          {/* ── Scroll Indicator ── */}
-          <div 
-            className="flex flex-col gap-2 opacity-50 hover:opacity-100 transition-opacity animate-bounce"
-            style={{ 
-              color: 'white',
-              fontFamily: "'Helvetica Neue', 'Arial Narrow', sans-serif",
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              fontSize: '0.75rem',
-              fontWeight: 'bold',
-            }}
-          >
-            <span>Scroll to explore</span>
-            <svg 
-              width="24" 
-              height="24" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            >
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <polyline points="19 12 12 19 5 12"></polyline>
-            </svg>
+      {/* ── Left Side: Pure Editorial Spread ── */}
+      <div
+        style={{
+          width: '50%',
+          height: '100%',
+          color: '#FFFFFF',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between', 
+          padding: '4vw',
+          fontFamily: "'Helvetica Neue', 'Inter', 'Arial', sans-serif",
+        }}
+      >
+        {/* HEADER SECTION */}
+        <div>
+          <div style={{ fontSize: '1vw', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '1vw', marginBottom: '2vw' }}>
+            CONTENTS
+          </div>
+          
+          <div style={{ fontSize: '0.85vw', opacity: 0.5, marginBottom: '1vw', letterSpacing: '0.1em' }}>
+            [ PAGE 01 // OVERVIEW ]
+          </div>
+          
+          <div style={{ 
+            fontSize: '5vw', 
+            fontWeight: 800, 
+            lineHeight: 0.9, 
+            letterSpacing: '-0.03em', 
+            marginBottom: '1.5vw',
+            textAlign: 'justify',
+            textAlignLast: 'justify',
+            width: '100%'
+          }}>
+            NAWFAL JAFFRI
+          </div>
+          
+          <div style={{ 
+            fontSize: '1.3vw', 
+            lineHeight: 1.5, 
+            fontWeight: 400, 
+            opacity: 0.8,
+            textAlign: 'justify' 
+          }}>
+            Multidisciplinary Creative & Computer Scientist.<br/>
+            Currently blending algorithmic logic with editorial aesthetics.
           </div>
         </div>
+
+        {/* MIDDLE SECTION */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '3vw' }}>
+          <div>
+            <div style={{ fontSize: '0.85vw', opacity: 0.5, letterSpacing: '0.1em' }}>
+              [ SELECTED WORKS ]
+            </div>
+          </div>
+
+          <div>
+            <div style={{ fontSize: '0.85vw', opacity: 0.5, marginBottom: '1.5vw', letterSpacing: '0.1em' }}>
+              [ ARCHIVE ]
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1vw', fontSize: '1.2vw' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.5vw' }}>
+                <span style={{ fontWeight: 600 }}>04. ARTWORKS</span>
+                <span style={{ opacity: 0.6, fontSize: '1vw' }}>Poster Collection & Graphic Design.</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.5vw' }}>
+                <span style={{ fontWeight: 600 }}>05. CODING</span>
+                <span style={{ opacity: 0.6, fontSize: '1vw' }}>Lab & Experiments.</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div style={{ fontSize: '0.85vw', opacity: 0.5, letterSpacing: '0.1em' }}>
+              [ EXPERIENCE ]
+            </div>
+          </div>
+        </div>
+
+        {/* FOOTER SECTION */}
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: '1vw' }}>
+          <div style={{ fontSize: '0.85vw', opacity: 0.5, marginBottom: '0.5vw', letterSpacing: '0.1em' }}>
+            [ NAVIGATE ]
+          </div>
+          <div style={{ fontSize: '1vw', letterSpacing: '0.1em', fontWeight: 500, opacity: 0.8 }}>
+            SCROLL TO ACCESS ARCHIVE
+          </div>
+        </div>
+      </div>
 
       {/* ── Right Side: Navigation & Stretched Typography ("Inverted L") ── */}
       <div
@@ -86,9 +137,10 @@ export default function EditorialHero() {
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
+          position: 'relative',
         }}
       >
-        {/* Navigation Area - Transparent, showing #1A1A1A */}
+        {/* Navigation Area */}
         <div 
           style={{
             height: '60px',
@@ -97,7 +149,7 @@ export default function EditorialHero() {
             justifyContent: 'flex-end',
             paddingRight: '20px',
             position: 'relative',
-            zIndex: 100, // Ensure nav is clickable
+            zIndex: 100,
           }}
         >
           <nav
@@ -109,10 +161,11 @@ export default function EditorialHero() {
             <div 
               className="flex gap-4 md:gap-6 tracking-tighter font-bold"
               style={{
-                fontSize: '1.25rem', // Enlarged text
+                fontSize: '1.25rem',
+                textTransform: 'lowercase',
                 transform: 'scaleY(2.2) scaleX(0.9)',
                 transformOrigin: 'right center',
-                filter: 'url(#ink-bleed)',
+                filter: 'url(#ink-bleed)'
               }}
             >
               <a href="#" className="hover:opacity-60 transition-opacity">home</a>
@@ -137,12 +190,6 @@ export default function EditorialHero() {
             minHeight: 'calc(100vh - 60px)',
           }}
         >
-          {/* 
-            SOLUTION A (VECTOR PATH NUKE): 
-            Bypassing all OS-level font rendering and Safari WebKit text clipping bugs 
-            by using pure mathematical geometry. These paths exactly bound 0 to 590 (X) 
-            and 0 to 100 (Y). 
-          */}
           <svg 
             preserveAspectRatio="none"
             viewBox="7.47 38.48 462.06 71.58" 
@@ -162,12 +209,12 @@ export default function EditorialHero() {
             />
           </svg>
 
-          {/* Render the <Sticker /> components HERE. */}
+          {/* Render the <Sticker /> components over NAWFAL text */}
           <Sticker
             fillColor="#D94A4A" // Red
             rotation={-10}
-            top="30%"
-            left="10%"
+            top="40%"
+            left="30%"
             parentRef={heroRef}
           />
           <Sticker
@@ -180,8 +227,8 @@ export default function EditorialHero() {
           <Sticker
             fillColor="#4A76D2" // Blue
             rotation={-5}
-            top="80%"
-            left="40%"
+            top="70%"
+            left="20%"
             parentRef={heroRef}
           />
         </div>
@@ -189,9 +236,3 @@ export default function EditorialHero() {
     </div>
   )
 }
-
-
-
-
-
-

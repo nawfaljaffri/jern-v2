@@ -45,36 +45,164 @@ const SNAKE_COLORS = [
 extend({ ShaderPass, UnrealBloomPass, AfterimagePass })
 
 // ---- DATA ----
-const PROJECTS = [
+const DIRECTORY: any[] = [
   {
-    name: 'neural-net-arch',
-    date: '2024-03-15',
-    lang: 'Python / PyTorch',
-    status: 'ONLINE',
-    desc: 'Neural architecture search experiments.\nExplores evolutionary algorithms to\noptimize network topologies for low-power\nedge devices.'
+    name: 'HOME',
+    type: 'page',
+    content: [
+      'NAWFAL JAFFRI',
+      'Computer Scientist & Multidisciplinary Creative.',
+      '',
+      'Currently navigating the intersection of machine learning,',
+      'data, management, and branding. I build systems that',
+      'bridge the gap between algorithmic precision and',
+      'human-centric design.',
+      '',
+      'Status: Online',
+      'Primary Focus: Data Science & AI Engineering,',
+      'Brand Architecture, UI/UX Design.'
+    ]
   },
   {
-    name: 'noter-app',
-    date: '2024-01-20',
-    lang: 'TypeScript / React',
-    status: 'DEPRECATED',
-    desc: 'A minimal note-taking PWA.\nFeatures offline-first sync using IndexedDB\nand CRDTs for conflict resolution.'
+    name: 'EXPERIENCE',
+    type: 'page',
+    content: [
+      'IDENTITY',
+      'Muhammad Nawfal Aleem Jaffri',
+      'nawfaljafri@gmail.com | linkedin.com/in/nawfaljaffri | +971 50 4945990',
+      '',
+      'EDUCATION',
+      'University Of Birmingham: BSc. Artificial Intelligence and Computer Science (01/2025-06/2028)',
+      'Language Proficiency: IELTS 8.5/9 Band - C2 CEFR Level (06/2024)',
+      '',
+      'PROFESSIONAL EXPERIENCE',
+      'Susty (Dubai, UAE) | Application Content Developer (05/2025-Present)',
+      '- Developed over 70+ interactive sustainability experiences.',
+      '- Increased new users by 53% and engagement by 48%.',
+      '- Collaborated with 40+ local brands, partners, and universities.',
+      '',
+      'AIESEC in UAE (Abu Dhabi) | Marketing Local Vice President (05/2026-Present)',
+      '- Host workshops on Branding, Marketing, & Graphic Design.',
+      '- Led the state-level rebranding of the organization.',
+      '',
+      'University Of Birmingham Dubai | Founder & VP, Food and Health Society (09/2025-Present)',
+      '- Led first-of-its-kind campus event: 500+ tickets sold, 10,000+ AED earned.',
+      '- Managed marketing, finance, communications, design, and business development.',
+      '',
+      'University Of Birmingham Dubai | Lead Graphic Designer, Student Association (09/2025-Present)',
+      '- Managed social media marketing and designed posters for all university events.',
+      '',
+      'Alyx Society (Dubai, UAE) | Director of Event Management (10/2023-11/2024)',
+      '- Secured partnerships with GITEX, Unipreneur Inc, and AIESEC.',
+      '- Handled logistics, staffing, finance, branding, and social media strategies.',
+      '- Streamlined recruitment by screening 50+ applicants and conducting interviews.',
+      '',
+      'Alyx Society (Dubai, UAE) | Media and Marketing Co-Head (04/2023-10/2023)',
+      '- Drafted/presented event proposals with Indus Hospital for cancer patient fundraising.',
+      '- Led brand design & content creation, resulting in 121,000+ views (783% increase),',
+      '  450+ applications, and 40,000 AED in sponsorship funding.',
+      '',
+      'Unipreneur Inc. (Dubai, UAE) | Event Co-ordinator & Ambassador (10/2023-12/2024)',
+      '- Co-led management & Emcee hosted at Logimotion\'24 (DWTC).',
+      '- Youth speaker at AIIC (GETEX \'24) and MUN Roundtable Speaker (GITEX \'23).',
+      '',
+      'QuixMun (Dubai, UAE) | Head of Business Development (08/2023-06/2024)',
+      '- Developed brand USP, rules of procedure, and departmental setup.',
+      '- Secured 800+ applications (435% above cap) and raised 1,200 AED for charity.',
+      '',
+      'AWARDS, PARTICIPATION & VOLUNTEERING',
+      'Bread - Project Aizah: UI & UX Designer (Antler)',
+      'Nikon Green Film Festival Dubai: 1st Place',
+      'Google Developers Club UOBD: Lead Organizer',
+      'AsiesMun\'24: Best Head Chair and Committee (UNESCO)',
+      'AuschoolMun\'24: Best Delegate (UNEP)',
+      'WsdMun\'23: Best Speaker (DISEC)',
+      'Emirates Literature Foundation LitFest: Volunteer',
+      'Arab Unity School: Economics Student Teacher'
+    ]
   },
   {
-    name: 'portfolio-site',
-    date: '2024-06-01',
-    lang: 'Next.js / WebGL',
-    status: 'ACTIVE',
-    desc: 'This very website. Swiss Punk graphic\ndesign meets high-performance React\narchitecture.'
+    name: 'PROJECTS',
+    type: 'folder',
+    children: [
+      {
+        name: 'CODING',
+        type: 'folder',
+        children: [
+          {
+            name: 'neural-net-arch',
+            type: 'project',
+            date: '2024-03-15',
+            lang: 'Python / PyTorch',
+            status: 'ONLINE',
+            desc: 'Neural architecture search experiments.\nExplores evolutionary algorithms to\noptimize network topologies for low-power\nedge devices.'
+          },
+          {
+            name: 'noter-app',
+            type: 'project',
+            date: '2024-01-20',
+            lang: 'TypeScript / React',
+            status: 'DEPRECATED',
+            desc: 'A minimal note-taking PWA.\nFeatures offline-first sync using IndexedDB\nand CRDTs for conflict resolution.'
+          },
+          {
+            name: 'portfolio-site',
+            type: 'project',
+            date: '2024-06-01',
+            lang: 'Next.js / WebGL',
+            status: 'ACTIVE',
+            desc: 'This very website. Swiss Punk graphic\ndesign meets high-performance React\narchitecture.'
+          },
+          {
+            name: 'game-engine',
+            type: 'project',
+            date: '2024-04-10',
+            lang: 'C++ / OpenGL',
+            status: 'ARCHIVED',
+            desc: 'Custom 2D game engine built from scratch.\nImplements an Entity Component System (ECS)\nand custom physics solvers.'
+          }
+        ]
+      },
+      {
+        name: 'ARTWORKS',
+        type: 'folder',
+        children: [
+          {
+            name: 'poster-series-1',
+            type: 'project',
+            date: '2024-05-12',
+            lang: 'Illustrator / PS',
+            status: 'PUBLISHED',
+            desc: 'A series of brutalist posters exploring\nthe dichotomy of brutalism and digital noise.\nExhibited at Dubai Design Week.'
+          },
+          {
+            name: '3d-renders-v2',
+            type: 'project',
+            date: '2023-11-05',
+            lang: 'Blender / Cycles',
+            status: 'ARCHIVED',
+            desc: 'Explorations in procedural materials and\nvolumetric lighting using Blender Cycles engine.'
+          }
+        ]
+      }
+    ]
   },
   {
-    name: 'game-engine',
-    date: '2024-04-10',
-    lang: 'C++ / OpenGL',
-    status: 'ARCHIVED',
-    desc: 'Custom 2D game engine built from scratch.\nImplements an Entity Component System (ECS)\nand custom physics solvers.'
-  },
-]
+    name: 'ABOUT',
+    type: 'page',
+    content: [
+      'I am a 1st-year AI and Computer Science student at the',
+      'University of Birmingham Dubai. My work is defined by',
+      'a hybrid methodology: the logical rigor of artificial',
+      'intelligence and the emotional resonance of graphic design.',
+      '',
+      'Whether I am leading a team as a Vice President at AIESEC,',
+      'leading the google developers group at Uni of Birmingham',
+      'Dubai, or Teaching people, I am driven by the same goal:',
+      'turning abstract data into meaningful human experiences.'
+    ]
+  }
+];
 
 // ---- POST-PROCESSING CRT SHADER ----
 const CRTShader = {
@@ -406,14 +534,14 @@ function CRTScreen({
         return '|'.repeat(fill).padEnd(width, ' ')
     }
     
-    writeUI(2, 2, `CPU [${getBar(12, 29)}`, 0)
-    writeUI(36, 2, `] 12%  ${sysInfo.cores} Cores`, 3)
+    writeUI(2, 2, `CPU [${getBar(12, 15)}`, 0)
+    writeUI(22, 2, `] 12%  ${sysInfo.cores} Cores`, 3)
 
-    writeUI(2, 3, `MEM [${getBar(32, 29)}`, 0)
-    writeUI(36, 3, `] 32%  ${sysInfo.mem} GB`, 3)
+    writeUI(2, 3, `MEM [${getBar(32, 15)}`, 0)
+    writeUI(22, 3, `] 32%  ${sysInfo.mem} GB`, 3)
 
-    writeUI(2, 4, `SWP [${getBar(8, 29)}`, 0)
-    writeUI(36, 4, `] 08%  OS: ${sysInfo.os}`, 3)
+    writeUI(2, 4, `SWP [${getBar(8, 15)}`, 0)
+    writeUI(22, 4, `] 08%  OS: ${sysInfo.os}`, 3)
     writeUI(2, 6, `Uptime: 14:22:10   Threads: 142   Procs: 84`, 1)
 
     const soundText = uiState.soundOn ? '[ SOUND: ON ]' : '[ SOUND: MUTED ]'
@@ -429,34 +557,79 @@ function CRTScreen({
     writeUI(startX + 14, 1, soundText, isHoverSound ? 2 : 0)
     writeUI(startX + 14 + soundText.length + 2, 1, '[ ← BACK ]', isHoverBack ? 2 : 0)
 
-    const leftW = Math.floor(COLS * 0.35)
-    drawBoxUI(0, 8, leftW, 18, 'PROJECTS')
-    
-    PROJECTS.forEach((proj, idx) => {
-      const y = 10 + idx
-      const isSelected = idx === uiState.selectedIndex
-      const padding = uiState.settingsOpen ? 1 : leftW - proj.name.length - 4
-      const str = ` ${proj.name}` + ' '.repeat(Math.max(0, padding))
-      const isHovered = !uiState.settingsOpen && hy === y && hx >= 1 && hx < 1 + str.length
-      writeUI(1, y, str, isSelected || isHovered ? 2 : 0)
-    })
+    const colW = 20;
+    let currentX = 0;
+    let currentLevelData: any = DIRECTORY;
+    let activeNode: any = null;
 
-    drawBoxUI(leftW, 8, COLS - leftW, 18, 'PROJECT DETAILS')
-    const activeProj = PROJECTS[uiState.selectedIndex]
-    
-    writeUI(leftW + 2, 10, `PROJECT: ${activeProj.name.toUpperCase()}`, 0)
-    writeUI(leftW + 2, 11, '─'.repeat(COLS - leftW - 4), 1)
+    for (let depth = 0; depth <= uiState.navPath.length; depth++) {
+        if (!currentLevelData || !Array.isArray(currentLevelData)) break;
+        
+        const colTitle = depth === 0 ? 'SYSTEM' : (activeNode ? activeNode.name : 'DIR');
+        drawBoxUI(currentX, 8, colW, 18, colTitle);
+        
+        const selIdx = depth < uiState.navPath.length ? uiState.navPath[depth] : -1;
+        const isFocusedCol = (depth === uiState.focusDepth) && !uiState.settingsOpen;
+        
+        currentLevelData.forEach((item: any, idx: number) => {
+            const y = 10 + idx;
+            const isSelected = idx === selIdx;
+            const prefix = item.type === 'folder' ? '+' : ' ';
+            const textContent = `${prefix}${item.name}`;
+            const padding = colW - textContent.length - 3;
+            const str = ` ${textContent}` + ' '.repeat(Math.max(0, padding));
+            
+            const isHovered = !uiState.settingsOpen && hy === y && hx >= currentX + 1 && hx < currentX + colW - 1;
+            // Highlight strong if selected in focused column OR hovered. Semi-highlight if selected but not focused.
+            let color = 0;
+            if (isHovered) color = 2;
+            else if (isSelected && isFocusedCol) color = 2;
+            else if (isSelected) color = 1;
 
-    writeUI(leftW + 2, 13, `Status:  ${activeProj.status}`, 0)
-    writeUI(leftW + 2, 14, `Stack:   ${activeProj.lang}`, 0)
-    writeUI(leftW + 2, 15, `Date:    ${activeProj.date}`, 0)
-    
-    writeUI(leftW + 2, 17, '─'.repeat(COLS - leftW - 4), 1)
+            writeUI(currentX + 1, y, str, color);
+        });
 
-    const descLines = activeProj.desc.split('\n')
-    descLines.forEach((line: string, i: number) => {
-        writeUI(leftW + 2, 19 + i, line, 1)
-    })
+        if (selIdx >= 0 && selIdx < currentLevelData.length) {
+            activeNode = currentLevelData[selIdx];
+            if (activeNode && activeNode.children) {
+                currentLevelData = activeNode.children;
+            } else {
+                currentLevelData = null;
+            }
+        } else {
+            currentLevelData = null;
+        }
+        
+        currentX += colW;
+    }
+
+    const previewW = COLS - currentX;
+    if (previewW > 10) {
+        drawBoxUI(currentX, 8, previewW, 18, 'PREVIEW');
+        if (activeNode) {
+            writeUI(currentX + 2, 10, `:: ${activeNode.name} ::`, 0);
+            writeUI(currentX + 2, 11, '─'.repeat(previewW - 4), 1);
+            
+            if (activeNode.type === 'page' && activeNode.content) {
+                activeNode.content.forEach((line: string, i: number) => {
+                    writeUI(currentX + 2, 13 + i, line.substring(0, previewW - 4), 1);
+                });
+            } else if (activeNode.type === 'project') {
+                writeUI(currentX + 2, 13, `Status:  ${activeNode.status}`, 0);
+                writeUI(currentX + 2, 14, `Stack:   ${activeNode.lang}`, 0);
+                writeUI(currentX + 2, 15, `Date:    ${activeNode.date}`, 0);
+                writeUI(currentX + 2, 17, '─'.repeat(previewW - 4), 1);
+                const descLines = activeNode.desc.split('\n');
+                descLines.forEach((line: string, i: number) => {
+                    writeUI(currentX + 2, 19 + i, line.substring(0, previewW - 4), 1);
+                });
+            } else if (activeNode.type === 'folder') {
+                 writeUI(currentX + 2, 13, `[ DIRECTORY: ${activeNode.name} ]`, 1);
+                 writeUI(currentX + 2, 15, `Use ArrowRight to expand`, 1);
+                 writeUI(currentX + 2, 16, `Use ArrowLeft to collapse`, 1);
+            }
+        }
+    }
 
     drawBoxUI(0, 26, COLS, 4, 'TERMINAL')
     const prefix = '$ '
@@ -657,7 +830,8 @@ function CRTScreen({
 
 export default function WebGLTerminalPage() {
   const [uiState, setUiState] = useState({
-    selectedIndex: 0,
+    navPath: [0],
+    focusDepth: 0,
     themeIdx: 0,
     fontIdx: 0,
     settingsOpen: false,
@@ -748,14 +922,26 @@ if (!uiState.isBooted) {
       if (uiState.settingsOpen) {
           setUiState(s => ({ ...s, settingsCursorIdx: Math.max(0, s.settingsCursorIdx - 1) }))
       } else {
-          setUiState(s => ({ ...s, selectedIndex: Math.max(0, s.selectedIndex - 1) }))
+          setUiState(s => {
+              const newPath = [...s.navPath];
+              newPath[s.focusDepth] = Math.max(0, newPath[s.focusDepth] - 1);
+              return { ...s, navPath: newPath }
+          })
       }
     } else if (e.key === 'ArrowDown') {
       e.preventDefault()
       if (uiState.settingsOpen) {
           setUiState(s => ({ ...s, settingsCursorIdx: Math.min(18, s.settingsCursorIdx + 1) }))
       } else {
-          setUiState(s => ({ ...s, selectedIndex: Math.min(PROJECTS.length - 1, s.selectedIndex + 1) }))
+          setUiState(s => {
+              let currentLevel = DIRECTORY;
+              for (let i = 0; i < s.focusDepth; i++) {
+                  currentLevel = currentLevel[s.navPath[i]]?.children || [];
+              }
+              const newPath = [...s.navPath];
+              newPath[s.focusDepth] = Math.min(currentLevel.length - 1, newPath[s.focusDepth] + 1);
+              return { ...s, navPath: newPath }
+          })
       }
     } else if (e.key === 'Escape') {
       setUiState(s => ({ ...s, settingsOpen: false }))
@@ -773,6 +959,19 @@ if (!uiState.isBooted) {
               playModalClose();
               setUiState(s => ({ ...s, settingsOpen: false }))
           }
+      } else {
+          // You could map 'Enter' to ArrowRight behavior when a folder is selected
+          setUiState(s => {
+              let currentLevel = DIRECTORY;
+              for (let i = 0; i < s.focusDepth; i++) {
+                  currentLevel = currentLevel[s.navPath[i]]?.children || [];
+              }
+              const activeNode = currentLevel[s.navPath[s.focusDepth]];
+              if (activeNode && activeNode.type === 'folder' && activeNode.children) {
+                  return { ...s, focusDepth: s.focusDepth + 1, navPath: [...s.navPath.slice(0, s.focusDepth + 1), 0] }
+              }
+              return s;
+          })
       }
     } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
       if (uiState.settingsOpen && uiState.settingsCursorIdx >= 9 && uiState.settingsCursorIdx < 15) {
@@ -782,6 +981,28 @@ if (!uiState.isBooted) {
           const SLIDER_CFG = getSliders(effects, setEffects);
           const cfg = SLIDER_CFG[sliderIdx]
           cfg.set(Math.max(cfg.min, Math.min(cfg.max, cfg.val + delta)))
+      } else if (!uiState.settingsOpen) {
+          e.preventDefault();
+          if (e.key === 'ArrowLeft') {
+              setUiState(s => {
+                  if (s.focusDepth > 0) {
+                      return { ...s, focusDepth: s.focusDepth - 1, navPath: s.navPath.slice(0, s.focusDepth) }
+                  }
+                  return s;
+              });
+          } else {
+              setUiState(s => {
+                  let currentLevel = DIRECTORY;
+                  for (let i = 0; i < s.focusDepth; i++) {
+                      currentLevel = currentLevel[s.navPath[i]]?.children || [];
+                  }
+                  const activeNode = currentLevel[s.navPath[s.focusDepth]];
+                  if (activeNode && activeNode.type === 'folder' && activeNode.children) {
+                      return { ...s, focusDepth: s.focusDepth + 1, navPath: [...s.navPath.slice(0, s.focusDepth + 1), 0] }
+                  }
+                  return s;
+              });
+          }
       }
     }
   }
@@ -892,13 +1113,30 @@ if (!uiState.isBooted) {
        }
     }
 
-    const leftW = Math.floor(COLS * 0.35)
-    if (isClick && !uiState.settingsOpen && gridX > 0 && gridX < leftW) {
-      if (gridY >= 10 && gridY < 10 + PROJECTS.length) {
-        playTick();
-        setUiState(s => ({ ...s, selectedIndex: gridY - 10 }))
-        if (inputRef.current) inputRef.current.focus()
-      }
+    const colW = 20;
+    if (isClick && !uiState.settingsOpen) {
+        if (gridY >= 10 && gridY < 28) {
+            for (let depth = 0; depth <= uiState.navPath.length; depth++) {
+                const startX = depth * colW;
+                if (gridX > startX && gridX < startX + colW) {
+                    let currentLevel = DIRECTORY;
+                    for (let i = 0; i < depth; i++) {
+                        currentLevel = currentLevel[uiState.navPath[i]]?.children;
+                    }
+                    if (currentLevel) {
+                        const idx = gridY - 10;
+                        if (idx >= 0 && idx < currentLevel.length) {
+                            playTick();
+                            setUiState(s => {
+                                const newPath = [...s.navPath.slice(0, depth), idx];
+                                return { ...s, focusDepth: depth, navPath: newPath }
+                            })
+                            if (inputRef.current) inputRef.current.focus()
+                        }
+                    }
+                }
+            }
+        }
     }
   }
 
