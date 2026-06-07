@@ -469,7 +469,7 @@ function CRTScreen({
         return;
     }
 
-    drawBoxUI(0, 0, COLS, 8, 'IDENTITY')
+    drawBoxUI(0, 0, COLS, 8, '')
     const timeStr = new Date().toLocaleTimeString('en-US', { hour12: false })
     writeUI(COLS / 2 - 4, 0, `┤${timeStr}├`, 0)
     
@@ -716,7 +716,7 @@ function CRTScreen({
     // Draw ASCII Logo bypass
     if (uiState.isBooted && !uiState.showBootPrompt) {
         ctx.save();
-        ctx.font = `12px ${activeFont.css}`;
+        ctx.font = `15px ${activeFont.css}`;
         ctx.textBaseline = 'top';
         ctx.fillStyle = activeTheme.fg;
         const asciiArt = [
@@ -727,14 +727,17 @@ function CRTScreen({
             "| |\\  || | | |\\  /\\  /| |    | | | || |____",
             "\\_| \\_/\\_| |_/ \\/  \\/ \\_|    \\_| |_/\\_____/"
         ];
+        
+        const offsetY = Math.max(0, Math.floor((gridSizeRef.current.rows - 30) / 2));
         const logoX = 2 * charW;
-        const logoY = 1.5 * charH;
+        const logoY = (1 + offsetY) * charH + 2;
+        
         asciiArt.forEach((line, idx) => {
-            ctx.fillText(line, logoX, logoY + (idx * 14));
+            ctx.fillText(line, logoX, logoY + (idx * 16));
         });
         
         ctx.fillStyle = activeTheme.dim;
-        ctx.fillText("                  [ CREATIVE / ENGINEER ]", logoX, logoY + (6 * 14) + 4);
+        ctx.fillText("                  [ CREATIVE / ENGINEER ]", logoX, logoY + (6 * 16) + 4);
         ctx.restore();
     }
 
