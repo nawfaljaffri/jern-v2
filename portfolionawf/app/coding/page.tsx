@@ -47,20 +47,35 @@ extend({ ShaderPass, UnrealBloomPass, AfterimagePass })
 // ---- DATA ----
 const DIRECTORY: any[] = [
   {
-    name: 'HOME',
-    type: 'page',
-    content: [
-      'NAWFAL JAFFRI',
-      'Computer Scientist & Multidisciplinary Creative.',
-      '',
-      'Currently navigating the intersection of machine learning,',
-      'data, management, and branding. I build systems that',
-      'bridge the gap between algorithmic precision and',
-      'human-centric design.',
-      '',
-      'Status: Online',
-      'Primary Focus: Data Science & AI Engineering,',
-      'Brand Architecture, UI/UX Design.'
+    name: 'PROJECTS',
+    type: 'folder',
+    children: [
+      {
+        name: 'neural-net-arch',
+        type: 'project',
+        date: '2024-03-15',
+        lang: 'Python / PyTorch',
+        status: 'ONLINE',
+        desc: 'Neural architecture search experiments.\nExplores evolutionary algorithms to\noptimize network topologies for low-power\nedge devices.',
+        links: '[GitHub] [Live Demo]'
+      },
+      {
+        name: 'spatial-os-web',
+        type: 'project',
+        date: '2024-02-28',
+        lang: 'TypeScript / WebGL',
+        status: 'ONLINE',
+        desc: 'Browser-based operating system interface relying solely on canvas rendering.\nBuilt with custom shaders and immediate mode GUI concepts.',
+        links: '[GitHub]'
+      },
+      {
+        name: 'poster-series-1',
+        type: 'project',
+        date: '2024-05-12',
+        lang: 'Illustrator / PS',
+        status: 'PUBLISHED',
+        desc: 'A series of brutalist posters exploring\nthe dichotomy of brutalism and digital noise.\nExhibited at Dubai Design Week.'
+      }
     ]
   },
   {
@@ -69,122 +84,17 @@ const DIRECTORY: any[] = [
     content: [
       'IDENTITY',
       'Muhammad Nawfal Aleem Jaffri',
-      'nawfaljafri@gmail.com | linkedin.com/in/nawfaljaffri | +971 50 4945990',
+      'nawfaljaffri@gmail.com | linkedin.com/in/nawfaljaffri | +971 50 4945990',
       '',
       'EDUCATION',
-      'University Of Birmingham: BSc. Artificial Intelligence and Computer Science (01/2025-06/2028)',
+      'University Of Birmingham: BSc. Artificial Intelligence and Computer Science (01/20',
       'Language Proficiency: IELTS 8.5/9 Band - C2 CEFR Level (06/2024)',
       '',
       'PROFESSIONAL EXPERIENCE',
       'Susty (Dubai, UAE) | Application Content Developer (05/2025-Present)',
       '- Developed over 70+ interactive sustainability experiences.',
       '- Increased new users by 53% and engagement by 48%.',
-      '- Collaborated with 40+ local brands, partners, and universities.',
-      '',
-      'AIESEC in UAE (Abu Dhabi) | Marketing Local Vice President (05/2026-Present)',
-      '- Host workshops on Branding, Marketing, & Graphic Design.',
-      '- Led the state-level rebranding of the organization.',
-      '',
-      'University Of Birmingham Dubai | Founder & VP, Food and Health Society (09/2025-Present)',
-      '- Led first-of-its-kind campus event: 500+ tickets sold, 10,000+ AED earned.',
-      '- Managed marketing, finance, communications, design, and business development.',
-      '',
-      'University Of Birmingham Dubai | Lead Graphic Designer, Student Association (09/2025-Present)',
-      '- Managed social media marketing and designed posters for all university events.',
-      '',
-      'Alyx Society (Dubai, UAE) | Director of Event Management (10/2023-11/2024)',
-      '- Secured partnerships with GITEX, Unipreneur Inc, and AIESEC.',
-      '- Handled logistics, staffing, finance, branding, and social media strategies.',
-      '- Streamlined recruitment by screening 50+ applicants and conducting interviews.',
-      '',
-      'Alyx Society (Dubai, UAE) | Media and Marketing Co-Head (04/2023-10/2023)',
-      '- Drafted/presented event proposals with Indus Hospital for cancer patient fundraising.',
-      '- Led brand design & content creation, resulting in 121,000+ views (783% increase),',
-      '  450+ applications, and 40,000 AED in sponsorship funding.',
-      '',
-      'Unipreneur Inc. (Dubai, UAE) | Event Co-ordinator & Ambassador (10/2023-12/2024)',
-      '- Co-led management & Emcee hosted at Logimotion\'24 (DWTC).',
-      '- Youth speaker at AIIC (GETEX \'24) and MUN Roundtable Speaker (GITEX \'23).',
-      '',
-      'QuixMun (Dubai, UAE) | Head of Business Development (08/2023-06/2024)',
-      '- Developed brand USP, rules of procedure, and departmental setup.',
-      '- Secured 800+ applications (435% above cap) and raised 1,200 AED for charity.',
-      '',
-      'AWARDS, PARTICIPATION & VOLUNTEERING',
-      'Bread - Project Aizah: UI & UX Designer (Antler)',
-      'Nikon Green Film Festival Dubai: 1st Place',
-      'Google Developers Club UOBD: Lead Organizer',
-      'AsiesMun\'24: Best Head Chair and Committee (UNESCO)',
-      'AuschoolMun\'24: Best Delegate (UNEP)',
-      'WsdMun\'23: Best Speaker (DISEC)',
-      'Emirates Literature Foundation LitFest: Volunteer',
-      'Arab Unity School: Economics Student Teacher'
-    ]
-  },
-  {
-    name: 'PROJECTS',
-    type: 'folder',
-    children: [
-      {
-        name: 'CODING',
-        type: 'folder',
-        children: [
-          {
-            name: 'neural-net-arch',
-            type: 'project',
-            date: '2024-03-15',
-            lang: 'Python / PyTorch',
-            status: 'ONLINE',
-            desc: 'Neural architecture search experiments.\nExplores evolutionary algorithms to\noptimize network topologies for low-power\nedge devices.'
-          },
-          {
-            name: 'noter-app',
-            type: 'project',
-            date: '2024-01-20',
-            lang: 'TypeScript / React',
-            status: 'DEPRECATED',
-            desc: 'A minimal note-taking PWA.\nFeatures offline-first sync using IndexedDB\nand CRDTs for conflict resolution.'
-          },
-          {
-            name: 'portfolio-site',
-            type: 'project',
-            date: '2024-06-01',
-            lang: 'Next.js / WebGL',
-            status: 'ACTIVE',
-            desc: 'This very website. Swiss Punk graphic\ndesign meets high-performance React\narchitecture.'
-          },
-          {
-            name: 'game-engine',
-            type: 'project',
-            date: '2024-04-10',
-            lang: 'C++ / OpenGL',
-            status: 'ARCHIVED',
-            desc: 'Custom 2D game engine built from scratch.\nImplements an Entity Component System (ECS)\nand custom physics solvers.'
-          }
-        ]
-      },
-      {
-        name: 'ARTWORKS',
-        type: 'folder',
-        children: [
-          {
-            name: 'poster-series-1',
-            type: 'project',
-            date: '2024-05-12',
-            lang: 'Illustrator / PS',
-            status: 'PUBLISHED',
-            desc: 'A series of brutalist posters exploring\nthe dichotomy of brutalism and digital noise.\nExhibited at Dubai Design Week.'
-          },
-          {
-            name: '3d-renders-v2',
-            type: 'project',
-            date: '2023-11-05',
-            lang: 'Blender / Cycles',
-            status: 'ARCHIVED',
-            desc: 'Explorations in procedural materials and\nvolumetric lighting using Blender Cycles engine.'
-          }
-        ]
-      }
+      '- Collaborated with 40+ local brands, partners, and universities.'
     ]
   },
   {
@@ -558,75 +468,119 @@ function CRTScreen({
     writeUI(startX + 14 + soundText.length + 2, 1, '[ ← BACK ]', isHoverBack ? 2 : 0)
 
     const colW = 20;
-    let currentX = 0;
-    let currentLevelData: any = DIRECTORY;
-    let activeNode: any = null;
-
-    for (let depth = 0; depth <= uiState.navPath.length; depth++) {
-        if (!currentLevelData || !Array.isArray(currentLevelData)) break;
+    
+    drawBoxUI(0, 8, colW, 18, 'CONTENTS');
+    
+    DIRECTORY.forEach((item, idx) => {
+        const y = 10 + idx;
+        const isSelected = uiState.navPath[0] === idx;
+        const isHovered = !uiState.settingsOpen && hy === y && hx >= 1 && hx < colW - 1;
         
-        const colTitle = depth === 0 ? 'SYSTEM' : (activeNode ? activeNode.name : 'DIR');
-        drawBoxUI(currentX, 8, colW, 18, colTitle);
+        let prefix = '';
+        if (item.type === 'folder' && !isSelected) prefix = '+';
         
-        const selIdx = depth < uiState.navPath.length ? uiState.navPath[depth] : -1;
-        const isFocusedCol = (depth === uiState.focusDepth) && !uiState.settingsOpen;
+        const textContent = `${prefix}${item.name}`;
+        const str = ` ${textContent}`.padEnd(colW - 1, ' ');
         
-        currentLevelData.forEach((item: any, idx: number) => {
-            const y = 10 + idx;
-            const isSelected = idx === selIdx;
-            const prefix = item.type === 'folder' ? '+' : ' ';
-            const textContent = `${prefix}${item.name}`;
-            const padding = colW - textContent.length - 3;
-            const str = ` ${textContent}` + ' '.repeat(Math.max(0, padding));
-            
-            const isHovered = !uiState.settingsOpen && hy === y && hx >= currentX + 1 && hx < currentX + colW - 1;
-            // Highlight strong if selected in focused column OR hovered. Semi-highlight if selected but not focused.
-            let color = 0;
-            if (isHovered) color = 2;
-            else if (isSelected && isFocusedCol) color = 2;
-            else if (isSelected) color = 1;
+        let color = 0;
+        if (isSelected) color = 2;
+        else if (isHovered) color = 1;
 
-            writeUI(currentX + 1, y, str, color);
-        });
+        writeUI(1, y, str, color);
+    });
 
-        if (selIdx >= 0 && selIdx < currentLevelData.length) {
-            activeNode = currentLevelData[selIdx];
-            if (activeNode && activeNode.children) {
-                currentLevelData = activeNode.children;
+    const previewW = COLS - colW;
+    drawBoxUI(colW, 8, previewW, 18, 'PREVIEW');
+    
+    const wrapText = (text: string, maxLen: number) => {
+        const lines: string[] = [];
+        const words = text.split(' ');
+        let currentLine = '';
+        words.forEach(word => {
+            if ((currentLine + word).length > maxLen) {
+                if (currentLine) lines.push(currentLine.trim());
+                currentLine = word + ' ';
             } else {
-                currentLevelData = null;
+                currentLine += word + ' ';
             }
-        } else {
-            currentLevelData = null;
-        }
-        
-        currentX += colW;
-    }
+        });
+        if (currentLine) lines.push(currentLine.trim());
+        return lines;
+    };
 
-    const previewW = COLS - currentX;
-    if (previewW > 10) {
-        drawBoxUI(currentX, 8, previewW, 18, 'PREVIEW');
-        if (activeNode) {
-            writeUI(currentX + 2, 10, `:: ${activeNode.name} ::`, 0);
-            writeUI(currentX + 2, 11, '─'.repeat(previewW - 4), 1);
+    const rootNode = uiState.navPath.length > 0 ? DIRECTORY[uiState.navPath[0]] : null;
+    if (rootNode) {
+        if (rootNode.type === 'folder') {
+            const listW = 24;
+            const detailX = colW + listW;
+            const detailW = previewW - listW;
+
+            writeUI(colW + 2, 10, `:: ${rootNode.name} ::`, 0);
+            writeUI(colW + 2, 11, '─'.repeat(listW - 4), 1);
             
-            if (activeNode.type === 'page' && activeNode.content) {
-                activeNode.content.forEach((line: string, i: number) => {
-                    writeUI(currentX + 2, 13 + i, line.substring(0, previewW - 4), 1);
+            if (rootNode.children) {
+                rootNode.children.forEach((child: any, idx: number) => {
+                    const y = 12 + idx; // Reduced gap
+                    const isSelected = uiState.navPath.length === 2 && uiState.navPath[1] === idx;
+                    const isHovered = !uiState.settingsOpen && hy === y && hx >= colW + 2 && hx < colW + listW - 2;
+                    const prefix = isSelected ? '[>]' : '[ ]';
+                    let color = 0;
+                    if (isSelected) color = 2;
+                    else if (isHovered) color = 1;
+                    writeUI(colW + 2, y, `${prefix} ${child.name}`, color);
                 });
-            } else if (activeNode.type === 'project') {
-                writeUI(currentX + 2, 13, `Status:  ${activeNode.status}`, 0);
-                writeUI(currentX + 2, 14, `Stack:   ${activeNode.lang}`, 0);
-                writeUI(currentX + 2, 15, `Date:    ${activeNode.date}`, 0);
-                writeUI(currentX + 2, 17, '─'.repeat(previewW - 4), 1);
-                const descLines = activeNode.desc.split('\n');
-                descLines.forEach((line: string, i: number) => {
-                    writeUI(currentX + 2, 19 + i, line.substring(0, previewW - 4), 1);
+            }
+
+            if (uiState.navPath.length === 2 && rootNode.children) {
+                const projectNode = rootNode.children[uiState.navPath[1]];
+                if (projectNode) {
+                    writeUI(detailX + 2, 10, `:: ${projectNode.name} ::`, 0);
+                    writeUI(detailX + 2, 11, '─'.repeat(detailW - 4), 1);
+                    
+                    const boxH = 7; // Reduced box height to give text more vertical room
+                    const bx = detailX + 2;
+                    const by = 12; // Start immediately after divider
+                    const bw = detailW - 4;
+                    // Draw patterned box
+                    for (let i = 0; i < bw; i++) {
+                        writeUI(bx + i, by, '░', 1);
+                        writeUI(bx + i, by + boxH - 1, '░', 1);
+                    }
+                    for (let j = 0; j < boxH; j++) {
+                        writeUI(bx, by + j, '░', 1);
+                        writeUI(bx + bw - 1, by + j, '░', 1);
+                    }
+                    
+                    const renderZoneStr = '[ VISUAL ASSET RENDER ZONE ]';
+                    writeUI(bx + Math.floor((bw - renderZoneStr.length) / 2), by + Math.floor(boxH / 2), renderZoneStr, 1);
+
+                    writeUI(detailX + 2, 12 + boxH, '─'.repeat(detailW - 4), 1);
+                    
+                    // Wrap the description text
+                    let currentY = 12 + boxH + 1;
+                    const rawDescLines = projectNode.desc.split('\n');
+                    rawDescLines.forEach((rawLine: string) => {
+                        const wrapped = wrapText(rawLine, detailW - 4);
+                        wrapped.forEach(wLine => {
+                            writeUI(detailX + 2, currentY++, wLine, 0);
+                        });
+                    });
+                    
+                    // Add Stack and Links
+                    writeUI(detailX + 2, currentY, `Stack: ${projectNode.lang}  |  Links: ${projectNode.links || ''}`, 0);
+                }
+            }
+        } else if (rootNode.type === 'page') {
+            writeUI(colW + 2, 10, `:: ${rootNode.name} ::`, 0);
+            writeUI(colW + 2, 11, '─'.repeat(previewW - 4), 1);
+            if (rootNode.content) {
+                let currentY = 12; // Start immediately after divider
+                rootNode.content.forEach((rawLine: string) => {
+                    const wrapped = wrapText(rawLine, previewW - 4);
+                    wrapped.forEach(wLine => {
+                        writeUI(colW + 2, currentY++, wLine, 0);
+                    });
                 });
-            } else if (activeNode.type === 'folder') {
-                 writeUI(currentX + 2, 13, `[ DIRECTORY: ${activeNode.name} ]`, 1);
-                 writeUI(currentX + 2, 15, `Use ArrowRight to expand`, 1);
-                 writeUI(currentX + 2, 16, `Use ArrowLeft to collapse`, 1);
             }
         }
     }
@@ -830,7 +784,7 @@ function CRTScreen({
 
 export default function WebGLTerminalPage() {
   const [uiState, setUiState] = useState({
-    navPath: [0],
+    navPath: [0, 0],
     focusDepth: 0,
     themeIdx: 0,
     fontIdx: 0,
