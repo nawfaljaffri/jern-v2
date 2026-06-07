@@ -82,19 +82,53 @@ const DIRECTORY: any[] = [
     name: 'EXPERIENCE',
     type: 'page',
     content: [
-      'IDENTITY',
-      'Muhammad Nawfal Aleem Jaffri',
-      'nawfaljaffri@gmail.com | linkedin.com/in/nawfaljaffri | +971 50 4945990',
-      '',
-      'EDUCATION',
-      'University Of Birmingham: BSc. Artificial Intelligence and Computer Science (01/20',
-      'Language Proficiency: IELTS 8.5/9 Band - C2 CEFR Level (06/2024)',
-      '',
-      'PROFESSIONAL EXPERIENCE',
-      'Susty (Dubai, UAE) | Application Content Developer (05/2025-Present)',
-      '- Developed over 70+ interactive sustainability experiences.',
-      '- Increased new users by 53% and engagement by 48%.',
-      '- Collaborated with 40+ local brands, partners, and universities.'
+      "EDUCATION",
+      "University Of Birmingham: BSc. Artificial Intelligence and Computer Science (01/2025-06/2028)",
+      "Language Proficiency: IELTS 8.5/9 Band - C2 CEFR Level (06/2024)",
+      "",
+      "PROFESSIONAL EXPERIENCE",
+      "Susty (Dubai, UAE) | Application Content Developer (05/2025-Present)",
+      "- Developed over 70+ interactive sustainability experiences.",
+      "- Increased new users by 53% and engagement by 48%.",
+      "- Collaborated with 40+ local brands, partners, and universities.",
+      "",
+      "AIESEC in UAE (Abu Dhabi) | Marketing Local Vice President (05/2026-Present)",
+      "- Host workshops on Branding, Marketing, & Graphic Design.",
+      "- Led the state-level rebranding of the organization.",
+      "",
+      "University Of Birmingham Dubai | Founder & VP, Food and Health Society (09/2025-Present)",
+      "- Led first-of-its-kind campus event: 500+ tickets sold, 10,000+ AED earned.",
+      "- Managed marketing, finance, communications, design, and business development.",
+      "",
+      "University Of Birmingham Dubai | Lead Graphic Designer, Student Association (09/2025-Present)",
+      "- Managed social media marketing and designed posters for all university events.",
+      "",
+      "Alyx Society (Dubai, UAE) | Director of Event Management (10/2023-11/2024)",
+      "- Secured partnerships with GITEX, Unipreneur Inc, and AIESEC.",
+      "- Handled logistics, staffing, finance, branding, and social media strategies.",
+      "- Streamlined recruitment by screening 50+ applicants and conducting interviews.",
+      "",
+      "Alyx Society (Dubai, UAE) | Media and Marketing Co-Head (04/2023-10/2023)",
+      "- Drafted/presented event proposals with Indus Hospital for cancer patient fundraising.",
+      "- Led brand design & content creation, resulting in 121,000+ views (783% increase), 450+ applications, and 40,000 AED in sponsorship funding.",
+      "",
+      "Unipreneur Inc. (Dubai, UAE) | Event Co-ordinator & Ambassador (10/2023-12/2024)",
+      "- Co-led management & Emcee hosted at Logimotion'24 (DWTC).",
+      "- Youth speaker at AIIC (GETEX '24) and MUN Roundtable Speaker (GITEX '23).",
+      "",
+      "QuixMun (Dubai, UAE) | Head of Business Development (08/2023-06/2024)",
+      "- Developed brand USP, rules of procedure, and departmental setup.",
+      "- Secured 800+ applications (435% above cap) and raised 1,200 AED for charity.",
+      "",
+      "AWARDS, PARTICIPATION & VOLUNTEERING",
+      "Bread - Project Aizah: UI & UX Designer (Antler)",
+      "Nikon Green Film Festival Dubai: 1st Place",
+      "Google Developers Club UOBD: Lead Organizer",
+      "AsiesMun'24: Best Head Chair and Committee (UNESCO)",
+      "AuschoolMun'24: Best Delegate (UNEP)",
+      "WsdMun'23: Best Speaker (DISEC)",
+      "Emirates Literature Foundation LitFest: Volunteer",
+      "Arab Unity School: Economics Student Teacher"
     ]
   },
   {
@@ -435,24 +469,14 @@ function CRTScreen({
         return;
     }
 
-    drawBoxUI(0, 0, COLS, 8, 'cpu & mem')
+    drawBoxUI(0, 0, COLS, 8, 'CONTACT')
     const timeStr = new Date().toLocaleTimeString('en-US', { hour12: false })
     writeUI(COLS / 2 - 4, 0, `┤${timeStr}├`, 0)
     
-    const getBar = (pct: number, width: number) => {
-        const fill = Math.round((pct / 100) * width)
-        return '|'.repeat(fill).padEnd(width, ' ')
-    }
-    
-    writeUI(2, 2, `CPU [${getBar(12, 15)}`, 0)
-    writeUI(22, 2, `] 12%  ${sysInfo.cores} Cores`, 3)
-
-    writeUI(2, 3, `MEM [${getBar(32, 15)}`, 0)
-    writeUI(22, 3, `] 32%  ${sysInfo.mem} GB`, 3)
-
-    writeUI(2, 4, `SWP [${getBar(8, 15)}`, 0)
-    writeUI(22, 4, `] 08%  OS: ${sysInfo.os}`, 3)
-    writeUI(2, 6, `Uptime: 14:22:10   Threads: 142   Procs: 84`, 1)
+    writeUI(2, 2, `nawfaljaffri@gmail.com`, 0)
+    writeUI(2, 3, `+971 50 4945990`, 0)
+    writeUI(2, 4, `linkedin.com/in/nawfaljaffri`, 0)
+    writeUI(2, 6, `Location: Dubai, UAE`, 1)
 
     const soundText = uiState.soundOn ? '[ SOUND: ON ]' : '[ SOUND: MUTED ]'
     const topBarRight = `[ SETTINGS ]  ${soundText}  [ ← BACK ]`
@@ -557,30 +581,60 @@ function CRTScreen({
                     writeUI(detailX + 2, 12 + boxH, '─'.repeat(detailW - 4), 1);
                     
                     // Wrap the description text
-                    let currentY = 12 + boxH + 1;
+                    const allLines: string[] = [];
                     const rawDescLines = projectNode.desc.split('\n');
                     rawDescLines.forEach((rawLine: string) => {
-                        const wrapped = wrapText(rawLine, detailW - 4);
-                        wrapped.forEach(wLine => {
-                            writeUI(detailX + 2, currentY++, wLine, 0);
-                        });
+                        const wrapped = wrapText(rawLine, detailW - 8);
+                        allLines.push(...wrapped);
                     });
+                    const stackWrapped = wrapText(`Stack: ${projectNode.lang}  |  Links: ${projectNode.links || ''}`, detailW - 8);
+                    allLines.push(...stackWrapped);
+
+                    const maxVisible = 26 - (12 + boxH + 1);
+                    const maxScroll = Math.max(0, allLines.length - maxVisible);
+                    const scroll = Math.floor(Math.min(uiState.scrollOffset, maxScroll));
+                    const currentY = 12 + boxH + 1;
                     
-                    // Add Stack and Links
-                    writeUI(detailX + 2, currentY, `Stack: ${projectNode.lang}  |  Links: ${projectNode.links || ''}`, 0);
+                    for (let i = 0; i < maxVisible && i + scroll < allLines.length; i++) {
+                        writeUI(detailX + 2, currentY + i, allLines[i + scroll], 0);
+                    }
+                    if (maxScroll > 0) {
+                        const sbH = maxVisible;
+                        const sbThumbH = Math.max(1, Math.floor(sbH * (maxVisible / allLines.length)));
+                        const sbThumbY = Math.floor((sbH - sbThumbH) * (scroll / maxScroll));
+                        for (let i = 0; i < sbH; i++) {
+                            const isThumb = i >= sbThumbY && i < sbThumbY + sbThumbH;
+                            writeUI(COLS - 2, currentY + i, isThumb ? '█' : '│', 1);
+                        }
+                    }
                 }
             }
         } else if (rootNode.type === 'page') {
-            writeUI(colW + 2, 10, `:: ${rootNode.name} ::`, 0);
+            const isPageFocused = uiState.focusDepth === 1;
+            writeUI(colW + 2, 10, `${isPageFocused ? '[>]' : '::'} ${rootNode.name} ${isPageFocused ? '' : '::'}`, isPageFocused ? 2 : 0);
             writeUI(colW + 2, 11, '─'.repeat(previewW - 4), 1);
             if (rootNode.content) {
-                let currentY = 12; // Start immediately after divider
+                const allLines: string[] = [];
                 rootNode.content.forEach((rawLine: string) => {
-                    const wrapped = wrapText(rawLine, previewW - 4);
-                    wrapped.forEach(wLine => {
-                        writeUI(colW + 2, currentY++, wLine, 0);
-                    });
+                    const wrapped = wrapText(rawLine, previewW - 8);
+                    allLines.push(...wrapped);
                 });
+                const maxVisible = 13;
+                const maxScroll = Math.max(0, allLines.length - maxVisible);
+                const scroll = Math.floor(Math.min(uiState.scrollOffset, maxScroll));
+                for (let i = 0; i < maxVisible && i + scroll < allLines.length; i++) {
+                    writeUI(colW + 2, 12 + i, allLines[i + scroll], 0);
+                }
+                if (maxScroll > 0) {
+                    const sbH = maxVisible;
+                    const sbThumbH = Math.max(1, Math.floor(sbH * (maxVisible / allLines.length)));
+                    const sbThumbY = Math.floor((sbH - sbThumbH) * (scroll / maxScroll));
+                    for (let i = 0; i < sbH; i++) {
+                        const isThumb = i >= sbThumbY && i < sbThumbY + sbThumbH;
+                        writeUI(COLS - 2, 12 + i, isThumb ? '█' : '│', 1);
+                    }
+                }
+
             }
         }
     }
@@ -784,6 +838,7 @@ function CRTScreen({
 
 export default function WebGLTerminalPage() {
   const [uiState, setUiState] = useState({
+    scrollOffset: 0,
     navPath: [0, 0],
     focusDepth: 0,
     themeIdx: 0,
@@ -877,9 +932,17 @@ if (!uiState.isBooted) {
           setUiState(s => ({ ...s, settingsCursorIdx: Math.max(0, s.settingsCursorIdx - 1) }))
       } else {
           setUiState(s => {
+              let currentLevel = DIRECTORY;
+              for (let i = 0; i < s.focusDepth; i++) {
+                  currentLevel = currentLevel[s.navPath[i]]?.children || [];
+              }
+              const activeNode = s.focusDepth > 0 ? DIRECTORY[s.navPath[0]] : null;
+              if (s.focusDepth === 1 && activeNode && activeNode.type === 'page') {
+                  return { ...s, scrollOffset: Math.max(0, s.scrollOffset - 1) };
+              }
               const newPath = [...s.navPath];
               newPath[s.focusDepth] = Math.max(0, newPath[s.focusDepth] - 1);
-              return { ...s, navPath: newPath }
+              return { ...s, navPath: newPath, scrollOffset: 0 }
           })
       }
     } else if (e.key === 'ArrowDown') {
@@ -892,9 +955,13 @@ if (!uiState.isBooted) {
               for (let i = 0; i < s.focusDepth; i++) {
                   currentLevel = currentLevel[s.navPath[i]]?.children || [];
               }
+              const activeNode = s.focusDepth > 0 ? DIRECTORY[s.navPath[0]] : null;
+              if (s.focusDepth === 1 && activeNode && activeNode.type === 'page') {
+                  return { ...s, scrollOffset: s.scrollOffset + 1 };
+              }
               const newPath = [...s.navPath];
               newPath[s.focusDepth] = Math.min(currentLevel.length - 1, newPath[s.focusDepth] + 1);
-              return { ...s, navPath: newPath }
+              return { ...s, navPath: newPath, scrollOffset: 0 }
           })
       }
     } else if (e.key === 'Escape') {
@@ -940,7 +1007,7 @@ if (!uiState.isBooted) {
           if (e.key === 'ArrowLeft') {
               setUiState(s => {
                   if (s.focusDepth > 0) {
-                      return { ...s, focusDepth: s.focusDepth - 1, navPath: s.navPath.slice(0, s.focusDepth) }
+                      return { ...s, focusDepth: s.focusDepth - 1, navPath: s.navPath.slice(0, s.focusDepth), scrollOffset: 0 }
                   }
                   return s;
               });
@@ -951,8 +1018,12 @@ if (!uiState.isBooted) {
                       currentLevel = currentLevel[s.navPath[i]]?.children || [];
                   }
                   const activeNode = currentLevel[s.navPath[s.focusDepth]];
-                  if (activeNode && activeNode.type === 'folder' && activeNode.children) {
-                      return { ...s, focusDepth: s.focusDepth + 1, navPath: [...s.navPath.slice(0, s.focusDepth + 1), 0] }
+                  if (activeNode) {
+                      if (activeNode.type === 'folder' && activeNode.children) {
+                          return { ...s, focusDepth: s.focusDepth + 1, navPath: [...s.navPath.slice(0, s.focusDepth + 1), 0] }
+                      } else if (activeNode.type === 'page') {
+                          return { ...s, focusDepth: s.focusDepth + 1 }
+                      }
                   }
                   return s;
               });
@@ -1071,19 +1142,23 @@ if (!uiState.isBooted) {
     if (isClick && !uiState.settingsOpen) {
         if (gridY >= 10 && gridY < 28) {
             for (let depth = 0; depth <= uiState.navPath.length; depth++) {
-                const startX = depth * colW;
-                if (gridX > startX && gridX < startX + colW) {
-                    let currentLevel = DIRECTORY;
+                const isProjectsList = depth === 1;
+                const startX = isProjectsList ? colW + 2 : 1;
+                const hitW = isProjectsList ? 24 : colW - 1;
+                
+                if (gridX >= startX && gridX < startX + hitW) {
+                    let currentLevel: any = DIRECTORY;
                     for (let i = 0; i < depth; i++) {
-                        currentLevel = currentLevel[uiState.navPath[i]]?.children;
+                        currentLevel = currentLevel?.[uiState.navPath[i]]?.children;
                     }
                     if (currentLevel) {
-                        const idx = gridY - 10;
+                        const startY = isProjectsList ? 12 : 10;
+                        const idx = gridY - startY;
                         if (idx >= 0 && idx < currentLevel.length) {
                             playTick();
                             setUiState(s => {
                                 const newPath = [...s.navPath.slice(0, depth), idx];
-                                return { ...s, focusDepth: depth, navPath: newPath }
+                                return { ...s, focusDepth: Math.max(s.focusDepth, depth), navPath: newPath, scrollOffset: 0 }
                             })
                             if (inputRef.current) inputRef.current.focus()
                         }
@@ -1105,6 +1180,11 @@ if (!uiState.isBooted) {
           aspectRatio: uiState.aspectRatio === '4:3' ? '4/3' : uiState.aspectRatio === '5:4' ? '5/4' : 'auto'
         }}
         className="relative cursor-none touch-none"
+        onWheel={(e) => {
+          if (!uiState.settingsOpen) {
+            setUiState(s => ({ ...s, scrollOffset: Math.max(0, s.scrollOffset + (e.deltaY > 0 ? 0.3 : -0.3)) }));
+          }
+        }}
         onPointerDown={(e) => handlePointerInteraction(e, true)}
         onPointerMove={(e) => handlePointerInteraction(e, false)}
         onPointerUp={() => { 

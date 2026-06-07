@@ -1,0 +1,55 @@
+    const soundText = uiState.soundOn ? '[ SOUND: ON ]' : '[ SOUND: MUTED ]'
+    const topBarRightStr = `[ SETTINGS ]  ${soundText}  [ ← BACK ]`
+    const startXTop = COLS - topBarRightStr.length - 2
+    if (gridY === 6 && isClick) {
+       if (gridX >= startXTop + 14 + soundText.length + 2 && gridX < startXTop + 14 + soundText.length + 2 + 10) {
+           window.location.href = '/'
+           return
+       }
+       if (gridX >= startXTop + 14 && gridX < startXTop + 14 + soundText.length) {
+           playTick();
+           initAudio();
+           startHum();
+           toggleMute();
+           setUiState(s => ({ ...s, soundOn: !isMuted }));
+           return;
+       }
+       if (gridX >= startXTop && gridX <= startXTop + 11) {
+           playModalOpen();
+           setUiState(s => ({ ...s, settingsOpen: true }))
+           return
+       }
+    }
+
+    const navW = 25;
+    if (isClick && !uiState.settingsOpen) {
+        if (gridY >= 9 && gridY < 26) {
+            if (gridX > 0 && gridX < navW) {
+                const idx = gridY - 9;
+                if (idx >= 0 && idx < DIRECTORY.length) {
+                    playTick();
+                    setUiState(s => ({ ...s, selectedNavIdx: idx, focusColumn: 1, selectedProjectIdx: 0, viewingProjectDetail: false, scrollOffset: 0 }))
+                }
+            } else if (gridX >= navW && gridX < COLS) {
+                const node = DIRECTORY[uiState.selectedNavIdx];
+                if (node && node.type === 'folder' && !uiState.viewingProjectDetail) {
+                    const lineDist = 2;
+                    const idx = Math.floor((gridY - 12 + uiState.scrollOffset) / lineDist);
+                    if (idx >= 0 && idx < node.children.length && (gridY - 12 + uiState.scrollOffset) % lineDist === 0) {
+                        playTick();
+                        setUiState(s => ({ ...s, selectedProjectIdx: idx, focusColumn: 2, viewingProjectDetail: true, scrollOffset: 0 }))
+                    } else {
+                        setUiState(s => ({ ...s, focusColumn: 2 }))
+                    }
+                } else if (node && node.type === 'folder' && uiState.viewingProjectDetail) {
+                    const pStartX = navW + 2;
+                    if (gridY === 9 && gridX >= pStartX && gridX <= pStartX + 9) {
+                        playTick();
+                        setUiState(s => ({ ...s, viewingProjectDetail: false, scrollOffset: 0 }))
+                    }
+                }
+            }
+        }
+    }
+  }
+

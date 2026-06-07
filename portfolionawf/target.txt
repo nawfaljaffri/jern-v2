@@ -1,0 +1,108 @@
+    writeUI(COLS - 30, 1, `OS: ${sysInfo.os}`, 3);
+    writeUI(COLS - 30, 2, `MEM: ${sysInfo.mem} GB`, 3);
+    writeUI(COLS - 30, 3, `CORES: ${sysInfo.cores}`, 3);
+    const timeStr = new Date().toLocaleTimeString('en-US', { hour12: false });
+    writeUI(COLS - 30, 4, `SYS TIME: ${timeStr}`, 3);
+
+    const soundText = uiState.soundOn ? '[ SOUND: ON ]' : '[ SOUND: MUTED ]'
+    const topBarRight = `[ SETTINGS ]  ${soundText}  [ ← BACK ]`
+    const startXTop = COLS - topBarRight.length - 2
+    const hx = hoverRef.current.x
+    const hy = hoverRef.current.y
+    const isHoverSettings = hy === 6 && hx >= startXTop && hx <= startXTop + 11
+    const isHoverSound = hy === 6 && hx >= startXTop + 14 && hx < startXTop + 14 + soundText.length
+    const isHoverBack = hy === 6 && hx >= startXTop + 14 + soundText.length + 2 && hx < startXTop + 14 + soundText.length + 2 + 10
+    
+    writeUI(startXTop, 6, '[ SETTINGS ]', isHoverSettings ? 2 : 0)
+    writeUI(startXTop + 14, 6, soundText, isHoverSound ? 2 : 0)
+    writeUI(startXTop + 14 + soundText.length + 2, 6, '[ ← BACK ]', isHoverBack ? 2 : 0)
+
+    const navW = 25;
+    drawBoxUI(0, 7, navW, 19, 'DIRECTORY');
+    
+    DIRECTORY.forEach((item, i) => {
+        const isHovered = !uiState.settingsOpen && hy === 9 + i && hx > 0 && hx < navW;
+        const isSelected = uiState.selectedNavIdx === i;
+        let color = 0;
+        if (isHovered) color = 2;
+        else if (isSelected && uiState.focusColumn === 1) color = 2;
+        else if (isSelected) color = 1;
+        writeUI(2, 9 + i, `[${isSelected ? '*' : ' '}] ${item.name}`, color);
+    });
+
+    const previewW = COLS - navW;
+    drawBoxUI(navW, 7, previewW, 19, 'PREVIEW');
+    
+    const node = DIRECTORY[uiState.selectedNavIdx];
+    const pStartX = navW + 2;
+    const pWidth = previewW - 6; 
+    
+    const drawScrollbar = (x, y, h, contentLines, offset, viewLines) => {
+        for(let i=0; i<h; i++) writeUI(x, y+i, '│', 1);
+        if (contentLines <= viewLines) {
+            writeUI(x, y, '█', 0);
+        } else {
+            const thumbH = Math.max(1, Math.floor((viewLines / contentLines) * h));
+            const maxOffset = contentLines - viewLines;
+            const clampedOffset = Math.max(0, Math.min(maxOffset, offset));
+            const thumbY = Math.floor((clampedOffset / maxOffset) * (h - thumbH));
+            for(let i=0; i<thumbH; i++) writeUI(x, y + thumbY + i, '█', 0);
+        }
+    };
+
+    if (node) {
+        if (node.type === 'page') {
+            writeUI(pStartX, 9, `:: ${node.name.replace(/[0-9.]/g, '').trim()} ::`, 0);
+            writeUI(pStartX, 10, '─'.repeat(pWidth), 1);
+            if (node.content) {
+                node.content.forEach((line, i) => {
+                    const y = 12 + i - uiState.scrollOffset;
+                    if (y >= 12 && y <= 24) {
+                        writeUI(pStartX, y, line.substring(0, pWidth), 1);
+                    }
+                });
+                drawScrollbar(COLS - 2, 8, 17, node.content.length, uiState.scrollOffset, 13);
+            }
+        } else if (node.type === 'folder') {
+            if (!uiState.viewingProjectDetail) {
+                writeUI(pStartX, 9, `:: ${node.name.replace(/[0-9.]/g, '').trim()} PROJECTS ::`, 0);
+                writeUI(pStartX, 10, '─'.repeat(pWidth), 1);
+                if (node.children) {
+                    node.children.forEach((proj, i) => {
+                        const lineDist = 2;
+                        const y = 12 + i * lineDist - uiState.scrollOffset;
+                        if (y >= 12 && y <= 24) {
+                            const isHovered = !uiState.settingsOpen && hy === y && hx >= pStartX && hx < COLS - 3;
+                            const isSelected = uiState.selectedProjectIdx === i;
+                            let color = 0;
+                            if (isHovered) color = 2;
+                            else if (isSelected && uiState.focusColumn === 2) color = 2;
+                            else if (isSelected) color = 1;
+                            writeUI(pStartX, y, `[${isSelected ? '>' : ' '}] ${proj.name}`, color);
+                            if (y + 1 <= 24) writeUI(pStartX + 4, y + 1, `${proj.lang} | ${proj.status}`, 1);
+                        }
+                    });
+                    drawScrollbar(COLS - 2, 8, 17, node.children.length * 2, uiState.scrollOffset, 13);
+                }
+            } else {
+                const proj = node.children[uiState.selectedProjectIdx];
+                const isHoverBackProj = hy === 9 && hx >= pStartX && hx <= pStartX + 9;
+                writeUI(pStartX, 9, '[ ← BACK ]', isHoverBackProj ? 2 : 1); 
+                writeUI(pStartX + 11, 9, `:: ${proj.name} ::`, 0);
+                writeUI(pStartX, 10, '─'.repeat(pWidth), 1);
+                
+                const assetH = 10;
+                for(let r=0; r<assetH; r++) {
+                    if (r === 0 || r === assetH-1) writeUI(pStartX, 11 + r, '░'.repeat(pWidth), 3);
+                    else writeUI(pStartX, 11 + r, '░' + ' '.repeat(pWidth-2) + '░', 3);
+                }
+                writeUI(pStartX + Math.floor(pWidth/2) - 13, 11 + Math.floor(assetH/2), "[ VISUAL ASSET RENDER ZONE ]", 1);
+                
+                writeUI(pStartX, 22, '─'.repeat(pWidth), 1);
+                if (proj.desc) writeUI(pStartX, 23, `${proj.desc.replace(/
+/g, ' ').substring(0, pWidth)}`, 0);
+                writeUI(pStartX, 24, `Stack: ${proj.lang}    |    Links: ${proj.links || '[GitHub]'}`, 0);
+            }
+        }
+    }
+
