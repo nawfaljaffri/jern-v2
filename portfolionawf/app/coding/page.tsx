@@ -469,14 +469,15 @@ function CRTScreen({
         return;
     }
 
-    drawBoxUI(0, 0, COLS, 8, 'CONTACT')
+    drawBoxUI(0, 0, COLS, 8, 'IDENTITY')
     const timeStr = new Date().toLocaleTimeString('en-US', { hour12: false })
     writeUI(COLS / 2 - 4, 0, `┤${timeStr}├`, 0)
     
-    writeUI(2, 2, `nawfaljaffri@gmail.com`, 0)
-    writeUI(2, 3, `+971 50 4945990`, 0)
-    writeUI(2, 4, `linkedin.com/in/nawfaljaffri`, 0)
-    writeUI(2, 6, `Location: Dubai, UAE`, 1)
+    const contactX = COLS - 30;
+    writeUI(contactX, 3, `nawfaljaffri@gmail.com`, 0)
+    writeUI(contactX, 4, `+971 50 4945990`, 0)
+    writeUI(contactX, 5, `linkedin.com/in/nawfaljaffri`, 0)
+    writeUI(contactX, 6, `Location: Dubai, UAE`, 1)
 
     const soundText = uiState.soundOn ? '[ SOUND: ON ]' : '[ SOUND: MUTED ]'
     const topBarRight = `[ SETTINGS ]  ${soundText}  [ ← BACK ]`
@@ -711,6 +712,32 @@ function CRTScreen({
     }
 
     buffer.renderToCanvas(ctx, charW, charH, activeFont, activeTheme);
+
+    // Draw ASCII Logo bypass
+    if (uiState.isBooted && !uiState.showBootPrompt) {
+        ctx.save();
+        ctx.font = `12px ${activeFont.css}`;
+        ctx.textBaseline = 'top';
+        ctx.fillStyle = activeTheme.fg;
+        const asciiArt = [
+            " _   _   ___   _    _  _____   ___   _     ",
+            "| \\ | | / _ \\ | |  | ||  ___| / _ \\ | |    ",
+            "|  \\| |/ /_\\ \\| |  | || |_   / /_\\ \\| |    ",
+            "| . ` ||  _  || |/\\| ||  _|  |  _  || |    ",
+            "| |\\  || | | |\\  /\\  /| |    | | | || |____",
+            "\\_| \\_/\\_| |_/ \\/  \\/ \\_|    \\_| |_/\\_____/"
+        ];
+        const logoX = 2 * charW;
+        const logoY = 1.5 * charH;
+        asciiArt.forEach((line, idx) => {
+            ctx.fillText(line, logoX, logoY + (idx * 14));
+        });
+        
+        ctx.fillStyle = activeTheme.dim;
+        ctx.fillText("                  [ CREATIVE / ENGINEER ]", logoX, logoY + (6 * 14) + 4);
+        ctx.restore();
+    }
+
     textureRef.current.needsUpdate = true
   }
 
