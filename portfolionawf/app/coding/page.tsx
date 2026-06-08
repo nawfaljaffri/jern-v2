@@ -474,23 +474,25 @@ function CRTScreen({
     writeUI(COLS / 2 - 4, 0, `┤${timeStr}├`, 0)
     
     const contactX = COLS - 30;
-    writeUI(contactX, 3, `nawfaljaffri@gmail.com`, 0)
+    const isHoverEmail = hoverRef.current.y === 3 && hoverRef.current.x >= contactX && hoverRef.current.x < contactX + 22;
+    const isHoverLinkedIn = hoverRef.current.y === 5 && hoverRef.current.x >= contactX && hoverRef.current.x < contactX + 28;
+    writeUI(contactX, 3, `nawfaljaffri@gmail.com`, isHoverEmail ? 2 : 0)
     writeUI(contactX, 4, `+971 50 4945990`, 0)
-    writeUI(contactX, 5, `linkedin.com/in/nawfaljaffri`, 0)
+    writeUI(contactX, 5, `linkedin.com/in/nawfaljaffri`, isHoverLinkedIn ? 2 : 0)
     writeUI(contactX, 6, `Location: Dubai, UAE`, 1)
 
     const soundText = uiState.soundOn ? '[ SOUND: ON ]' : '[ SOUND: MUTED ]'
-    const topBarRight = `[ SETTINGS ]  ${soundText}  [ ← BACK ]`
+    const topBarRight = `[ SETTINGS ]  ${soundText}`
     const startX = COLS - topBarRight.length - 2
     const hx = hoverRef.current.x
     const hy = hoverRef.current.y
     const isHoverSettings = hy === 1 && hx >= startX && hx <= startX + 11
     const isHoverSound = hy === 1 && hx >= startX + 14 && hx < startX + 14 + soundText.length
-    const isHoverBack = hy === 1 && hx >= startX + 14 + soundText.length + 2 && hx < startX + 14 + soundText.length + 2 + 10
+    const isHoverBack = hy === 1 && hx >= 2 && hx < 13
     
     writeUI(startX, 1, '[ SETTINGS ]', isHoverSettings ? 2 : 0)
     writeUI(startX + 14, 1, soundText, isHoverSound ? 2 : 0)
-    writeUI(startX + 14 + soundText.length + 2, 1, '[ ← BACK ]', isHoverBack ? 2 : 0)
+    writeUI(2, 1, '[ <- BACK ]', isHoverBack ? 2 : 0)
 
     const colW = 20;
     
@@ -711,33 +713,58 @@ function CRTScreen({
        writeUI(boxX + 25, boxY + h - 3, '[ CLOSE ]', isCloseHighlighted ? 2 : 0);
     }
 
+    // Render grid to canvas
     buffer.renderToCanvas(ctx, charW, charH, activeFont, activeTheme);
 
-    // Draw ASCII Logo bypass
-    if (uiState.isBooted && !uiState.showBootPrompt) {
+    // Draw ASCII Logo natively to prevent grid fragmentation
+    if (uiState.isBooted) {
         ctx.save();
-        ctx.font = `15px ${activeFont.css}`;
         ctx.textBaseline = 'top';
         ctx.fillStyle = activeTheme.fg;
+        
         const asciiArt = [
-            " _   _   ___   _    _  _____   ___   _     ",
-            "| \\ | | / _ \\ | |  | ||  ___| / _ \\ | |    ",
-            "|  \\| |/ /_\\ \\| |  | || |_   / /_\\ \\| |    ",
-            "| . ` ||  _  || |/\\| ||  _|  |  _  || |    ",
-            "| |\\  || | | |\\  /\\  /| |    | | | || |____",
-            "\\_| \\_/\\_| |_/ \\/  \\/ \\_|    \\_| |_/\\_____/"
+            "  _  _   ___      _____ _   _    ",
+            " | \\| | /_\\ \\    / / __/_\\ | |   ",
+            " | .` |/ _ \\ \\/\\/ /| _/ _ \\| |__ ",
+            " |_|\\_/_/ \\_\\_/\\_/ |_/_/ \\_\\____|"
         ];
         
         const offsetY = Math.max(0, Math.floor((gridSizeRef.current.rows - 30) / 2));
+        
+        // To precisely match the screen recording's compact scale, we shrink the logo's height
+        // to exactly 3 grid rows instead of 4, leaving the 4th row for the subtitle.
+        const lineSpacing = charH * 0.75;
+        const fontSize = Math.floor(lineSpacing * 0.95);
+        
+        ctx.font = `${fontSize}px ${activeFont.css}`;
+        
         const logoX = 2 * charW;
-        const logoY = (1 + offsetY) * charH + 2;
+        const logoY = (offsetY + 3) * charH;
+        
+        const texAspect = 2048 / 1024;
+        const displayAspect = viewport.width / viewport.height;
+        const stretchX = texAspect / displayAspect;
+        
+        // Measure the native width of the font's characters.
+        // We force it to scale so the character aspect ratio perfectly matches the grid aspect ratio (0.6).
+        // This ensures the ASCII art is continuously connected and never stretched, regardless of the font chosen!
+        const charMetrics = ctx.measureText("A");
+        const safeWidth = Math.max(1, charMetrics.width);
+        const targetWidth = fontSize * 0.6;
+        const fontStretch = targetWidth / safeWidth;
+        
+        ctx.translate(logoX, logoY);
+        ctx.scale(stretchX * fontStretch, 1);
         
         asciiArt.forEach((line, idx) => {
-            ctx.fillText(line, logoX, logoY + (idx * 16));
+            ctx.fillText(line, 0, idx * lineSpacing);
         });
         
         ctx.fillStyle = activeTheme.dim;
-        ctx.fillText("                  [ CREATIVE / ENGINEER ]", logoX, logoY + (6 * 16) + 4);
+        ctx.font = `${Math.floor(charH * 0.65)}px ${activeFont.css}`;
+        // Position subtitle exactly on the 4th grid row (`y = 3 * charH`)
+        ctx.fillText("            [ CREATIVE / ENGINEER ]", 0, 3 * charH);
+        
         ctx.restore();
     }
 
@@ -1146,10 +1173,10 @@ if (!uiState.isBooted) {
     }
 
     const soundText = uiState.soundOn ? '[ SOUND: ON ]' : '[ SOUND: MUTED ]'
-    const topBarRightStr = `[ SETTINGS ]  ${soundText}  [ ← BACK ]`
+    const topBarRightStr = `[ SETTINGS ]  ${soundText}`
     const startX = COLS - topBarRightStr.length - 2
     if (gridY === 1 && isClick) {
-       if (gridX >= startX + 14 + soundText.length + 2 && gridX < startX + 14 + soundText.length + 2 + 10) {
+       if (gridX >= 2 && gridX < 13) {
            window.location.href = '/'
            return
        }
@@ -1166,6 +1193,20 @@ if (!uiState.isBooted) {
            setUiState(s => ({ ...s, settingsOpen: true }))
            return
        }
+    }
+
+    if (isClick && !uiState.settingsOpen) {
+        const contactX = COLS - 30;
+        if (gridY === 3 && gridX >= contactX && gridX < contactX + 22) {
+            playTick();
+            window.location.href = 'mailto:nawfaljaffri@gmail.com';
+            return;
+        }
+        if (gridY === 5 && gridX >= contactX && gridX < contactX + 28) {
+            playTick();
+            window.open('https://linkedin.com/in/nawfaljaffri', '_blank');
+            return;
+        }
     }
 
     const colW = 20;
