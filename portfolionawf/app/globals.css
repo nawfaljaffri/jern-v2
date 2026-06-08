@@ -16,6 +16,10 @@
   --foreground: #111111;
 }
 
+html {
+  font-size: 90%;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
