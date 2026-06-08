@@ -1,11 +1,8 @@
 'use client'
 
-import React, { useEffect, useRef } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import React, { useRef } from 'react'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { cn } from '@/lib/utils'
-
-gsap.registerPlugin(ScrollTrigger)
 
 interface ScrollHighlightTextProps {
   text: string
@@ -15,36 +12,38 @@ interface ScrollHighlightTextProps {
 export default function ScrollHighlightText({ text, className }: ScrollHighlightTextProps) {
   const containerRef = useRef<HTMLParagraphElement>(null)
 
-  useEffect(() => {
-    if (!containerRef.current) return
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start 85%", "end 50%"]
+  })
 
-    // Animate the background position
-    gsap.to(containerRef.current, {
-      backgroundPositionX: '100%',
-      ease: 'none',
-      scrollTrigger: {
-        trigger: containerRef.current,
-        start: 'top 80%',
-        end: 'bottom 40%',
-        scrub: true,
-      }
-    })
-  }, [])
+  const words = text.split(" ")
 
   return (
     <p 
       ref={containerRef} 
-      className={cn('inline-block !leading-snug', className)}
-      style={{
-        backgroundImage: 'linear-gradient(to right, black 50%, #D4D4D4 50%)',
-        backgroundSize: '200% 100%',
-        backgroundPositionX: '0%',
-        WebkitBackgroundClip: 'text',
-        backgroundClip: 'text',
-        color: 'transparent',
-      }}
+      className={cn('flex flex-wrap gap-x-[0.3em] gap-y-[0.1em]', className)}
     >
-      {text}
+      {words.map((word, i) => {
+        const start = i / words.length
+        const end = start + (1 / words.length)
+        
+        // Ensure each word gets its own useTransform hook call statically
+        return (
+          <Word key={i} progress={scrollYProgress} range={[start, end]}>
+            {word}
+          </Word>
+        )
+      })}
     </p>
+  )
+}
+
+function Word({ children, progress, range }: { children: React.ReactNode, progress: any, range: number[] }) {
+  const opacity = useTransform(progress, range, [0.2, 1])
+  return (
+    <motion.span style={{ opacity }}>
+      {children}
+    </motion.span>
   )
 }

@@ -4,6 +4,8 @@ import React, { useEffect } from 'react'
 import MinimalHero from '@/components/hero/MinimalHero'
 import AboutSection from '@/components/ui/AboutSection'
 import BentoGrid from '@/components/ui/BentoGrid'
+import ExperienceSection from '@/components/ui/ExperienceSection'
+import SkillsMarquee from '@/components/ui/SkillsMarquee'
 
 export default function Home() {
   
@@ -23,6 +25,12 @@ export default function Home() {
 
       {/* Projects Section (Bento Grid) */}
       <BentoGrid />
+
+      {/* Skills Marquee */}
+      <SkillsMarquee />
+
+      {/* Experience Section */}
+      <ExperienceSection />
 
       {/* Footer */}
       <footer id="contact" className="w-full max-w-7xl mx-auto border-t border-gray-200 bg-white px-6 md:px-12 py-16 mt-32 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
