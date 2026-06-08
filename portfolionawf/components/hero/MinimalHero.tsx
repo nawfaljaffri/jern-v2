@@ -56,10 +56,10 @@ export default function MinimalHero() {
           variants={container}
           initial="hidden"
           animate="show"
-          className="font-black text-[#111] leading-none tracking-tighter flex flex-wrap gap-x-6 md:gap-x-10 group"
-          style={{ fontSize: 'clamp(5rem, 15vw, 17rem)' }}
+          className="font-black text-[#111] leading-none tracking-tighter flex flex-wrap gap-x-4 md:gap-x-8 group"
+          style={{ fontSize: 'clamp(4rem, 12vw, 15rem)' }}
         >
-          <div className="overflow-hidden pb-2 pr-4">
+          <div className="overflow-hidden pb-2 pr-2 md:pr-4">
             <motion.span 
               variants={wordAnim}
               className="inline-block transition-all duration-500 group-hover:text-black/50 hover:!text-black"
@@ -67,7 +67,7 @@ export default function MinimalHero() {
               Nawfal
             </motion.span>
           </div>
-          <div className="overflow-hidden pb-2 pr-4">
+          <div className="overflow-hidden pb-2 pr-2 md:pr-4">
             <motion.span 
               variants={wordAnim}
               className="inline-block transition-all duration-500 group-hover:text-black/50 hover:!text-black"
