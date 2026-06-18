@@ -137,7 +137,7 @@ export default function DrawingCanvas({
 
         // NEW HIERARCHY: Tracing text (Romanized) is large and on top.
         const romFontSize = Math.max(70, Math.min(160, rect.width * 0.18));
-        const arabicFontSize = Math.max(45, Math.min(85, rect.width * 0.09));
+        const arabicFontSize = Math.max(55, Math.min(100, rect.width * 0.11));
         
         // Use weight 500 for Arabic so it's not too thick
         const arFont = `500 ${arabicFontSize}px ${getArabicFontString()}`;
@@ -304,7 +304,7 @@ export default function DrawingCanvas({
         const ctx = getDrawCtx();
         if (ctx && prevPos) {
             ctx.strokeStyle = penColor || "#059669"; // emerald-600
-            const base = penThickness || 16;
+            const base = penThickness || 8;
             const minW = Math.max(8, base * 0.8);
             const maxW = base * 1.5;
             ctx.lineWidth = minW + (maxW - minW) * Math.min(1, currentPos.pressure);
@@ -325,7 +325,7 @@ export default function DrawingCanvas({
         if (newPath.length > 0) {
             setPaths(p => [...p, {
                 points: newPath,
-                thickness: penThickness || 16,
+                thickness: penThickness || 8,
                 color: penColor || "#059669"
             }]);
             setRedoStack([]); // Clear redo stack on new action

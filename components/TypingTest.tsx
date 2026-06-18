@@ -239,7 +239,10 @@ export default function TypingTest({
                         />
                     </div>
 
-                    <div className="absolute inset-y-0 left-0 right-0 pointer-events-none flex items-center justify-between px-6 z-30">
+                    <div 
+                        className="absolute inset-y-0 left-0 right-0 pointer-events-none flex items-center justify-between px-6 z-30"
+                        style={{ transform: "translateY(-5%)" }}
+                    >
                         <button
                             onClick={() => { 
                                 if (isCompletingRef.current) return;
@@ -251,7 +254,7 @@ export default function TypingTest({
                             className="w-16 h-32 flex items-center justify-center group pointer-events-auto rounded-2xl active:bg-emerald-600 active:text-white transition-colors"
                         >
                             <span className="w-12 h-12 flex items-center justify-center rounded-full bg-white/50 backdrop-blur-sm border border-black/5 shadow-sm group-hover:bg-white group-active:bg-transparent transition-all">
-                                <ChevronLeft className="w-8 h-8 text-neutral-400 group-hover:text-emerald-600 transition-colors" strokeWidth={2.5} />
+                                <ChevronLeft className="w-8 h-8 text-neutral-400 group-hover:text-emerald-600 transition-colors" strokeWidth={2} />
                             </span>
                         </button>
                         <button
@@ -265,47 +268,34 @@ export default function TypingTest({
                             className="w-16 h-32 flex items-center justify-center group pointer-events-auto rounded-2xl active:bg-emerald-600 active:text-white transition-colors"
                         >
                             <span className="w-12 h-12 flex items-center justify-center rounded-full bg-white/50 backdrop-blur-sm border border-black/5 shadow-sm group-hover:bg-white group-active:bg-transparent transition-all">
-                                <ChevronRight className="w-8 h-8 text-neutral-400 group-hover:text-emerald-600 transition-colors" strokeWidth={2.5} />
+                                <ChevronRight className="w-8 h-8 text-neutral-400 group-hover:text-emerald-600 transition-colors" strokeWidth={2} />
                             </span>
                         </button>
                     </div>
 
                     <div className="absolute bottom-8 left-0 right-0 z-30 pointer-events-auto flex justify-center">
-                        <div className="flex items-center gap-2 p-2.5 bg-white/80 backdrop-blur-3xl rounded-[2rem] border border-white/60 shadow-[0_16px_40px_rgba(0,0,0,0.06)]">
+                        <div className="flex items-center gap-2 p-2.5 bg-white rounded-[2rem] border border-neutral-100 shadow-[0_16px_40px_rgba(0,0,0,0.06)]">
                             <button
                                 onClick={() => setUndoTrigger(p => p + 1)}
                                 className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
                                 aria-label="Undo stroke"
                             >
-                                <Undo2 size={22} strokeWidth={2.5} />
+                                <Undo2 size={22} strokeWidth={2} />
                             </button>
                             <button
                                 onClick={() => setRedoTrigger(p => p + 1)}
                                 className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
                                 aria-label="Redo stroke"
                             >
-                                <Redo2 size={22} strokeWidth={2.5} />
+                                <Redo2 size={22} strokeWidth={2} />
                             </button>
                             <div className="w-px h-8 bg-neutral-200 mx-1" />
                             <button
                                 onClick={() => setClearTrigger(p => p + 1)}
                                 className="px-8 h-14 flex items-center gap-2 rounded-[1.25rem] bg-white text-neutral-400 hover:text-neutral-600 font-medium transition-all active:scale-95 active:bg-neutral-50 shadow-sm border border-neutral-100"
                             >
-                                <Eraser size={20} strokeWidth={2.5} />
+                                <Eraser size={20} strokeWidth={2} />
                                 <span className="text-[17px]">Clear</span>
-                            </button>
-                            <div className="w-px h-8 bg-neutral-200 mx-1" />
-                            <button
-                                onClick={onToggleLoop}
-                                className={cn(
-                                    "px-8 h-14 flex items-center gap-2 rounded-[1.25rem] font-medium transition-all active:scale-95 shadow-sm border",
-                                    isLooping
-                                        ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                                        : "bg-white text-neutral-400 hover:text-neutral-600 hover:bg-neutral-50 border-neutral-100"
-                                )}
-                            >
-                                <Repeat size={20} strokeWidth={2.5} />
-                                <span className="text-[17px]">Loop</span>
                             </button>
                         </div>
                     </div>

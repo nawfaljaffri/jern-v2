@@ -286,7 +286,7 @@ export default function Home() {
                         >
                             <History size={20} />
                             {history.length > 0 && (
-                                <span className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 bg-accent rounded-full text-[11px] font-bold text-white flex items-center justify-center border-2 border-white shadow-sm">
+                                <span className="absolute -top-2 -right-2 min-w-6 h-6 px-1.5 bg-accent rounded-full text-[11px] font-bold text-white flex items-center justify-center border-[2.5px] border-white shadow-sm box-content">
                                     {history.length}
                                 </span>
                             )}
