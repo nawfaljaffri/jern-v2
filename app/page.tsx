@@ -366,6 +366,7 @@ export default function Home() {
                             onOpenSettings={() => setIsSettingsOpen(true)}
                             onOpenHistory={() => setIsHistoryOpen(true)}
                             arabicFontClass={arabicFontClass}
+                            arabicFont={settings.arabicFont ?? DEFAULT_ARABIC_FONT}
                             handedness={settings.handedness || 'right'}
                         />
                     ) : (

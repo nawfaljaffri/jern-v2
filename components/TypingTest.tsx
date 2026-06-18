@@ -47,16 +47,18 @@ interface TypingTestProps {
     onOpenSettings?: () => void;
     onOpenHistory?: () => void;
     arabicFontClass?: string;
+    arabicFont?: string;
     handedness: 'left' | 'right';
     mobileInputMode?: 'touch' | 'keyboard';
+    onToggleAudioRepeat?: () => void;
 }
 
 export default function TypingTest({
     word, onComplete, onBack, onMismatch, onSpeak, onStop,
     onUnlockAudio, isSpeaking, isPending, isIOS, isPhone,
     isAudioRepeat, onToggleAudioRepeat, penThickness, penColor, isLooping, onToggleLoop,
-    onOpenSettings, onOpenHistory, arabicFontClass = "", handedness, mobileInputMode = 'touch',
-} : TypingTestProps & { onToggleAudioRepeat?: () => void }) {
+    onOpenSettings, onOpenHistory, arabicFontClass = "", arabicFont, handedness, mobileInputMode = 'touch',
+} : TypingTestProps) {
     const [userInput, setUserInput] = useState("");
     const [isErasing, setIsErasing] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -237,6 +239,7 @@ export default function TypingTest({
                             redoTrigger={redoTrigger}
                             checkTrigger={checkTrigger}
                             targetFontClass={targetFontClass}
+                            arabicFont={arabicFont}
                         />
                     </div>
 

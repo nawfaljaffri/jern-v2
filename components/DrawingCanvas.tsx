@@ -18,11 +18,12 @@ interface DrawingCanvasProps {
     undoTrigger?: number;
     redoTrigger?: number;
     targetFontClass?: string;
+    arabicFont?: string;
 }
 
 export default function DrawingCanvas({
     word, onComplete, onError, penThickness, penColor,
-    isIOS, clearTrigger = 0, checkTrigger = 0, undoTrigger = 0, redoTrigger = 0, targetFontClass
+    isIOS, clearTrigger = 0, checkTrigger = 0, undoTrigger = 0, redoTrigger = 0, targetFontClass, arabicFont
 }: DrawingCanvasProps) {
     const bgCanvasRef = useRef<HTMLCanvasElement>(null);
     const drawCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -92,13 +93,13 @@ export default function DrawingCanvas({
     const getArabicFontString = () => {
         const isAr = word.language === 'ar' || word.language === 'ur';
         if (!isAr) return "sans-serif";
-        if (targetFontClass?.includes("font-arabic")) {
-            if (typeof window !== "undefined") {
-                const computed = getComputedStyle(document.body).getPropertyValue('--font-arabic');
-                if (computed) return computed;
-            }
+        
+        switch (arabicFont) {
+            case "system": return "system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+            case "cairo": return '"Cairo", sans-serif';
+            case "scheherazade": return '"Scheherazade New", serif';
+            default: return "system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
         }
-        return "sans-serif";
     };
 
     const renderCanvases = useCallback(() => {
@@ -205,7 +206,7 @@ export default function DrawingCanvas({
         // Make sure drawings scale correctly when resized
         redrawAllPaths();
 
-    }, [word, targetFontClass, redrawAllPaths]);
+    }, [word, targetFontClass, arabicFont, redrawAllPaths]);
 
     useEffect(() => {
         renderCanvases();
