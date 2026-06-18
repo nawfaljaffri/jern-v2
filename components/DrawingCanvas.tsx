@@ -34,6 +34,7 @@ export default function DrawingCanvas({
     const [paths, setPaths] = useState<Path[]>([]);
     const [redoStack, setRedoStack] = useState<Path[]>([]);
     const currentPathRef = useRef<Point[]>([]);
+    const lastDimsRef = useRef({ w: 0, h: 0 });
 
     const getDrawCtx = useCallback(() => drawCanvasRef.current?.getContext("2d", { willReadFrequently: true }), []);
     
@@ -100,6 +101,18 @@ export default function DrawingCanvas({
         const dpr = window.devicePixelRatio || 1;
         const w = Math.round(rect.width * dpr);
         const h = Math.round(rect.height * dpr);
+
+        if (lastDimsRef.current.w > 0) {
+            const dw = Math.abs(lastDimsRef.current.w - w);
+            const dh = Math.abs(lastDimsRef.current.h - h);
+            // If dimensions changed significantly (e.g. rotation), clear the canvas
+            if (dw > 100 || dh > 100) {
+                setPaths([]);
+                setRedoStack([]);
+                currentPathRef.current = [];
+            }
+        }
+        lastDimsRef.current = { w, h };
 
         [bgCanvas, drawCanvas].forEach(c => {
             if (c.width !== w || c.height !== h) {

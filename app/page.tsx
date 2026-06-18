@@ -274,7 +274,7 @@ export default function Home() {
 
             {/* ─── iPad: top bar (language + mastered) ─────────────────────── */}
             {isIOS && (
-                <div className={`fixed top-0 left-0 right-0 z-40 flex justify-between items-center px-10 pt-[max(env(safe-area-inset-top),32px)] pb-4 pointer-events-none ${!isPhone ? (settings.handedness === 'left' ? "pr-[450px]" : "pl-[450px]") : ""}`}>
+                <div className={`fixed top-0 left-0 right-0 z-40 flex justify-between items-center px-10 pt-[max(env(safe-area-inset-top),32px)] pb-4 pointer-events-none ${!isPhone ? (settings.handedness === 'left' ? "lg:pr-[450px]" : "lg:pl-[450px]") : ""}`}>
                     <span className="text-base font-semibold text-neutral-400 capitalize tracking-wide">
                         {LANGUAGES.find(l => l.value === settings.language)?.label} · {settings.difficulty}
                     </span>

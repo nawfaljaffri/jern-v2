@@ -204,7 +204,7 @@ export default function TypingTest({
             <div className="fixed inset-0 overflow-hidden bg-extra-muted/20">
                 <div className={cn(
                     "flex h-full w-full",
-                    isIOS && !isPhone ? (isRightHanded ? "flex-col-reverse lg:flex-row-reverse" : "flex-col-reverse lg:flex-row") : "flex-col-reverse md:flex-row"
+                    isIOS && !isPhone ? (isRightHanded ? "flex-col lg:flex-row-reverse" : "flex-col lg:flex-row") : "flex-col md:flex-row"
                 )}>
                     {/* ── Left Pane: Massive Tracing Canvas (70%) ── */}
                     <div className="flex-1 flex flex-col relative h-full bg-white/50">
@@ -302,10 +302,10 @@ export default function TypingTest({
                 </div>
 
                 {/* ── Right Pane: Permanent Explainer (30%) ── */}
-                <div className="w-full lg:w-[420px] h-[35%] lg:h-full shrink-0 bg-white border-b lg:border-b-0 lg:border-l border-neutral-100 flex flex-col z-40 relative shadow-sm lg:shadow-none">
+                <div className="w-full lg:w-[420px] h-[35%] lg:h-full shrink-0 bg-white lg:border-b-0 lg:border-l border-neutral-100 flex flex-col z-40 relative shadow-sm lg:shadow-none">
                     <div 
-                        className="flex-1 overflow-y-auto px-10 custom-scrollbar"
-                        style={{ paddingTop: 'calc(max(env(safe-area-inset-top), 32px) + 12px)' }}
+                        className="flex-1 overflow-y-auto px-10 pt-6 lg:pt-[--nav-padding] custom-scrollbar"
+                        style={{ '--nav-padding': 'calc(max(env(safe-area-inset-top), 32px) + 12px)' } as React.CSSProperties}
                     >
                         <div className="space-y-4 mb-10">
                             <div className="text-base font-semibold tracking-wide text-neutral-400 capitalize pb-2">
