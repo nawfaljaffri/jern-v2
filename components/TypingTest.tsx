@@ -7,7 +7,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import {
     Volume2, Loader2, Volume1, ChevronLeft, ChevronRight,
-    Repeat, Eraser, Settings, Check, BookOpen, X, Undo2, Redo2, History, Trash2
+    Repeat, Eraser, Settings, Check, BookOpen, X, Undo2, Redo2, History, Trash2, RefreshCcw
 } from "lucide-react";
 import DrawingCanvas from "./DrawingCanvas";
 
@@ -535,6 +535,7 @@ export default function TypingTest({
                                 onSpeak(text, lang || "en-US", !!isAudioRepeat);
                             }}
                             disabled={isPending}
+                            title="Play Audio"
                         >
                             {isPending
                                 ? <Loader2 size={15} className="animate-spin" />
@@ -546,12 +547,26 @@ export default function TypingTest({
                         <button
                             className={cn(
                                 "p-2 rounded-lg transition-colors flex items-center justify-center relative",
+                                isAudioRepeat ? "text-accent bg-accent/10" : "hover:bg-extra-muted/50 text-muted hover:text-foreground"
+                            )}
+                            onClick={(e) => { e.stopPropagation(); onToggleAudioRepeat?.(); }}
+                            title="Continuous Audio"
+                        >
+                            <Repeat size={15} />
+                            {isAudioRepeat && <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-accent rounded-full" />}
+                        </button>
+
+                        <div className="w-px h-4 bg-extra-muted mx-1" />
+
+                        <button
+                            className={cn(
+                                "p-2 rounded-lg transition-colors flex items-center justify-center relative",
                                 isLooping ? "text-accent bg-accent/10" : "hover:bg-extra-muted/50 text-muted hover:text-foreground"
                             )}
                             onClick={(e) => { e.stopPropagation(); onToggleLoop?.(); }}
-                            title="Loop Word"
+                            title="Loop Word Practice"
                         >
-                            <Repeat size={15} />
+                            <RefreshCcw size={15} />
                             {isLooping && <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-accent rounded-full" />}
                         </button>
                     </div>

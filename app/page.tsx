@@ -268,7 +268,7 @@ export default function Home() {
                     <span className="text-sm text-muted/50 font-medium capitalize flex items-center gap-2">
                         <span>{LANGUAGES.find(l => l.value === settings.language)?.label} · {settings.difficulty}</span>
                         {["ja", "ko"].includes(settings.language) && (
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-600 text-[10px] font-bold uppercase tracking-widest">
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-extra-muted/30 text-muted text-[10px] font-bold uppercase tracking-widest">
                                 Beta
                             </span>
                         )}
@@ -283,7 +283,7 @@ export default function Home() {
                     <span className="text-base font-semibold text-neutral-400 capitalize tracking-wide flex items-center gap-2">
                         <span>{LANGUAGES.find(l => l.value === settings.language)?.label} · {settings.difficulty}</span>
                         {["ja", "ko"].includes(settings.language) && (
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-amber-100/50 text-amber-600 text-[10px] font-bold uppercase tracking-widest">
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-extra-muted/30 text-muted text-[10px] font-bold uppercase tracking-widest">
                                 Beta
                             </span>
                         )}
