@@ -7,7 +7,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import {
     Volume2, Loader2, Volume1, ChevronLeft, ChevronRight,
-    Repeat, Eraser, Settings, Check, BookOpen, X
+    Repeat, Eraser, Settings, Check, BookOpen, X, Undo2, Redo2
 } from "lucide-react";
 import DrawingCanvas from "./DrawingCanvas";
 
@@ -46,6 +46,7 @@ interface TypingTestProps {
     onToggleLoop?: () => void;
     onOpenSettings?: () => void;
     arabicFontClass?: string;
+    handedness: 'left' | 'right';
     mobileInputMode?: 'touch' | 'keyboard';
 }
 
@@ -53,7 +54,7 @@ export default function TypingTest({
     word, onComplete, onBack, onMismatch, onSpeak, onStop,
     onUnlockAudio, isSpeaking, isPending, isIOS, isPhone,
     isAudioRepeat, penThickness, penColor, isLooping, onToggleLoop,
-    onOpenSettings, arabicFontClass, mobileInputMode = 'touch',
+    onOpenSettings, arabicFontClass = "", handedness, mobileInputMode = 'touch',
 }: TypingTestProps) {
     const [userInput, setUserInput] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
@@ -62,9 +63,11 @@ export default function TypingTest({
     const [audioMode, setAudioMode] = useState<"en" | "original">("en");
     const [loopCounter, setLoopCounter] = useState(0);
     const [clearTrigger, setClearTrigger] = useState(0);
+    const [undoTrigger, setUndoTrigger] = useState(0);
+    const [redoTrigger, setRedoTrigger] = useState(0);
     const [checkTrigger, setCheckTrigger] = useState(0);
     const [isExplainerOpen, setIsExplainerOpen] = useState(false);
-    // Wiktionary data removed
+    const isRightHanded = handedness === 'right';
     const initialMount = useRef(true);
     const hasUnlockedRef = useRef(false);
     const isCompletingRef = useRef(false);
@@ -108,7 +111,6 @@ export default function TypingTest({
 
 
     // ── Normalized target (strip diacritics, keep only [a-z0-9]) ─────────
-    // BUG FIX: computed once per word, never stale
     const normalizedRomanized = React.useMemo(() => {
         return word.romanized
             .normalize("NFD")
@@ -122,14 +124,12 @@ export default function TypingTest({
     useEffect(() => {
         if (isIOS) return;
         const handleKeyDown = (e: KeyboardEvent) => {
-            // ArrowLeft: go back to previous word
             if (e.key === "ArrowLeft") {
                 e.preventDefault();
                 onBack?.();
                 setUserInput("");
                 return;
             }
-            // Tab / Escape / ArrowRight: skip word (counts as error)
             if (e.key === "Tab" || e.key === "Escape" || e.key === "ArrowRight") {
                 e.preventDefault();
                 triggerError();
@@ -143,32 +143,22 @@ export default function TypingTest({
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [onComplete, onBack, triggerError, isIOS]);
 
-    // ── Input handler — validates full prefix, not just last char ─────────
-    // BUG FIX: validates every character from 0..value.length to prevent
-    // stuck-green state after backspace sequences
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const raw = e.target.value.toLowerCase();
 
-        // iOS audio unlock — first interaction with the hidden input
         if (!hasUnlockedRef.current) {
             onUnlockAudio?.();
             hasUnlockedRef.current = true;
         }
 
-        // Don't accept input longer than the target
         if (raw.length > normalizedRomanized.length) {
             triggerError();
             return;
         }
 
-        // BUG FIX: Validate the *entire* prefix, not just the last character.
-        // This prevents the "stuck green after backspace" state because we only
-        // accept the new value if it is a valid prefix of the target word.
         for (let i = 0; i < raw.length; i++) {
             if (raw[i] !== normalizedRomanized[i]) {
                 triggerError();
-                // Accept the backspace (shorter string) but reject new incorrect chars
-                // Only reject if this is a new character being appended
                 if (raw.length >= userInput.length) return;
                 break;
             }
@@ -195,13 +185,10 @@ export default function TypingTest({
     const isArabicScript = word.language === "ar" || word.language === "ur";
     const targetFontClass = isArabicScript ? arabicFontClass || "font-arabic" : "font-sans";
 
-    // ── Character coloring ─────────────────────────────────────────────────
     const chars = normalizedRomanized.split("");
     const renderChars = chars.map((char, index) => {
         let colorClass = "text-foreground/20";
         if (index < userInput.length) {
-            // BUG FIX: compare from full input, not just last — eliminates
-            // stale green chars after complex backspace + retype sequences
             colorClass = userInput[index] === char
                 ? "text-accent"
                 : "text-red-500";
@@ -209,16 +196,17 @@ export default function TypingTest({
         return { char, colorClass };
     });
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // ── Touch Layout (iPad & Phone hybrid) ──────────────────────────────────
-    // ─────────────────────────────────────────────────────────────────────────
     const useTouchLayout = (isIOS && !isPhone) || (isPhone && mobileInputMode === "touch");
 
     if (useTouchLayout) {
         return (
-            <div className="fixed inset-0 flex overflow-hidden bg-background">
-                {/* ── Left Pane: Massive Tracing Canvas (70%) ── */}
-                <div className="relative flex-1 flex flex-col h-full bg-white/50">
+            <div className="fixed inset-0 overflow-hidden bg-extra-muted/20">
+                <div className={cn(
+                    "flex flex-col h-full",
+                    isIOS && !isPhone ? (isRightHanded ? "md:flex-row-reverse" : "md:flex-row") : "md:flex-row"
+                )}>
+                    {/* ── Left Pane: Massive Tracing Canvas (70%) ── */}
+                    <div className="flex-1 flex flex-col relative h-full bg-white/50">
                     <div className="absolute inset-0 z-10 pointer-events-auto">
                         <DrawingCanvas
                             key={`${word.id}-${loopCounter}`}
@@ -243,12 +231,13 @@ export default function TypingTest({
                             penColor={penColor}
                             isIOS={isIOS}
                             clearTrigger={clearTrigger}
+                            undoTrigger={undoTrigger}
+                            redoTrigger={redoTrigger}
                             checkTrigger={checkTrigger}
                             targetFontClass={targetFontClass}
                         />
                     </div>
 
-                    {/* ── Left / Right navigation — Flex Container ── */}
                     <div className="absolute inset-y-0 left-0 right-0 pointer-events-none flex items-center justify-between px-6 z-30">
                         <button
                             onClick={() => { 
@@ -258,9 +247,9 @@ export default function TypingTest({
                                 setUserInput(""); 
                             }}
                             aria-label="Previous word"
-                            className="w-16 h-32 flex items-center justify-center group pointer-events-auto"
+                            className="w-16 h-32 flex items-center justify-center group pointer-events-auto rounded-2xl active:bg-emerald-600 active:text-white transition-colors"
                         >
-                            <span className="flex items-center justify-center w-14 h-24 rounded-[24px] bg-white/80 backdrop-blur-xl border border-black/[0.04] shadow-[0_8px_24px_rgba(0,0,0,0.06)] text-neutral-400 group-hover:text-neutral-700 group-active:scale-90 transition-all duration-200">
+                            <span className="w-12 h-12 flex items-center justify-center rounded-full bg-white/50 backdrop-blur-sm border border-black/5 shadow-sm group-hover:bg-white group-active:bg-transparent transition-all">
                                 <ChevronLeft size={36} strokeWidth={2.5} />
                             </span>
                         </button>
@@ -272,15 +261,14 @@ export default function TypingTest({
                                 setUserInput(""); 
                             }}
                             aria-label="Skip word"
-                            className="w-16 h-32 flex items-center justify-center group pointer-events-auto"
+                            className="w-16 h-32 flex items-center justify-center group pointer-events-auto rounded-2xl active:bg-emerald-600 active:text-white transition-colors"
                         >
-                            <span className="flex items-center justify-center w-14 h-24 rounded-[24px] bg-white/80 backdrop-blur-xl border border-black/[0.04] shadow-[0_8px_24px_rgba(0,0,0,0.06)] text-neutral-400 group-hover:text-neutral-700 group-active:scale-90 transition-all duration-200">
+                            <span className="w-12 h-12 flex items-center justify-center rounded-full bg-white/50 backdrop-blur-sm border border-black/5 shadow-sm group-hover:bg-white group-active:bg-transparent transition-all">
                                 <ChevronRight size={36} strokeWidth={2.5} />
                             </span>
                         </button>
                     </div>
 
-                    {/* ── Bottom Toolbar — ultra tactile ── */}
                     <div className="absolute bottom-8 left-0 right-0 z-30 pointer-events-auto flex justify-center">
                         <div className="flex items-center gap-4 p-2.5 bg-white/80 backdrop-blur-3xl rounded-[2rem] border border-white/60 shadow-[0_16px_40px_rgba(0,0,0,0.06)]">
                             <button
@@ -299,11 +287,34 @@ export default function TypingTest({
                                 <span>Check</span>
                             </button>
 
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={() => setUndoTrigger(p => p + 1)}
+                                    className="w-12 h-12 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 font-semibold hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
+                                    aria-label="Undo stroke"
+                                >
+                                    <Undo2 size={20} strokeWidth={2.5} />
+                                </button>
+                                <button
+                                    onClick={() => setRedoTrigger(p => p + 1)}
+                                    className="w-12 h-12 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 font-semibold hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
+                                    aria-label="Redo stroke"
+                                >
+                                    <Redo2 size={20} strokeWidth={2.5} />
+                                </button>
+                                <div className="w-px h-6 bg-neutral-200 mx-1" />
+                                <button
+                                    onClick={() => setClearTrigger(p => p + 1)}
+                                    className="px-6 py-3.5 flex items-center gap-2 rounded-[1.25rem] bg-white text-neutral-500 font-semibold hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
+                                >
+                                    <Eraser size={20} strokeWidth={2.5} />
+                                    <span className="text-[15px]">Clear</span>
+                                </button>
+                            </div>
                             <div className="w-px h-10 bg-neutral-200 mx-2" />
-
                             <button
                                 onClick={onOpenSettings}
-                                className="w-16 h-16 flex items-center justify-center rounded-[1.5rem] bg-white text-neutral-500 hover:text-neutral-800 transition-all duration-200 active:scale-95 shadow-sm border border-neutral-100"
+                                className="w-16 h-16 flex items-center justify-center rounded-[1.5rem] bg-white text-neutral-500 hover:text-neutral-800 transition-all duration-200 active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
                                 aria-label="Settings"
                             >
                                 <Settings size={24} />
@@ -315,13 +326,12 @@ export default function TypingTest({
                 {/* ── Right Pane: Permanent Explainer (30%) ── */}
                 <div className="w-[420px] shrink-0 h-full bg-white border-l border-neutral-100 shadow-[-20px_0_40px_rgba(0,0,0,0.02)] flex flex-col z-40 relative">
                     <div className="flex-1 overflow-y-auto p-10 pt-[env(safe-area-inset-top,40px)] custom-scrollbar">
-                        {/* Word Details */}
                         <div className="space-y-4 mb-10">
                             <div className="text-xl font-bold tracking-widest text-neutral-400 uppercase">
                                 Dictionary
                             </div>
                             
-                            <div className={cn("text-6xl font-medium text-foreground py-4", targetFontClass)} dir={isArabicScript ? "rtl" : "ltr"}>
+                            <div className={cn("text-5xl font-medium text-foreground py-2", arabicFontClass)} dir={isArabicScript ? "rtl" : "ltr"}>
                                 {word.original}
                             </div>
                             
@@ -330,16 +340,15 @@ export default function TypingTest({
                             <div className="text-xl text-neutral-600 leading-relaxed mt-4">{word.definition}</div>
                         </div>
 
-                        {/* Audio Controls */}
                         <div className="flex items-center justify-between p-2 bg-neutral-50 rounded-2xl border border-neutral-100 mb-10">
                             <div className="flex items-center gap-1">
                                 <button
                                     onClick={() => setAudioMode("en")}
                                     className={cn(
-                                        "px-5 py-3 rounded-xl text-sm font-bold transition-all duration-200 active:scale-95",
-                                        audioMode === "en"
-                                            ? "bg-white text-foreground shadow-sm"
-                                            : "text-neutral-400 hover:text-neutral-600"
+                                        "px-5 py-3 rounded-xl text-sm font-bold transition-all duration-200 active:bg-emerald-600 active:text-white",
+                                        hasUnlockedRef.current
+                                            ? "text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 active:bg-emerald-600 active:text-white"
+                                            : "text-neutral-400 hover:text-neutral-600 hover:bg-neutral-50 active:bg-emerald-600 active:text-white"
                                     )}
                                 >
                                     EN
@@ -347,7 +356,7 @@ export default function TypingTest({
                                 <button
                                     onClick={() => setAudioMode("original")}
                                     className={cn(
-                                        "px-5 py-3 rounded-xl text-sm font-bold transition-all duration-200 active:scale-95",
+                                        "px-5 py-3 rounded-xl text-sm font-bold transition-all duration-200 active:bg-emerald-600 active:text-white",
                                         audioMode === "original"
                                             ? "bg-white text-foreground shadow-sm"
                                             : "text-neutral-400 hover:text-neutral-600"
@@ -383,6 +392,7 @@ export default function TypingTest({
                             <p className="text-base text-neutral-600 leading-relaxed">
                                 {word.notes || "No detailed notes found for this word in the database. Add notes to dataPack to see them here."}
                             </p>
+                        </div>
                         </div>
                     </div>
                 </div>

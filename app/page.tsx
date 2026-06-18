@@ -268,19 +268,19 @@ export default function Home() {
                     <span className="text-sm text-muted/50 font-medium capitalize">
                         {LANGUAGES.find(l => l.value === settings.language)?.label} · {settings.difficulty}
                     </span>
-                    <span className="text-sm text-muted/50 font-medium">{history.length} mastered</span>
+                    <span className="text-sm text-muted/50 font-medium">{history.length} practiced</span>
                 </div>
             )}
 
             {/* ─── iPad: top bar (language + mastered) ─────────────────────── */}
             {isIOS && (
-                <div className={`fixed top-0 left-0 right-0 z-40 flex justify-between items-center px-10 pt-[env(safe-area-inset-top,24px)] pb-4 pointer-events-none ${!isPhone ? "pr-[450px]" : ""}`}>
+                <div className={`fixed top-0 left-0 right-0 z-40 flex justify-between items-center px-10 pt-[env(safe-area-inset-top,24px)] pb-4 pointer-events-none ${!isPhone ? (settings.handedness === 'left' ? "pr-[450px]" : "pl-[450px]") : ""}`}>
                     <span className="text-base font-semibold text-neutral-400 capitalize tracking-wide">
                         {LANGUAGES.find(l => l.value === settings.language)?.label} · {settings.difficulty}
                     </span>
                     <div className="flex items-center gap-5">
                         {history.length >= 0 && (
-                            <span className="text-base font-semibold text-accent tracking-wide">{history.length} mastered</span>
+                            <span className="text-base font-semibold text-accent tracking-wide">{history.length} practiced</span>
                         )}
                         <button
                             className="pointer-events-auto w-12 h-12 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md border border-black/[0.06] shadow-sm text-neutral-500 hover:text-neutral-800 transition-all active:scale-95"
@@ -353,6 +353,7 @@ export default function Home() {
                             onToggleLoop={() => updateSettings({ loopWord: !settings.loopWord })}
                             onOpenSettings={() => setIsSettingsOpen(true)}
                             arabicFontClass={arabicFontClass}
+                            handedness={settings.handedness || 'right'}
                         />
                     ) : (
                         <div className="flex items-center justify-center gap-1.5 min-h-[400px]">
@@ -481,6 +482,37 @@ export default function Home() {
                                                         {settings.mobileInputMode === m && (
                                                             <motion.div
                                                                 layoutId="mobile-mode-pill"
+                                                                className="absolute inset-0 bg-accent rounded-lg"
+                                                                style={{ zIndex: -1 }}
+                                                                transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+                                                            />
+                                                        )}
+                                                        {m}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </LayoutGroup>
+                                    </div>
+                                )}
+
+                                {/* Handedness (iPad/Tablet only) */}
+                                {isIOS && !isPhone && (
+                                    <div>
+                                        <p className="text-xs font-medium text-muted mb-3">Handedness</p>
+                                        <LayoutGroup id="handedness-group">
+                                            <div className="flex p-1 bg-extra-muted/40 rounded-xl">
+                                                {(["right", "left"] as const).map(m => (
+                                                    <button
+                                                        key={m}
+                                                        onClick={() => updateSettings({ handedness: m })}
+                                                        className={cn(
+                                                            "flex-1 py-2 rounded-lg text-xs font-medium capitalize transition-colors relative z-10",
+                                                            (settings.handedness || 'right') === m ? "text-white" : "text-muted hover:text-foreground"
+                                                        )}
+                                                    >
+                                                        {(settings.handedness || 'right') === m && (
+                                                            <motion.div
+                                                                layoutId="handedness-pill"
                                                                 className="absolute inset-0 bg-accent rounded-lg"
                                                                 style={{ zIndex: -1 }}
                                                                 transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}

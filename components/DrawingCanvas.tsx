@@ -1,7 +1,10 @@
 "use client";
 
-import React, { useRef, useEffect, useCallback } from "react";
+import React, { useRef, useEffect, useCallback, useState } from "react";
 import { Word } from "@/lib/types";
+
+interface Point { x: number; y: number; pressure: number }
+interface Path { points: Point[]; thickness: number; color: string }
 
 interface DrawingCanvasProps {
     word: Word;
@@ -12,12 +15,14 @@ interface DrawingCanvasProps {
     isIOS?: boolean;
     clearTrigger?: number;
     checkTrigger?: number;
+    undoTrigger?: number;
+    redoTrigger?: number;
     targetFontClass?: string;
 }
 
 export default function DrawingCanvas({
     word, onComplete, onError, penThickness, penColor,
-    isIOS, clearTrigger = 0, checkTrigger = 0, targetFontClass
+    isIOS, clearTrigger = 0, checkTrigger = 0, undoTrigger = 0, redoTrigger = 0, targetFontClass
 }: DrawingCanvasProps) {
     const bgCanvasRef = useRef<HTMLCanvasElement>(null);
     const drawCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -25,16 +30,53 @@ export default function DrawingCanvas({
     
     const isDrawingRef = useRef(false);
     const hasCompletedRef = useRef(false);
-    const lastPosRef = useRef<{ x: number; y: number } | null>(null);
+    
+    const [paths, setPaths] = useState<Path[]>([]);
+    const [redoStack, setRedoStack] = useState<Path[]>([]);
+    const currentPathRef = useRef<Point[]>([]);
 
     const getDrawCtx = useCallback(() => drawCanvasRef.current?.getContext("2d", { willReadFrequently: true }), []);
     
-    const clearDrawCanvas = useCallback(() => {
+    const redrawAllPaths = useCallback(() => {
         const canvas = drawCanvasRef.current;
         const ctx = getDrawCtx();
         if (!canvas || !ctx) return;
+        
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        paths.forEach(path => {
+            if (path.points.length < 2) return;
+            ctx.strokeStyle = path.color;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            
+            for (let i = 1; i < path.points.length; i++) {
+                const prev = path.points[i - 1];
+                const curr = path.points[i];
+                
+                const minW = Math.max(8, path.thickness * 0.8);
+                const maxW = path.thickness * 1.5;
+                ctx.lineWidth = minW + (maxW - minW) * Math.min(1, curr.pressure);
+                
+                ctx.beginPath();
+                ctx.moveTo(prev.x, prev.y);
+                ctx.lineTo(curr.x, curr.y);
+                ctx.stroke();
+            }
+        });
+    }, [paths, getDrawCtx]);
+
+    const clearDrawCanvas = useCallback(() => {
+        setPaths([]);
+        setRedoStack([]);
+        currentPathRef.current = [];
         hasCompletedRef.current = false;
+        
+        const canvas = drawCanvasRef.current;
+        const ctx = getDrawCtx();
+        if (canvas && ctx) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
     }, [getDrawCtx]);
 
     const getArabicFontString = () => {
@@ -93,41 +135,38 @@ export default function DrawingCanvas({
         const x = rect.width / 2;
         const hX = w / 2;
 
-        // Sizing based on viewport width (or container width)
-        const isAr = word.language === 'ar' || word.language === 'ur';
-        const arabicFontSize = Math.max(70, Math.min(160, rect.width * 0.18));
-        const romFontSize = Math.max(50, Math.min(90, rect.width * 0.1));
+        // NEW HIERARCHY: Tracing text (Romanized) is large and on top.
+        const romFontSize = Math.max(70, Math.min(160, rect.width * 0.18));
+        const arabicFontSize = Math.max(40, Math.min(80, rect.width * 0.08));
         
-        const arFont = `800 ${arabicFontSize}px ${getArabicFontString()}`;
-        const arFontHidden = `800 ${arabicFontSize * dpr}px ${getArabicFontString()}`;
+        // Use weight 500 for Arabic so it's not too thick
+        const arFont = `500 ${arabicFontSize}px ${getArabicFontString()}`;
         const romFont = `800 ${romFontSize}px sans-serif`;
         const romFontHidden = `800 ${romFontSize * dpr}px sans-serif`;
 
-        const topText = isAr ? word.original : word.romanized;
-        
         const topY = rect.height / 2 - (rect.height * 0.05);
-        const bottomY = rect.height / 2 + (rect.height * 0.15);
+        const bottomY = rect.height / 2 + (rect.height * 0.20);
         const hTopY = h / 2 - (h * 0.05);
-        const hBottomY = h / 2 + (h * 0.15);
 
         bgCtx.textAlign = "center";
         bgCtx.textBaseline = "middle";
         bgCtx.lineJoin = "round";
         bgCtx.lineCap = "round";
 
-        // Light gray solid fill
-        const traceColor = "#e2e8f0"; // slate-200
+        // Neutral gray
+        const traceColor = "#f5f5f5";
         
-        // Top text
-        bgCtx.font = arFont;
-        bgCtx.fillStyle = traceColor;
-        bgCtx.fillText(topText, x, topY);
-
-        // Bottom text (Romanized)
+        // Top text (Romanized)
         bgCtx.font = romFont;
-        bgCtx.fillText(word.romanized, x, bottomY);
+        bgCtx.fillStyle = traceColor;
+        bgCtx.fillText(word.romanized, x, topY);
 
-        // Hidden Mask
+        // Bottom text (Arabic)
+        bgCtx.font = arFont;
+        const isAr = word.language === 'ar' || word.language === 'ur';
+        bgCtx.fillText(isAr ? word.original : "", x, bottomY);
+
+        // Hidden Mask (for validation against Romanized)
         hCtx.textAlign = "center";
         hCtx.textBaseline = "middle";
         hCtx.lineJoin = "round";
@@ -137,16 +176,14 @@ export default function DrawingCanvas({
         hCtx.strokeStyle = "black";
         hCtx.lineWidth = 70 * dpr; 
 
-        hCtx.font = arFontHidden;
-        hCtx.fillText(topText, hX, hTopY);
-        hCtx.strokeText(topText, hX, hTopY);
-
         hCtx.font = romFontHidden;
-        hCtx.lineWidth = 50 * dpr;
-        hCtx.fillText(word.romanized, hX, hBottomY);
-        hCtx.strokeText(word.romanized, hX, hBottomY);
+        hCtx.fillText(word.romanized, hX, hTopY);
+        hCtx.strokeText(word.romanized, hX, hTopY);
 
-    }, [word, targetFontClass]);
+        // Make sure drawings scale correctly when resized
+        redrawAllPaths();
+
+    }, [word, targetFontClass, redrawAllPaths]);
 
     useEffect(() => {
         renderCanvases();
@@ -161,6 +198,32 @@ export default function DrawingCanvas({
     useEffect(() => {
         if (clearTrigger > 0) clearDrawCanvas();
     }, [clearTrigger, clearDrawCanvas]);
+
+    useEffect(() => {
+        if (undoTrigger === 0) return;
+        setPaths(p => {
+            if (p.length === 0) return p;
+            const newPaths = [...p];
+            const popped = newPaths.pop();
+            if (popped) setRedoStack(r => [...r, popped]);
+            return newPaths;
+        });
+    }, [undoTrigger]);
+
+    useEffect(() => {
+        if (redoTrigger === 0) return;
+        setRedoStack(r => {
+            if (r.length === 0) return r;
+            const newStack = [...r];
+            const popped = newStack.pop();
+            if (popped) setPaths(p => [...p, popped]);
+            return newStack;
+        });
+    }, [redoTrigger]);
+
+    useEffect(() => {
+        redrawAllPaths();
+    }, [paths, redrawAllPaths]);
 
     useEffect(() => {
         if (checkTrigger === 0) return;
@@ -200,7 +263,7 @@ export default function DrawingCanvas({
         if (outOfBoundsPixels > 50) {
             ctx.putImageData(drawData, 0, 0);
             onError();
-        } else if (drawnPixels > 200) {
+        } else if (drawnPixels > 100) { // Require at least some drawing
             hasCompletedRef.current = true;
             onComplete();
         } else {
@@ -211,9 +274,9 @@ export default function DrawingCanvas({
 
     const getPos = (e: React.PointerEvent<HTMLCanvasElement>) => {
         const canvas = drawCanvasRef.current;
-        if (!canvas) return { x: 0, y: 0 };
+        if (!canvas) return { x: 0, y: 0, pressure: 0.5 };
         const rect = canvas.getBoundingClientRect();
-        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        return { x: e.clientX - rect.left, y: e.clientY - rect.top, pressure: e.pressure || 0.5 };
     };
 
     const handlePointerDown = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -222,7 +285,8 @@ export default function DrawingCanvas({
         e.currentTarget.setPointerCapture(e.pointerId);
 
         isDrawingRef.current = true;
-        lastPosRef.current = getPos(e);
+        const pos = getPos(e);
+        currentPathRef.current = [pos];
 
         if (document.activeElement instanceof HTMLElement) {
             document.activeElement.blur();
@@ -230,34 +294,47 @@ export default function DrawingCanvas({
     }, []);
 
     const handlePointerMove = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
-        if (!isDrawingRef.current || !lastPosRef.current || hasCompletedRef.current) return;
+        if (!isDrawingRef.current || hasCompletedRef.current) return;
         e.preventDefault();
         const currentPos = getPos(e);
         
+        const prevPos = currentPathRef.current[currentPathRef.current.length - 1];
+        currentPathRef.current.push(currentPos);
+        
         const ctx = getDrawCtx();
-        if (ctx) {
+        if (ctx && prevPos) {
             ctx.strokeStyle = penColor || "#059669"; // emerald-600
             const base = penThickness || 16;
             const minW = Math.max(8, base * 0.8);
             const maxW = base * 1.5;
-            ctx.lineWidth = minW + (maxW - minW) * Math.min(1, e.pressure || 0.5);
+            ctx.lineWidth = minW + (maxW - minW) * Math.min(1, currentPos.pressure);
 
             ctx.beginPath();
-            ctx.moveTo(lastPosRef.current.x, lastPosRef.current.y);
+            ctx.moveTo(prevPos.x, prevPos.y);
             ctx.lineTo(currentPos.x, currentPos.y);
             ctx.stroke();
         }
 
-        lastPosRef.current = currentPos;
     }, [getDrawCtx, penThickness, penColor]);
 
     const handlePointerUp = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+        if (!isDrawingRef.current) return;
         isDrawingRef.current = false;
-        lastPosRef.current = null;
+        
+        if (currentPathRef.current.length > 0) {
+            setPaths(p => [...p, {
+                points: [...currentPathRef.current],
+                thickness: penThickness || 16,
+                color: penColor || "#059669"
+            }]);
+            setRedoStack([]); // Clear redo stack on new action
+        }
+        currentPathRef.current = [];
+
         if (e.currentTarget.hasPointerCapture(e.pointerId)) {
             e.currentTarget.releasePointerCapture(e.pointerId);
         }
-    }, []);
+    }, [penThickness, penColor]);
 
     return (
         <div className="absolute inset-0 flex flex-col items-center justify-center">

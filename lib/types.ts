@@ -22,6 +22,7 @@ export interface SessionSettings {
     loopWord?: boolean;
     arabicFont?: ArabicFont;
     mobileInputMode?: 'touch' | 'keyboard';
+    handedness?: 'left' | 'right';
 }
 
 export interface SessionStats {
