@@ -1,29 +1,31 @@
 "use client";
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
+import { Word } from "@/lib/types";
 
 interface DrawingCanvasProps {
-    word: string;
+    word: Word;
     onComplete: () => void;
     onError: () => void;
     penThickness?: number;
     penColor?: string;
     isIOS?: boolean;
     clearTrigger?: number;
+    checkTrigger?: number;
+    targetFontClass?: string;
 }
 
-export default function DrawingCanvas({ word, onComplete, onError, penThickness, penColor, isIOS, clearTrigger = 0 }: DrawingCanvasProps) {
+export default function DrawingCanvas({
+    word, onComplete, onError, penThickness, penColor,
+    isIOS, clearTrigger = 0, checkTrigger = 0, targetFontClass
+}: DrawingCanvasProps) {
     const bgCanvasRef = useRef<HTMLCanvasElement>(null);
     const drawCanvasRef = useRef<HTMLCanvasElement>(null);
     const hiddenCanvasRef = useRef<HTMLCanvasElement | null>(null);
     
-    const [progress, setProgress] = useState(0);
-    const [bounds, setBounds] = useState({ startX: 0, endX: 0, width: 0 });
-    
     const isDrawingRef = useRef(false);
     const hasCompletedRef = useRef(false);
     const lastPosRef = useRef<{ x: number; y: number } | null>(null);
-    const maxXRef = useRef(0);
 
     const getDrawCtx = useCallback(() => drawCanvasRef.current?.getContext("2d", { willReadFrequently: true }), []);
     
@@ -32,10 +34,22 @@ export default function DrawingCanvas({ word, onComplete, onError, penThickness,
         const ctx = getDrawCtx();
         if (!canvas || !ctx) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        setProgress(0);
-        maxXRef.current = bounds.startX;
         hasCompletedRef.current = false;
-    }, [getDrawCtx, bounds.startX]);
+    }, [getDrawCtx]);
+
+    // ── Font Family extraction ──────────────────────────────────────────────
+    const getArabicFontString = () => {
+        const isAr = word.language === 'ar' || word.language === 'ur';
+        if (!isAr) return "sans-serif";
+        if (targetFontClass?.includes("font-arabic")) {
+            if (typeof window !== "undefined") {
+                const computed = getComputedStyle(document.body).getPropertyValue('--font-arabic');
+                if (computed) return computed;
+            }
+            return "sans-serif";
+        }
+        return "sans-serif";
+    };
 
     // Render all 3 canvases (Background dashed, Hidden mask, Visible drawing)
     const renderCanvases = useCallback(() => {
@@ -48,7 +62,6 @@ export default function DrawingCanvas({ word, onComplete, onError, penThickness,
         const w = Math.round(rect.width * dpr);
         const h = Math.round(rect.height * dpr);
 
-        // Setup dimensions for all
         [bgCanvas, drawCanvas].forEach(c => {
             if (c.width !== w || c.height !== h) {
                 c.width = w;
@@ -77,65 +90,150 @@ export default function DrawingCanvas({ word, onComplete, onError, penThickness,
         const hCtx = hCanvas.getContext("2d", { willReadFrequently: true });
         if (!bgCtx || !hCtx) return;
 
-        // Clear backgrounds
         bgCtx.clearRect(0, 0, rect.width, rect.height);
         hCtx.clearRect(0, 0, w, h);
 
-        // Calculate responsive font size (clamp 3rem to 6rem based on screen width)
-        const fontSizePx = Math.max(50, Math.min(100, window.innerWidth * 0.12));
-        const fontStr = `800 ${fontSizePx}px sans-serif`;
-        const fontStrHidden = `800 ${fontSizePx * dpr}px sans-serif`;
-        
         const x = rect.width / 2;
-        const y = rect.height / 2 - 20; // Shift up slightly
         const hX = w / 2;
-        const hY = h / 2 - 20 * dpr;
 
-        // 1. Draw dashed background
-        bgCtx.font = fontStr;
-        bgCtx.textBaseline = "middle";
+        const arabicFontSize = Math.max(50, Math.min(100, window.innerWidth * 0.12));
+        const romFontSize = Math.max(30, Math.min(60, window.innerWidth * 0.08));
+        
+        const arFont = `800 ${arabicFontSize}px ${getArabicFontString()}`;
+        const arFontHidden = `800 ${arabicFontSize * dpr}px ${getArabicFontString()}`;
+        const romFont = `800 ${romFontSize}px sans-serif`;
+        const romFontHidden = `800 ${romFontSize * dpr}px sans-serif`;
+
+        // Calculate positions
+        const isAr = word.language === 'ar' || word.language === 'ur';
+        const topText = isAr ? word.original : word.romanized;
+        const bottomText = isAr ? word.romanized : word.definition;
+        
+        const topY = rect.height / 2 - 40;
+        const bottomY = rect.height / 2 + 50;
+        const hTopY = h / 2 - 40 * dpr;
+        const hBottomY = h / 2 + 50 * dpr;
+
+        // 1. Draw solid grey background + dashed outline
         bgCtx.textAlign = "center";
+        bgCtx.textBaseline = "middle";
         bgCtx.lineJoin = "round";
         bgCtx.lineCap = "round";
-        bgCtx.strokeStyle = "#cbd5e1"; // slate-300
-        bgCtx.lineWidth = 3;
+
+        // Top text (Arabic)
+        bgCtx.font = arFont;
+        bgCtx.fillStyle = "#f1f5f9"; // slate-100 solid fill
+        bgCtx.fillText(topText, x, topY);
+        bgCtx.strokeStyle = "#cbd5e1"; // slate-300 dashed stroke
+        bgCtx.lineWidth = 2;
         bgCtx.setLineDash([8, 8]);
-        bgCtx.strokeText(word, x, y);
+        bgCtx.strokeText(topText, x, topY);
+
+        // Bottom text (Romanized)
+        bgCtx.font = romFont;
+        bgCtx.fillStyle = "#f1f5f9";
+        bgCtx.fillText(word.romanized, x, bottomY);
+        bgCtx.strokeText(word.romanized, x, bottomY);
 
         // 2. Draw thick mask on hidden canvas
-        hCtx.font = fontStrHidden;
-        hCtx.textBaseline = "middle";
         hCtx.textAlign = "center";
+        hCtx.textBaseline = "middle";
         hCtx.lineJoin = "round";
         hCtx.lineCap = "round";
-        hCtx.lineWidth = 44 * dpr; // Very thick hit area
         hCtx.setLineDash([]);
-        hCtx.strokeText(word, hX, hY);
-
-        // Calculate bounds for progress tracking
-        const metrics = hCtx.measureText(word);
-        const startX = hX - metrics.actualBoundingBoxLeft;
-        const endX = hX + metrics.actualBoundingBoxRight;
         
-        setBounds({ startX, endX, width: endX - startX });
-        maxXRef.current = startX;
+        // Use a thick stroke and solid fill to create a fat "safe area" for tracing
+        hCtx.fillStyle = "black";
+        hCtx.strokeStyle = "black";
+        hCtx.lineWidth = 44 * dpr; 
 
-    }, [word]);
+        hCtx.font = arFontHidden;
+        hCtx.fillText(topText, hX, hTopY);
+        hCtx.strokeText(topText, hX, hTopY);
+
+        hCtx.font = romFontHidden;
+        hCtx.lineWidth = 36 * dpr; // Slightly thinner mask for romanized
+        hCtx.fillText(word.romanized, hX, hBottomY);
+        hCtx.strokeText(word.romanized, hX, hBottomY);
+
+    }, [word, targetFontClass]);
 
     useEffect(() => {
         renderCanvases();
-        const timer = setTimeout(renderCanvases, 0);
+        // Delay to allow DOM/fonts to load
+        const timer = setTimeout(renderCanvases, 100);
+        const timer2 = setTimeout(renderCanvases, 500);
         window.addEventListener("resize", renderCanvases);
         return () => {
             clearTimeout(timer);
+            clearTimeout(timer2);
             window.removeEventListener("resize", renderCanvases);
         };
     }, [renderCanvases]);
 
     useEffect(() => {
-        clearDrawCanvas();
+        if (clearTrigger > 0) clearDrawCanvas();
     }, [clearTrigger, clearDrawCanvas]);
 
+    // ── CHECK VALIDATION LOGIC ────────────────────────────────────────────
+    useEffect(() => {
+        if (checkTrigger === 0) return;
+        
+        const drawCanvas = drawCanvasRef.current;
+        const hCanvas = hiddenCanvasRef.current;
+        const ctx = drawCanvas?.getContext("2d", { willReadFrequently: true });
+        const hCtx = hCanvas?.getContext("2d", { willReadFrequently: true });
+        
+        if (!drawCanvas || !hCanvas || !ctx || !hCtx) return;
+
+        const w = drawCanvas.width;
+        const h = drawCanvas.height;
+
+        const drawData = ctx.getImageData(0, 0, w, h);
+        const maskData = hCtx.getImageData(0, 0, w, h);
+
+        let outOfBoundsPixels = 0;
+        let drawnPixels = 0;
+
+        for (let i = 0; i < drawData.data.length; i += 4) {
+            // If user drew here (alpha > 0)
+            if (drawData.data[i + 3] > 0) {
+                // Ignore purely red pixels from previous error checks
+                if (drawData.data[i] === 255 && drawData.data[i+1] === 0 && drawData.data[i+2] === 0) {
+                    continue; 
+                }
+
+                drawnPixels++;
+
+                // If mask is transparent here (alpha === 0) -> Out of bounds!
+                if (maskData.data[i + 3] === 0) {
+                    outOfBoundsPixels++;
+                    // Paint it bright red
+                    drawData.data[i] = 255;   // R
+                    drawData.data[i + 1] = 0; // G
+                    drawData.data[i + 2] = 0; // B
+                    drawData.data[i + 3] = 255; // A
+                }
+            }
+        }
+
+        // Put the modified image data back
+        if (outOfBoundsPixels > 0) {
+            ctx.putImageData(drawData, 0, 0);
+            onError();
+        } else if (drawnPixels > 100) {
+            // Require at least some minimal amount of tracing to pass
+            hasCompletedRef.current = true;
+            onComplete();
+        } else {
+            // Didn't draw anything really
+            onError();
+        }
+        
+    }, [checkTrigger, onComplete, onError]);
+
+
+    // ── DRAWING LOGIC ─────────────────────────────────────────────────────
     const getPos = (e: React.PointerEvent<HTMLCanvasElement>) => {
         const canvas = drawCanvasRef.current;
         if (!canvas) return { x: 0, y: 0 };
@@ -161,23 +259,7 @@ export default function DrawingCanvas({ word, onComplete, onError, penThickness,
         e.preventDefault();
         const currentPos = getPos(e);
         
-        // 1. Validate against mask
-        const dpr = window.devicePixelRatio || 1;
-        const maskX = Math.round(currentPos.x * dpr);
-        const maskY = Math.round(currentPos.y * dpr);
-        
-        const hCtx = hiddenCanvasRef.current?.getContext("2d");
-        if (hCtx) {
-            const pixel = hCtx.getImageData(maskX, maskY, 1, 1).data;
-            if (pixel[3] === 0) { // Transparent = out of bounds!
-                onError();
-                isDrawingRef.current = false;
-                clearDrawCanvas();
-                return;
-            }
-        }
-
-        // 2. Draw visible stroke
+        // Draw visible stroke
         const ctx = getDrawCtx();
         if (ctx) {
             ctx.strokeStyle = penColor || "#079669";
@@ -192,23 +274,8 @@ export default function DrawingCanvas({ word, onComplete, onError, penThickness,
             ctx.stroke();
         }
 
-        // 3. Update progress
-        if (maskX > maxXRef.current) {
-            maxXRef.current = maskX;
-            // Pad the requirement slightly so they don't have to perfectly hit the last pixel
-            const requiredWidth = bounds.width * 0.96; 
-            const currentProgress = Math.max(0, Math.min(1, (maskX - bounds.startX) / requiredWidth));
-            setProgress(currentProgress);
-            
-            if (currentProgress >= 1 && !hasCompletedRef.current) {
-                hasCompletedRef.current = true;
-                setProgress(1);
-                onComplete();
-            }
-        }
-
         lastPosRef.current = currentPos;
-    }, [getDrawCtx, onError, bounds, penThickness, penColor, onComplete, clearDrawCanvas]);
+    }, [getDrawCtx, penThickness, penColor]);
 
     const handlePointerUp = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
         isDrawingRef.current = false;
@@ -237,17 +304,6 @@ export default function DrawingCanvas({ word, onComplete, onError, penThickness,
                 onPointerLeave={handlePointerUp}
                 onClick={(e) => { if (isIOS) e.stopPropagation(); }}
             />
-            
-            {/* Global Progress Bar */}
-            <div className="absolute bottom-32 left-1/2 -translate-x-1/2 w-72 h-3.5 bg-neutral-200/60 backdrop-blur-sm rounded-full overflow-hidden shadow-inner border border-black/[0.04] z-20">
-                <div 
-                    className="h-full bg-accent transition-all duration-75 ease-out rounded-full shadow-[0_0_10px_rgba(7,150,105,0.4)]"
-                    style={{ width: `${progress * 100}%` }}
-                />
-            </div>
-            <div className="absolute bottom-24 left-1/2 -translate-x-1/2 text-[10px] font-bold text-neutral-400 tracking-widest z-20 uppercase">
-                {Math.round(progress * 100)}%
-            </div>
         </div>
     );
 }

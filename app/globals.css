@@ -25,6 +25,7 @@
 
 /* ── Dynamic Arabic font selection ─────────────────────────────────────── */
 /* Applied by setting data-arabic-font attribute on <body> via JS */
+body[data-arabic-font="system"]       { --font-arabic: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 body[data-arabic-font="cairo"]        { --font-arabic: var(--font-cairo), "Cairo", sans-serif; }
 body[data-arabic-font="amiri"]        { --font-arabic: var(--font-amiri), "Amiri", serif; }
 body[data-arabic-font="kufam"]        { --font-arabic: var(--font-kufam), "Kufam", sans-serif; }

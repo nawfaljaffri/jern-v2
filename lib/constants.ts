@@ -20,6 +20,13 @@ export const FREQUENCY_TIERS = {
 
 export const ARABIC_FONTS: { label: string; value: ArabicFont; cssVar: string; preview: string; description: string }[] = [
     {
+        label: "System Default",
+        value: "system",
+        cssVar: "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+        preview: "مرحبا",
+        description: "Native · Clean",
+    },
+    {
         label: "Cairo",
         value: "cairo",
         cssVar: "var(--font-cairo)",
@@ -63,4 +70,4 @@ export const ARABIC_FONTS: { label: string; value: ArabicFont; cssVar: string; p
     },
 ];
 
-export const DEFAULT_ARABIC_FONT: ArabicFont = "cairo";
+export const DEFAULT_ARABIC_FONT: ArabicFont = "system";

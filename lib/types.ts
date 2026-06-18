@@ -1,6 +1,6 @@
 export type Language = 'ar' | 'es' | 'ru' | 'de' | 'ur' | 'zh' | 'fr' | 'ko' | 'ja';
 export type Difficulty = 'beginner' | 'intermediate' | 'hard';
-export type ArabicFont = 'cairo' | 'amiri' | 'kufam' | 'noto-kufi' | 'tajawal' | 'scheherazade';
+export type ArabicFont = 'system' | 'cairo' | 'amiri' | 'kufam' | 'noto-kufi' | 'tajawal' | 'scheherazade';
 
 export interface Word {
     id: string;

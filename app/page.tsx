@@ -23,6 +23,7 @@ function cn(...inputs: ClassValue[]) {
 // Returns the Tailwind / CSS utility class for the selected Arabic font
 function getArabicFontClass(font: ArabicFont): string {
     const map: Record<ArabicFont, string> = {
+        system: "font-arabic",
         cairo: "font-arabic", // default — overridden by data attr
         amiri: "font-arabic",
         kufam: "font-arabic",
@@ -582,7 +583,7 @@ export default function Home() {
             {/* ══════════════════════════════════════════════════════════════ */}
             {/* Overlay */}
             <div
-                className={cn("lexicon-overlay", isHistoryOpen && "open")}
+                className={cn("lexicon-overlay cursor-pointer", isHistoryOpen && "open")}
                 onClick={() => setIsHistoryOpen(false)}
                 aria-hidden="true"
             />
