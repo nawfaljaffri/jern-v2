@@ -274,27 +274,27 @@ export default function Home() {
 
             {/* ─── iPad: top bar (language + mastered) ─────────────────────── */}
             {isIOS && (
-                <div className="fixed top-0 left-0 right-0 z-40 flex justify-between items-center px-6 pt-[env(safe-area-inset-top,12px)] pb-2 pointer-events-none">
-                    <span className="text-sm font-semibold text-neutral-400 capitalize">
+                <div className="fixed top-0 left-0 right-0 z-40 flex justify-between items-center px-10 pt-[env(safe-area-inset-top,24px)] pb-4 pointer-events-none">
+                    <span className="text-base font-semibold text-neutral-400 capitalize tracking-wide">
                         {LANGUAGES.find(l => l.value === settings.language)?.label} · {settings.difficulty}
                     </span>
-                    <div className="flex items-center gap-4">
-                        {history.length > 0 && (
-                            <span className="text-sm font-semibold text-accent">{history.length} mastered</span>
+                    <div className="flex items-center gap-5">
+                        {history.length >= 0 && (
+                            <span className="text-base font-semibold text-accent tracking-wide">{history.length} mastered</span>
                         )}
                         <button
-                            className="pointer-events-auto w-9 h-9 flex items-center justify-center rounded-xl bg-white/70 backdrop-blur-md border border-black/[0.06] shadow-sm text-neutral-500 hover:text-neutral-700 transition-all"
+                            className="pointer-events-auto w-12 h-12 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md border border-black/[0.06] shadow-sm text-neutral-500 hover:text-neutral-800 transition-all active:scale-95"
                             onClick={() => setIsHistoryOpen(true)}
                             aria-label="Lexicon"
                         >
-                            <History size={15} />
+                            <History size={20} />
                         </button>
                         <button
-                            className="pointer-events-auto w-9 h-9 flex items-center justify-center rounded-xl bg-white/70 backdrop-blur-md border border-black/[0.06] shadow-sm text-neutral-500 hover:text-neutral-700 transition-all"
+                            className="pointer-events-auto w-12 h-12 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md border border-black/[0.06] shadow-sm text-neutral-500 hover:text-neutral-800 transition-all active:scale-95"
                             onClick={() => setIsInfoOpen(true)}
                             aria-label="About"
                         >
-                            <Info size={15} />
+                            <Info size={20} />
                         </button>
                     </div>
                 </div>

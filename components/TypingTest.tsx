@@ -251,76 +251,116 @@ export default function TypingTest({
 
     if (useTouchLayout) {
         return (
-            <div className="fixed inset-0 flex flex-col overflow-hidden bg-background">
-                {/* ── Drawing canvas (full viewport) ── */}
-                <div className="absolute inset-0 z-10 pointer-events-auto">
-                    <DrawingCanvas
-                        key={`${word.id}-${loopCounter}`}
-                        word={word}
-                        onComplete={() => {
-                            setTimeout(() => {
-                                if (isLooping) {
-                                    setLoopCounter(p => p + 1);
-                                    const text = audioMode === "en" ? word.definition : word.original;
-                                    const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
-                                    onSpeak(text, lang || "en-US", !!isAudioRepeat);
-                                } else {
-                                    onComplete();
-                                }
-                            }, 600); // Wait so they can see green result
-                        }}
-                        onError={triggerError}
-                        penThickness={penThickness}
-                        penColor={penColor}
-                        isIOS={isIOS}
-                        clearTrigger={clearTrigger}
-                        checkTrigger={checkTrigger}
-                        targetFontClass={targetFontClass}
-                    />
-                </div>
+            <div className="fixed inset-0 flex overflow-hidden bg-background">
+                {/* ── Left Pane: Massive Tracing Canvas (70%) ── */}
+                <div className="relative flex-1 flex flex-col h-full bg-white/50">
+                    <div className="absolute inset-0 z-10 pointer-events-auto">
+                        <DrawingCanvas
+                            key={`${word.id}-${loopCounter}`}
+                            word={word}
+                            onComplete={() => {
+                                setTimeout(() => {
+                                    if (isLooping) {
+                                        setLoopCounter(p => p + 1);
+                                        const text = audioMode === "en" ? word.definition : word.original;
+                                        const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
+                                        onSpeak(text, lang || "en-US", !!isAudioRepeat);
+                                    } else {
+                                        onComplete();
+                                    }
+                                }, 600);
+                            }}
+                            onError={triggerError}
+                            penThickness={penThickness}
+                            penColor={penColor}
+                            isIOS={isIOS}
+                            clearTrigger={clearTrigger}
+                            checkTrigger={checkTrigger}
+                            targetFontClass={targetFontClass}
+                        />
+                    </div>
 
-                {/* ── Definition display (Top) ── */}
-                <div className="absolute top-[8%] left-0 right-0 flex flex-col items-center justify-center px-8 z-20 pointer-events-none">
-                    <div className="text-[clamp(1.1rem,2vw,1.4rem)] text-neutral-400 font-medium text-center max-w-xl leading-relaxed bg-white/40 backdrop-blur-md px-6 py-2 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-white/50">
-                        {word.definition}
+                    {/* ── Left / Right navigation — Flex Container ── */}
+                    <div className="absolute inset-y-0 left-0 right-0 pointer-events-none flex items-center justify-between px-6 z-30">
+                        <button
+                            onClick={() => { onBack?.(); setUserInput(""); }}
+                            aria-label="Previous word"
+                            className="w-16 h-32 flex items-center justify-center group pointer-events-auto"
+                        >
+                            <span className="flex items-center justify-center w-14 h-24 rounded-[24px] bg-white/80 backdrop-blur-xl border border-black/[0.04] shadow-[0_8px_24px_rgba(0,0,0,0.06)] text-neutral-400 group-hover:text-neutral-700 group-active:scale-90 transition-all duration-200">
+                                <ChevronLeft size={36} strokeWidth={2.5} />
+                            </span>
+                        </button>
+                        <button
+                            onClick={() => { onComplete(); setUserInput(""); }}
+                            aria-label="Skip word"
+                            className="w-16 h-32 flex items-center justify-center group pointer-events-auto"
+                        >
+                            <span className="flex items-center justify-center w-14 h-24 rounded-[24px] bg-white/80 backdrop-blur-xl border border-black/[0.04] shadow-[0_8px_24px_rgba(0,0,0,0.06)] text-neutral-400 group-hover:text-neutral-700 group-active:scale-90 transition-all duration-200">
+                                <ChevronRight size={36} strokeWidth={2.5} />
+                            </span>
+                        </button>
+                    </div>
+
+                    {/* ── Bottom Toolbar — ultra tactile ── */}
+                    <div className="absolute bottom-8 left-0 right-0 z-30 pointer-events-auto flex justify-center">
+                        <div className="flex items-center gap-4 p-2.5 bg-white/80 backdrop-blur-3xl rounded-[2rem] border border-white/60 shadow-[0_16px_40px_rgba(0,0,0,0.06)]">
+                            <button
+                                onClick={() => setClearTrigger(p => p + 1)}
+                                className="flex items-center justify-center gap-2 px-6 py-4 rounded-[1.5rem] bg-white text-neutral-500 hover:text-red-500 transition-all duration-200 active:scale-95 shadow-sm border border-neutral-100 font-bold"
+                            >
+                                <Eraser size={22} />
+                                <span>Clear</span>
+                            </button>
+
+                            <button
+                                onClick={() => setCheckTrigger(p => p + 1)}
+                                className="flex items-center justify-center gap-2 px-10 py-4 rounded-[1.5rem] text-lg font-bold bg-white text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 active:bg-[#059669] active:text-white transition-colors duration-100 shadow-sm border border-neutral-100"
+                            >
+                                <Check size={24} />
+                                <span>Check</span>
+                            </button>
+
+                            <div className="w-px h-10 bg-neutral-200 mx-2" />
+
+                            <button
+                                onClick={onOpenSettings}
+                                className="w-16 h-16 flex items-center justify-center rounded-[1.5rem] bg-white text-neutral-500 hover:text-neutral-800 transition-all duration-200 active:scale-95 shadow-sm border border-neutral-100"
+                                aria-label="Settings"
+                            >
+                                <Settings size={24} />
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                {/* ── Left / Right navigation — Flex Container ── */}
-                <div className="absolute inset-y-0 left-0 right-0 pointer-events-none flex items-center justify-between px-4 z-30">
-                    <button
-                        onClick={() => { onBack?.(); setUserInput(""); }}
-                        aria-label="Previous word"
-                        className="w-16 h-32 flex items-center justify-center group pointer-events-auto"
-                    >
-                        <span className="flex items-center justify-center w-12 h-24 rounded-[20px] bg-white/70 backdrop-blur-xl border border-black/[0.04] shadow-[0_8px_24px_rgba(0,0,0,0.06)] text-neutral-400 group-hover:text-neutral-700 group-active:scale-90 transition-all duration-200">
-                            <ChevronLeft size={32} strokeWidth={2.5} />
-                        </span>
-                    </button>
-                    <button
-                        onClick={() => { onComplete(); setUserInput(""); }}
-                        aria-label="Skip word"
-                        className="w-16 h-32 flex items-center justify-center group pointer-events-auto"
-                    >
-                        <span className="flex items-center justify-center w-12 h-24 rounded-[20px] bg-white/70 backdrop-blur-xl border border-black/[0.04] shadow-[0_8px_24px_rgba(0,0,0,0.06)] text-neutral-400 group-hover:text-neutral-700 group-active:scale-90 transition-all duration-200">
-                            <ChevronRight size={32} strokeWidth={2.5} />
-                        </span>
-                    </button>
-                </div>
+                {/* ── Right Pane: Permanent Explainer (30%) ── */}
+                <div className="w-[420px] shrink-0 h-full bg-white border-l border-neutral-100 shadow-[-20px_0_40px_rgba(0,0,0,0.02)] flex flex-col z-40 relative">
+                    <div className="flex-1 overflow-y-auto p-10 pt-[env(safe-area-inset-top,40px)] custom-scrollbar">
+                        {/* Word Details */}
+                        <div className="space-y-4 mb-10">
+                            <div className="text-xl font-bold tracking-widest text-neutral-400 uppercase">
+                                Dictionary
+                            </div>
+                            
+                            <div className={cn("text-6xl font-medium text-foreground py-4", targetFontClass)} dir={isArabicScript ? "rtl" : "ltr"}>
+                                {word.original}
+                            </div>
+                            
+                            <div className="text-3xl text-accent font-medium">{word.romanized}</div>
+                            
+                            <div className="text-xl text-neutral-600 leading-relaxed mt-4">{word.definition}</div>
+                        </div>
 
-                {/* ── Bottom Toolbar — ultra tactile ── */}
-                <div className="absolute bottom-6 left-0 right-0 z-30 pointer-events-auto flex justify-center">
-                    <div className="flex items-center justify-between gap-3 p-2 bg-white/60 backdrop-blur-2xl rounded-3xl border border-white/40 shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
-                        
-                        {/* Audio Controls (Grouped) */}
-                        <div className="flex items-center p-1.5 bg-neutral-100/80 rounded-2xl">
-                            <div className="flex items-center gap-1 mr-2">
+                        {/* Audio Controls */}
+                        <div className="flex items-center justify-between p-2 bg-neutral-50 rounded-2xl border border-neutral-100 mb-10">
+                            <div className="flex items-center gap-1">
                                 <button
                                     onClick={() => setAudioMode("en")}
                                     className={cn(
-                                        "px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 active:scale-95",
+                                        "px-5 py-3 rounded-xl text-sm font-bold transition-all duration-200 active:scale-95",
                                         audioMode === "en"
-                                            ? "bg-white text-foreground shadow-[0_4px_12px_rgba(0,0,0,0.06)]"
+                                            ? "bg-white text-foreground shadow-sm"
                                             : "text-neutral-400 hover:text-neutral-600"
                                     )}
                                 >
@@ -329,9 +369,9 @@ export default function TypingTest({
                                 <button
                                     onClick={() => setAudioMode("original")}
                                     className={cn(
-                                        "px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 active:scale-95",
+                                        "px-5 py-3 rounded-xl text-sm font-bold transition-all duration-200 active:scale-95",
                                         audioMode === "original"
-                                            ? "bg-white text-foreground shadow-[0_4px_12px_rgba(0,0,0,0.06)]"
+                                            ? "bg-white text-foreground shadow-sm"
                                             : "text-neutral-400 hover:text-neutral-600"
                                     )}
                                 >
@@ -347,106 +387,33 @@ export default function TypingTest({
                                 }}
                                 disabled={isPending}
                                 className={cn(
-                                    "flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 active:scale-95",
+                                    "flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 active:scale-95",
                                     isSpeaking
                                         ? "bg-accent text-white shadow-md"
-                                        : "bg-white text-neutral-500 hover:text-foreground shadow-sm"
+                                        : "bg-white text-accent hover:bg-accent hover:text-white shadow-sm border border-neutral-100"
                                 )}
                             >
-                                {isPending ? <Loader2 size={20} className="animate-spin" /> : isSpeaking ? <Volume1 size={20} className="animate-pulse" /> : <Volume2 size={20} />}
+                                {isPending ? <Loader2 size={24} className="animate-spin" /> : isSpeaking ? <Volume1 size={24} className="animate-pulse" /> : <Volume2 size={24} />}
                             </button>
                         </div>
 
-                        {/* Check / Clear */}
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => setCheckTrigger(p => p + 1)}
-                                className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl text-base font-bold bg-accent text-white hover:bg-accent/90 transition-all duration-200 active:scale-95 shadow-[0_8px_20px_rgba(7,150,105,0.25)]"
-                            >
-                                <Check size={22} />
-                                <span>Check</span>
-                            </button>
-                            <button
-                                onClick={() => setClearTrigger(p => p + 1)}
-                                className="flex items-center justify-center w-14 h-14 rounded-2xl bg-white text-neutral-500 hover:text-red-500 transition-all duration-200 active:scale-95 shadow-sm border border-neutral-100"
-                            >
-                                <Eraser size={22} />
-                            </button>
+                        {/* Wiktionary Data */}
+                        <div className="p-6 bg-neutral-50/80 rounded-3xl space-y-4 border border-neutral-100/60">
+                            <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-2">
+                                <BookOpen size={16} /> Etymology & Notes
+                            </h3>
+                            {isFetchingWiktionary ? (
+                                <div className="flex items-center gap-2 text-muted text-sm">
+                                    <Loader2 size={16} className="animate-spin" /> Fetching Dictionary...
+                                </div>
+                            ) : (
+                                <p className="text-base text-neutral-600 leading-relaxed">
+                                    {wiktionaryData || "No detailed notes found for this word."}
+                                </p>
+                            )}
                         </div>
-
-                        {/* Explainer */}
-                        <button
-                            onClick={() => setIsExplainerOpen(true)}
-                            className="w-14 h-14 flex items-center justify-center rounded-2xl bg-white text-neutral-500 hover:text-neutral-800 transition-all duration-200 active:scale-95 shadow-sm border border-neutral-100"
-                            aria-label="Explain Word"
-                        >
-                            <BookOpen size={22} />
-                        </button>
-
-                        {/* Settings */}
-                        <button
-                            onClick={onOpenSettings}
-                            className="w-14 h-14 flex items-center justify-center rounded-2xl bg-white text-neutral-500 hover:text-neutral-800 transition-all duration-200 active:scale-95 shadow-sm border border-neutral-100"
-                            aria-label="Settings"
-                        >
-                            <Settings size={22} />
-                        </button>
                     </div>
                 </div>
-
-                {/* ── Explainer Side Panel ── */}
-                <AnimatePresence>
-                    {isExplainerOpen && (
-                        <>
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className="fixed inset-0 z-40 bg-black/10 backdrop-blur-[2px]"
-                                onClick={() => setIsExplainerOpen(false)}
-                            />
-                            <motion.div
-                                initial={{ x: "100%", opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                exit={{ x: "100%", opacity: 0 }}
-                                transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-                                className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-background shadow-2xl z-50 flex flex-col pointer-events-auto"
-                            >
-                                <div className="flex items-center justify-between p-6 border-b border-extra-muted">
-                                    <h2 className="text-xl font-bold flex items-center gap-2 text-foreground">
-                                        <BookOpen size={20} className="text-accent" />
-                                        Explainer
-                                    </h2>
-                                    <button onClick={() => setIsExplainerOpen(false)} className="text-muted hover:text-foreground bg-extra-muted/30 p-2 rounded-full transition-colors">
-                                        <X size={20} />
-                                    </button>
-                                </div>
-                                <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-                                    <div className="space-y-2">
-                                        <div className={cn("text-4xl font-medium", targetFontClass)} dir={isArabicScript ? "rtl" : "ltr"}>
-                                            {word.original}
-                                        </div>
-                                        <div className="text-lg text-accent font-medium">{word.romanized}</div>
-                                        <div className="text-base text-neutral-600">{word.definition}</div>
-                                    </div>
-                                    
-                                    <div className="p-5 bg-extra-muted/20 rounded-2xl space-y-3 border border-extra-muted/50">
-                                        <h3 className="text-sm font-semibold text-neutral-400 uppercase tracking-wider">Dictionary Data</h3>
-                                        {isFetchingWiktionary ? (
-                                            <div className="flex items-center gap-2 text-muted text-sm">
-                                                <Loader2 size={16} className="animate-spin" /> Fetching Wiktionary...
-                                            </div>
-                                        ) : (
-                                            <p className="text-sm text-neutral-700 leading-relaxed">
-                                                {wiktionaryData}
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-                            </motion.div>
-                        </>
-                    )}
-                </AnimatePresence>
             </div>
         );
     }
