@@ -56,7 +56,7 @@ export default function TypingTest({
     onUnlockAudio, isSpeaking, isPending, isIOS, isPhone,
     isAudioRepeat, penThickness, penColor, isLooping, onToggleLoop,
     onOpenSettings, onOpenHistory, arabicFontClass = "", handedness, mobileInputMode = 'touch',
-}: TypingTestProps) {
+} : TypingTestProps & { onToggleAudioRepeat?: () => void }) {
     const [userInput, setUserInput] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
     const [isFocused, setIsFocused] = useState(true);
@@ -203,8 +203,8 @@ export default function TypingTest({
         return (
             <div className="fixed inset-0 overflow-hidden bg-extra-muted/20">
                 <div className={cn(
-                    "flex flex-col h-full",
-                    isIOS && !isPhone ? (isRightHanded ? "md:flex-row-reverse" : "md:flex-row") : "md:flex-row"
+                    "flex h-full w-full",
+                    isIOS && !isPhone ? (isRightHanded ? "flex-col-reverse lg:flex-row-reverse" : "flex-col-reverse lg:flex-row") : "flex-col-reverse md:flex-row"
                 )}>
                     {/* ── Left Pane: Massive Tracing Canvas (70%) ── */}
                     <div className="flex-1 flex flex-col relative h-full bg-white/50">
@@ -302,8 +302,11 @@ export default function TypingTest({
                 </div>
 
                 {/* ── Right Pane: Permanent Explainer (30%) ── */}
-                <div className="w-[420px] shrink-0 h-full bg-white border-l border-neutral-100 shadow-[-20px_0_40px_rgba(0,0,0,0.02)] flex flex-col z-40 relative">
-                    <div className="flex-1 overflow-y-auto px-10 pt-[calc(max(env(safe-area-inset-top),32px)+12px)] custom-scrollbar">
+                <div className="w-full lg:w-[420px] h-[35%] lg:h-full shrink-0 bg-white border-b lg:border-b-0 lg:border-l border-neutral-100 flex flex-col z-40 relative shadow-sm lg:shadow-none">
+                    <div 
+                        className="flex-1 overflow-y-auto px-10 custom-scrollbar"
+                        style={{ paddingTop: 'calc(max(env(safe-area-inset-top), 32px) + 12px)' }}
+                    >
                         <div className="space-y-4 mb-10">
                             <div className="text-base font-semibold tracking-wide text-neutral-400 capitalize pb-2">
                                 Dictionary
@@ -343,23 +346,35 @@ export default function TypingTest({
                                     {(word.language || "EN").toUpperCase()}
                                 </button>
                             </div>
-                            <button
-                                onClick={() => {
-                                    onUnlockAudio?.();
-                                    const text = audioMode === "en" ? word.definition : word.original;
-                                    const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
-                                    onSpeak(text, lang || "en-US", !!isAudioRepeat);
-                                }}
-                                disabled={isPending}
-                                className={cn(
-                                    "flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 active:scale-95",
-                                    isSpeaking
-                                        ? "bg-accent text-white shadow-md"
-                                        : "bg-white text-accent hover:bg-accent hover:text-white shadow-sm border border-neutral-100"
-                                )}
-                            >
-                                {isPending ? <Loader2 size={24} className="animate-spin" /> : isSpeaking ? <Volume1 size={24} className="animate-pulse" /> : <Volume2 size={24} />}
-                            </button>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={onToggleAudioRepeat}
+                                    className={cn(
+                                        "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 active:scale-95",
+                                        isAudioRepeat ? "text-accent bg-accent/10" : "text-neutral-300 hover:bg-neutral-100 hover:text-neutral-500"
+                                    )}
+                                    title={isAudioRepeat ? "Continuous Audio On" : "Continuous Audio Off"}
+                                >
+                                    <Repeat size={18} />
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        onUnlockAudio?.();
+                                        const text = audioMode === "en" ? word.definition : word.original;
+                                        const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
+                                        onSpeak(text, lang || "en-US", !!isAudioRepeat);
+                                    }}
+                                    disabled={isPending}
+                                    className={cn(
+                                        "flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 active:scale-95",
+                                        isSpeaking
+                                            ? "bg-accent text-white shadow-md"
+                                            : "bg-white text-accent hover:bg-accent hover:text-white shadow-sm border border-neutral-100"
+                                    )}
+                                >
+                                    {isPending ? <Loader2 size={24} className="animate-spin" /> : isSpeaking ? <Volume1 size={24} className="animate-pulse" /> : <Volume2 size={24} />}
+                                </button>
+                            </div>
                         </div>
 
                         {/* Explainer Notes */}

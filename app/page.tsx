@@ -357,6 +357,7 @@ export default function Home() {
                             isIOS={isIOS}
                             isPhone={isPhone}
                             isAudioRepeat={settings.audioRepeat}
+                            onToggleAudioRepeat={() => updateSettings({ audioRepeat: !settings.audioRepeat })}
                             mobileInputMode={settings.mobileInputMode}
                             penThickness={settings.penThickness}
                             penColor={settings.penColor}
