@@ -425,7 +425,7 @@ export default function Home() {
                                                 className={cn(
                                                     "snap-start shrink-0 h-11 px-5 rounded-2xl text-[15px] font-semibold transition-all duration-200",
                                                     settings.language === lang.value
-                                                        ? "bg-accent text-white shadow-[0_4px_14px_rgba(5,150,105,0.35)]"
+                                                        ? "bg-accent text-white"
                                                         : "bg-white border border-neutral-200 text-neutral-500 hover:border-neutral-300 hover:text-neutral-700"
                                                 )}
                                             >
@@ -439,7 +439,7 @@ export default function Home() {
                                 <div>
                                     <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Difficulty</p>
                                     <LayoutGroup id="settings-difficulty">
-                                        <div className="flex p-1 bg-neutral-100 rounded-2xl">
+                                        <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
                                             {(["beginner", "intermediate", "hard"] as Difficulty[]).map(d => (
                                                 <button
                                                     key={d}
@@ -452,7 +452,7 @@ export default function Home() {
                                                     {settings.difficulty === d && (
                                                         <motion.div
                                                             layoutId="settings-difficulty-pill"
-                                                            className="absolute inset-0 bg-accent rounded-xl shadow-[0_2px_10px_rgba(5,150,105,0.3)]"
+                                                            className="absolute inset-0 bg-accent rounded-xl"
                                                             style={{ zIndex: -1 }}
                                                             transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
                                                         />
@@ -474,14 +474,14 @@ export default function Home() {
                                                     key={font.value}
                                                     onClick={() => updateSettings({ arabicFont: font.value })}
                                                     className={cn(
-                                                        "snap-start shrink-0 w-[105px] h-[90px] rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all duration-200",
+                                                        "snap-start shrink-0 w-[96px] h-[86px] rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all duration-200",
                                                         (settings.arabicFont ?? DEFAULT_ARABIC_FONT) === font.value
-                                                            ? "border-accent bg-accent/8 shadow-[0_4px_14px_rgba(5,150,105,0.2)]"
+                                                            ? "border-accent bg-accent/8"
                                                             : "border-neutral-200 bg-white hover:border-neutral-300"
                                                     )}
                                                 >
                                                     <span
-                                                        className="text-[26px] leading-none"
+                                                        className="text-[22px] leading-none"
                                                         style={{ fontFamily: font.cssVar }}
                                                     >
                                                         {font.preview}
@@ -506,8 +506,8 @@ export default function Home() {
                                     <div>
                                         <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Writing Hand</p>
                                         <LayoutGroup id="settings-handed">
-                                            <div className="flex p-1 bg-neutral-100 rounded-2xl">
-                                                {(["right", "left"] as const).map(m => (
+                                            <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
+                                                {(["left", "right"] as const).map(m => (
                                                     <button
                                                         key={m}
                                                         onClick={() => updateSettings({ handedness: m })}
@@ -519,12 +519,12 @@ export default function Home() {
                                                         {(settings.handedness || 'right') === m && (
                                                             <motion.div
                                                                 layoutId="settings-handed-pill"
-                                                                className="absolute inset-0 bg-accent rounded-xl shadow-[0_2px_10px_rgba(5,150,105,0.3)]"
+                                                                className="absolute inset-0 bg-accent rounded-xl"
                                                                 style={{ zIndex: -1 }}
                                                                 transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
                                                             />
                                                         )}
-                                                        {m === 'right' ? '✦ Right' : 'Left ✦'}
+                                                        {m}
                                                     </button>
                                                 ))}
                                             </div>
@@ -537,7 +537,7 @@ export default function Home() {
                                     <div>
                                         <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Pen Weight</p>
                                         <LayoutGroup id="settings-pencil">
-                                            <div className="flex p-1 bg-neutral-100 rounded-2xl">
+                                            <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
                                                 {[
                                                     { label: "Fine", val: 3 },
                                                     { label: "Regular", val: 6 },
@@ -554,7 +554,7 @@ export default function Home() {
                                                         {(settings.penThickness || 6) === m.val && (
                                                             <motion.div
                                                                 layoutId="settings-pencil-pill"
-                                                                className="absolute inset-0 bg-accent rounded-xl shadow-[0_2px_10px_rgba(5,150,105,0.3)]"
+                                                                className="absolute inset-0 bg-accent rounded-xl"
                                                                 style={{ zIndex: -1 }}
                                                                 transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
                                                             />
@@ -572,7 +572,7 @@ export default function Home() {
                                     <div>
                                         <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Input Mode</p>
                                         <LayoutGroup id="settings-mobile">
-                                            <div className="flex p-1 bg-neutral-100 rounded-2xl">
+                                            <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
                                                 {(["touch", "keyboard"] as const).map(m => (
                                                     <button
                                                         key={m}
@@ -585,7 +585,7 @@ export default function Home() {
                                                         {settings.mobileInputMode === m && (
                                                             <motion.div
                                                                 layoutId="settings-mobile-pill"
-                                                                className="absolute inset-0 bg-accent rounded-xl shadow-[0_2px_10px_rgba(5,150,105,0.3)]"
+                                                                className="absolute inset-0 bg-accent rounded-xl"
                                                                 style={{ zIndex: -1 }}
                                                                 transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
                                                             />

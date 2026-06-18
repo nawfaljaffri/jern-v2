@@ -47,43 +47,33 @@ export default function DrawingCanvas({
         
         paths.forEach(path => {
             if (path.points.length < 2) return;
-            ctx.strokeStyle = path.color;
+            
+            const isErase = path.color === "erase";
+            ctx.globalCompositeOperation = isErase ? "destination-out" : "source-over";
+            ctx.strokeStyle = isErase ? "rgba(0,0,0,1)" : path.color;
             ctx.lineCap = "round";
             ctx.lineJoin = "round";
+            ctx.lineWidth = isErase ? path.thickness * 4 : path.thickness;
             
-            if (path.points.length < 2) return;
+            ctx.beginPath();
+            ctx.moveTo(path.points[0].x, path.points[0].y);
             
             for (let i = 1; i < path.points.length; i++) {
                 const prev = path.points[i - 1];
                 const curr = path.points[i];
                 
-                const minW = Math.max(4, path.thickness * 0.7);
-                const maxW = path.thickness * 1.5;
-                ctx.lineWidth = minW + (maxW - minW) * Math.min(1, curr.pressure);
+                const midX = (prev.x + curr.x) / 2;
+                const midY = (prev.y + curr.y) / 2;
                 
-                ctx.beginPath();
-                
-                if (i === 1) {
-                    ctx.moveTo(prev.x, prev.y);
-                } else {
-                    const prevPrev = path.points[i - 2];
-                    const midX1 = (prevPrev.x + prev.x) / 2;
-                    const midY1 = (prevPrev.y + prev.y) / 2;
-                    ctx.moveTo(midX1, midY1);
-                }
-                
-                const midX2 = (prev.x + curr.x) / 2;
-                const midY2 = (prev.y + curr.y) / 2;
-                
-                if (i === path.points.length - 1) {
-                    ctx.quadraticCurveTo(prev.x, prev.y, curr.x, curr.y);
-                } else {
-                    ctx.quadraticCurveTo(prev.x, prev.y, midX2, midY2);
-                }
-                
-                ctx.stroke();
+                ctx.quadraticCurveTo(prev.x, prev.y, midX, midY);
             }
+            
+            const last = path.points[path.points.length - 1];
+            ctx.lineTo(last.x, last.y);
+            ctx.stroke();
         });
+        
+        ctx.globalCompositeOperation = "source-over";
     }, [paths, getDrawCtx]);
 
     const clearDrawCanvas = useCallback(() => {
@@ -336,12 +326,12 @@ export default function DrawingCanvas({
         
         const ctx = getDrawCtx();
         if (ctx && prevPos) {
-            ctx.strokeStyle = penColor === "erase" ? "rgba(0,0,0,1)" : (penColor || "#059669");
-            ctx.globalCompositeOperation = penColor === "erase" ? "destination-out" : "source-over";
-            const base = penColor === "erase" ? (penThickness || 8) * 3 : (penThickness || 8);
-            const minW = Math.max(4, base * 0.7);
-            const maxW = base * 1.5;
-            ctx.lineWidth = minW + (maxW - minW) * Math.min(1, currentPos.pressure);
+            const isErase = penColor === "erase";
+            ctx.globalCompositeOperation = isErase ? "destination-out" : "source-over";
+            ctx.strokeStyle = isErase ? "rgba(0,0,0,1)" : (penColor || "#059669");
+            ctx.lineWidth = isErase ? (penThickness || 8) * 4 : (penThickness || 8);
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
 
             ctx.beginPath();
             const prevPrev = pathLen >= 2 ? currentPathRef.current[pathLen - 2] : null;
@@ -350,13 +340,11 @@ export default function DrawingCanvas({
                 ctx.moveTo(prevPos.x, prevPos.y);
                 ctx.lineTo(currentPos.x, currentPos.y);
             } else {
-                const midX1 = (prevPrev.x + prevPos.x) / 2;
-                const midY1 = (prevPrev.y + prevPos.y) / 2;
-                const midX2 = (prevPos.x + currentPos.x) / 2;
-                const midY2 = (prevPos.y + currentPos.y) / 2;
+                const midX = (prevPos.x + currentPos.x) / 2;
+                const midY = (prevPos.y + currentPos.y) / 2;
                 
-                ctx.moveTo(midX1, midY1);
-                ctx.quadraticCurveTo(prevPos.x, prevPos.y, midX2, midY2);
+                ctx.moveTo(prevPrev.x, prevPrev.y);
+                ctx.quadraticCurveTo(prevPos.x, prevPos.y, midX, midY);
             }
             ctx.stroke();
             
