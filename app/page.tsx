@@ -408,19 +408,19 @@ export default function Home() {
                                 {/* Languages */}
                                 <div>
                                     <p className="text-xs font-medium text-muted mb-3">Language</p>
-                                    <div className="grid grid-cols-3 gap-2">
+                                    <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
                                         {LANGUAGES.map(lang => (
                                             <button
                                                 key={lang.value}
                                                 onClick={() => updateSettings({ language: lang.value })}
                                                 className={cn(
-                                                    "py-2 px-3 rounded-lg flex items-center justify-center transition-all text-sm font-medium",
+                                                    "shrink-0 py-2 px-4 rounded-xl flex flex-col items-center justify-center transition-all min-w-[80px]",
                                                     settings.language === lang.value
-                                                        ? "ring-2 ring-accent bg-accent/5 text-foreground"
-                                                        : "bg-extra-muted/30 text-foreground hover:bg-extra-muted/50"
+                                                        ? "border-2 border-accent bg-accent/5 text-foreground shadow-sm"
+                                                        : "border border-neutral-100 bg-white text-muted hover:border-neutral-200 hover:text-foreground"
                                                 )}
                                             >
-                                                <span>{lang.label}</span>
+                                                <span className="text-sm font-semibold">{lang.label}</span>
                                             </button>
                                         ))}
                                     </div>
@@ -459,19 +459,26 @@ export default function Home() {
                                 {(settings.language === "ar" || settings.language === "ur") && (
                                     <div>
                                         <p className="text-xs font-medium text-muted mb-3">Arabic Typeface</p>
-                                        <div className="relative">
-                                            <select
-                                                value={settings.arabicFont ?? DEFAULT_ARABIC_FONT}
-                                                onChange={(e) => updateSettings({ arabicFont: e.target.value as ArabicFont })}
-                                                className="w-full appearance-none bg-extra-muted/20 border border-extra-muted/60 text-foreground text-sm font-medium rounded-lg px-3 py-2 pr-10 hover:bg-extra-muted/40 focus:outline-none focus:ring-2 focus:ring-accent transition-all cursor-pointer"
-                                            >
-                                                {ARABIC_FONTS.map(font => (
-                                                    <option key={font.value} value={font.value} className="bg-background text-foreground">
-                                                        {font.label} ({font.description})
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-muted pointer-events-none" size={16} />
+                                        <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+                                            {ARABIC_FONTS.map(font => (
+                                                <button
+                                                    key={font.value}
+                                                    onClick={() => updateSettings({ arabicFont: font.value })}
+                                                    className={cn(
+                                                        "shrink-0 px-4 py-3 rounded-xl border flex flex-col items-center justify-center gap-1 min-w-[120px] transition-all",
+                                                        (settings.arabicFont ?? DEFAULT_ARABIC_FONT) === font.value
+                                                            ? "border-accent bg-accent/5 text-accent shadow-sm"
+                                                            : "border-neutral-100 bg-white hover:border-neutral-200"
+                                                    )}
+                                                >
+                                                    <span className={cn("text-2xl", getArabicFontClass(font.value))} style={font.value === 'system' ? { fontFamily: font.cssVar } : {}}>
+                                                        {font.preview}
+                                                    </span>
+                                                    <span className="text-[10px] font-bold tracking-wider uppercase text-neutral-500 mt-1">
+                                                        {font.description.split('·')[0].trim()}
+                                                    </span>
+                                                </button>
+                                            ))}
                                         </div>
                                     </div>
                                 )}
@@ -560,16 +567,35 @@ export default function Home() {
                                 {/* Apple Pencil (iPad only) */}
                                 {isIOS && (
                                     <div>
-                                        <p className="text-xs font-medium text-muted mb-3">Apple Pencil Thickness</p>
-                                        <div className="px-1">
-                                            <input
-                                                type="range"
-                                                min="1" max="20"
-                                                value={settings.penThickness || 6}
-                                                onChange={e => updateSettings({ penThickness: parseInt(e.target.value) })}
-                                                className="w-full accent-accent"
-                                            />
-                                        </div>
+                                        <p className="text-xs font-medium text-muted mb-3">Apple Pencil</p>
+                                        <LayoutGroup id="pencil-group">
+                                            <div className="flex p-1 bg-extra-muted/40 rounded-xl">
+                                                {[
+                                                    { label: "Thin", val: 4 },
+                                                    { label: "Medium", val: 8 },
+                                                    { label: "Thick", val: 14 }
+                                                ].map(m => (
+                                                    <button
+                                                        key={m.label}
+                                                        onClick={() => updateSettings({ penThickness: m.val })}
+                                                        className={cn(
+                                                            "flex-1 py-2 rounded-lg text-sm font-medium capitalize transition-colors relative z-10",
+                                                            (settings.penThickness || 6) === m.val ? "text-white" : "text-muted hover:text-foreground"
+                                                        )}
+                                                    >
+                                                        {(settings.penThickness || 6) === m.val && (
+                                                            <motion.div
+                                                                layoutId="pencil-pill"
+                                                                className="absolute inset-0 bg-accent rounded-lg"
+                                                                style={{ zIndex: -1 }}
+                                                                transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+                                                            />
+                                                        )}
+                                                        {m.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </LayoutGroup>
                                     </div>
                                 )}
                             </div>

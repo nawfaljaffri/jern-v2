@@ -292,7 +292,7 @@ export default function TypingTest({
                             <div className="w-px h-8 bg-neutral-200 mx-1" />
                             <button
                                 onClick={() => setClearTrigger(p => p + 1)}
-                                className="px-8 h-14 flex items-center gap-2 rounded-[1.25rem] bg-white text-neutral-400 hover:text-neutral-600 font-medium transition-all active:scale-95 active:bg-neutral-50 shadow-sm border border-neutral-100"
+                                className="px-8 h-14 flex items-center gap-2 rounded-[1.25rem] bg-white text-neutral-400 hover:text-neutral-600 font-medium transition-all active:scale-95 active:bg-red-500 active:text-white active:border-red-500 shadow-sm border border-neutral-100"
                             >
                                 <Eraser size={20} strokeWidth={2} />
                                 <span className="text-[17px]">Clear</span>
