@@ -279,9 +279,18 @@ export default function Home() {
                         {LANGUAGES.find(l => l.value === settings.language)?.label} · {settings.difficulty}
                     </span>
                     <div className="flex items-center gap-5">
-                        {history.length >= 0 && (
-                            <span className="text-base font-semibold text-accent tracking-wide">{history.length} practiced</span>
-                        )}
+                        <button
+                            className="pointer-events-auto w-12 h-12 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md border border-black/[0.06] shadow-sm text-neutral-500 hover:text-neutral-800 transition-all active:scale-95 relative"
+                            onClick={() => setIsHistoryOpen(true)}
+                            aria-label="History"
+                        >
+                            <History size={20} />
+                            {history.length > 0 && (
+                                <span className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 bg-accent rounded-full text-[11px] font-bold text-white flex items-center justify-center border-2 border-white shadow-sm">
+                                    {history.length}
+                                </span>
+                            )}
+                        </button>
                         <button
                             className="pointer-events-auto w-12 h-12 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md border border-black/[0.06] shadow-sm text-neutral-500 hover:text-neutral-800 transition-all active:scale-95"
                             onClick={() => setIsInfoOpen(true)}
@@ -381,7 +390,7 @@ export default function Home() {
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.96, opacity: 0, y: 8 }}
                             transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
-                            className="bg-background/80 backdrop-blur-2xl rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto custom-scrollbar"
+                            className="bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-neutral-100 max-w-md w-full max-h-[90vh] overflow-y-auto custom-scrollbar"
                             onClick={e => e.stopPropagation()}
                         >
                             {/* Header */}
@@ -581,7 +590,7 @@ export default function Home() {
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.96, opacity: 0, y: 8 }}
                             transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
-                            className="bg-background rounded-2xl shadow-xl max-w-md w-full p-6 space-y-6"
+                            className="bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-neutral-100 max-w-md w-full p-6 space-y-6"
                             onClick={e => e.stopPropagation()}
                         >
                             <div className="flex items-center justify-between">
@@ -619,7 +628,7 @@ export default function Home() {
                 aria-hidden="true"
             />
             {/* Panel — always in DOM, toggled via CSS class for GPU compositing */}
-            <div className={cn("lexicon-panel backdrop-blur-2xl bg-white/90 dark:bg-black/90", isHistoryOpen && "open")}>
+            <div className={cn("lexicon-panel bg-white border-l border-neutral-100 shadow-[-20px_0_40px_rgba(0,0,0,0.02)]", isHistoryOpen && "open")}>
                 <div className="flex items-center justify-between p-5 shrink-0">
                     <h2 className="text-lg font-semibold">History</h2>
                     <button onClick={() => setIsHistoryOpen(false)} className="text-muted hover:text-foreground transition-colors"><X size={18} /></button>

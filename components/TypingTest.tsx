@@ -296,19 +296,16 @@ export default function TypingTest({
                             </button>
                             <div className="w-px h-8 bg-neutral-200 mx-1" />
                             <button
-                                onClick={onOpenHistory}
-                                className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
-                                aria-label="History"
+                                onClick={onToggleLoop}
+                                className={cn(
+                                    "px-8 h-14 flex items-center gap-2 rounded-[1.25rem] font-medium transition-all active:scale-95 shadow-sm border",
+                                    isLooping
+                                        ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                                        : "bg-white text-neutral-400 hover:text-neutral-600 hover:bg-neutral-50 border-neutral-100"
+                                )}
                             >
-                                <History size={22} strokeWidth={2.5} />
-                            </button>
-                            <div className="w-px h-8 bg-neutral-200 mx-1" />
-                            <button
-                                onClick={() => setCheckTrigger(p => p + 1)}
-                                className="flex items-center justify-center gap-2 px-8 h-14 rounded-[1.25rem] font-medium bg-white text-neutral-400 hover:text-neutral-600 hover:bg-neutral-50 active:scale-95 transition-colors duration-100 shadow-[0_4px_12px_rgba(0,0,0,0.02)] border border-neutral-100"
-                            >
-                                <Check size={20} strokeWidth={2.5} />
-                                <span className="text-[17px]">Check</span>
+                                <Repeat size={20} strokeWidth={2.5} />
+                                <span className="text-[17px]">Loop</span>
                             </button>
                         </div>
                     </div>
@@ -318,7 +315,7 @@ export default function TypingTest({
                 <div className="w-[420px] shrink-0 h-full bg-white border-l border-neutral-100 shadow-[-20px_0_40px_rgba(0,0,0,0.02)] flex flex-col z-40 relative">
                     <div className="flex-1 overflow-y-auto p-10 pt-[env(safe-area-inset-top,40px)] custom-scrollbar">
                         <div className="space-y-4 mb-10">
-                            <div className="text-sm font-semibold tracking-wide text-neutral-400 capitalize mt-2">
+                            <div className="text-base font-semibold tracking-wide text-neutral-400 capitalize pb-2">
                                 Dictionary
                             </div>
                             

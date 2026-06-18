@@ -137,7 +137,7 @@ export default function DrawingCanvas({
 
         // NEW HIERARCHY: Tracing text (Romanized) is large and on top.
         const romFontSize = Math.max(70, Math.min(160, rect.width * 0.18));
-        const arabicFontSize = Math.max(40, Math.min(80, rect.width * 0.08));
+        const arabicFontSize = Math.max(45, Math.min(85, rect.width * 0.09));
         
         // Use weight 500 for Arabic so it's not too thick
         const arFont = `500 ${arabicFontSize}px ${getArabicFontString()}`;
@@ -145,7 +145,7 @@ export default function DrawingCanvas({
         const romFontHidden = `800 ${romFontSize * dpr}px sans-serif`;
 
         const topY = rect.height / 2 - (rect.height * 0.05);
-        const bottomY = rect.height / 2 + (rect.height * 0.20);
+        const bottomY = rect.height / 2 + (rect.height * 0.17);
         const hTopY = h / 2 - (h * 0.05);
 
         bgCtx.textAlign = "center";
@@ -153,8 +153,8 @@ export default function DrawingCanvas({
         bgCtx.lineJoin = "round";
         bgCtx.lineCap = "round";
 
-        // Neutral gray
-        const traceColor = "#f5f5f5";
+        // Neutral gray (slightly darker)
+        const traceColor = "#ebebeb";
         
         // Top text (Romanized)
         bgCtx.font = romFont;
