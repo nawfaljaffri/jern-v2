@@ -307,7 +307,10 @@ export default function TypingTest({
                         className="flex-1 overflow-y-auto px-10 pt-6 lg:pt-[--nav-padding] custom-scrollbar"
                         style={{ '--nav-padding': 'calc(max(env(safe-area-inset-top), 32px) + 12px)' } as React.CSSProperties}
                     >
-                        <div className="space-y-4 mb-10">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-10 lg:gap-0 lg:block min-h-full pb-10 lg:pb-0">
+                            
+                            <div className="flex flex-col">
+                                <div className="space-y-4 mb-10">
                             <div className="text-base font-semibold tracking-wide text-neutral-400 capitalize pb-2">
                                 Dictionary
                             </div>
@@ -319,9 +322,9 @@ export default function TypingTest({
                             <div className="text-3xl text-accent font-medium">{word.romanized}</div>
                             
                             <div className="text-xl text-neutral-600 leading-relaxed mt-4">{word.definition}</div>
-                        </div>
+                                </div>
 
-                        <div className="flex items-center justify-between p-2 bg-neutral-50 rounded-2xl border border-neutral-100 mb-10">
+                                <div className="mt-auto flex items-center justify-between p-2 bg-neutral-50 rounded-2xl border border-neutral-100 lg:mb-10">
                             <div className="flex items-center gap-1">
                                 <button
                                     onClick={() => setAudioMode("en")}
@@ -374,17 +377,21 @@ export default function TypingTest({
                                 >
                                     {isPending ? <Loader2 size={24} className="animate-spin" /> : isSpeaking ? <Volume1 size={24} className="animate-pulse" /> : <Volume2 size={24} />}
                                 </button>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Explainer Notes */}
-                        <div className="p-6 bg-neutral-50/80 rounded-3xl space-y-4 border border-neutral-100/60">
-                            <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-2">
-                                <BookOpen size={16} /> Etymology & Notes
-                            </h3>
-                            <p className="text-base text-neutral-600 leading-relaxed">
-                                {word.notes || "No detailed notes found for this word in the database. Add notes to dataPack to see them here."}
-                            </p>
+                        <div className="flex flex-col h-full">
+                                {/* Explainer Notes */}
+                                <div className="p-6 bg-neutral-50/80 rounded-3xl space-y-4 border border-neutral-100/60 flex-1">
+                                    <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-2">
+                                        <BookOpen size={16} /> Etymology & Notes
+                                    </h3>
+                                    <p className="text-base text-neutral-600 leading-relaxed">
+                                        {word.notes || "No detailed notes found for this word in the database. Add notes to dataPack to see them here."}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
