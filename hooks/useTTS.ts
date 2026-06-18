@@ -5,9 +5,12 @@ import { useCallback, useRef, useEffect, useState } from "react";
 export function useTTS() {
     const synthRef = useRef<SpeechSynthesis | null>(null);
     const repeatTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const pendingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
     // Cache resolved voices per language to avoid scanning 50+ voices every speak() call
     const voiceCacheRef = useRef<Map<string, SpeechSynthesisVoice>>(new Map());
+    // Track if audio context has been unlocked via user gesture
+    const audioUnlockedRef = useRef(false);
 
     const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
     const [isSpeaking, setIsSpeaking] = useState(false);
@@ -18,6 +21,10 @@ export function useTTS() {
             clearTimeout(repeatTimeoutRef.current);
             repeatTimeoutRef.current = null;
         }
+        if (pendingTimeoutRef.current) {
+            clearTimeout(pendingTimeoutRef.current);
+            pendingTimeoutRef.current = null;
+        }
         if (synthRef.current) {
             synthRef.current.cancel();
         }
@@ -26,52 +33,89 @@ export function useTTS() {
         setIsPending(false);
     }, []);
 
-    useEffect(() => {
-        if (typeof window !== "undefined" && window.speechSynthesis) {
-            synthRef.current = window.speechSynthesis;
-
-            const loadVoices = () => {
-                const availableVoices = window.speechSynthesis.getVoices();
-                if (availableVoices.length > 0) {
-                    setVoices(availableVoices);
-                    voiceCacheRef.current.clear(); // Invalidate cache when voices change
-                }
-            };
-
-            loadVoices();
-
-            if (window.speechSynthesis.onvoiceschanged !== undefined) {
-                window.speechSynthesis.onvoiceschanged = loadVoices;
-            }
-
-            // Warm up the synth engine with a silent utterance to eliminate first-call latency
-            const warmup = new SpeechSynthesisUtterance("");
+    // Unlock audio context — must be called from a user gesture
+    const unlockAudio = useCallback(() => {
+        if (!synthRef.current || audioUnlockedRef.current) return;
+        try {
+            // Speak a silent utterance to warm up the audio context on Safari
+            const warmup = new SpeechSynthesisUtterance(" ");
             warmup.volume = 0;
-            window.speechSynthesis.speak(warmup);
-
-            const handleVisibilityChange = () => {
-                if (document.visibilityState === 'hidden') {
-                    stop();
-                    window.speechSynthesis.cancel();
-                }
-            };
-
-            const handleBeforeUnload = () => {
-                stop();
-                window.speechSynthesis.cancel();
-            };
-
-            window.addEventListener('visibilitychange', handleVisibilityChange);
-            window.addEventListener('beforeunload', handleBeforeUnload);
-
-            return () => {
-                window.removeEventListener('visibilitychange', handleVisibilityChange);
-                window.removeEventListener('beforeunload', handleBeforeUnload);
-                stop();
-            };
+            warmup.rate = 2;
+            synthRef.current.cancel();
+            synthRef.current.speak(warmup);
+            audioUnlockedRef.current = true;
+        } catch {
+            // Ignore — not all browsers support this
         }
-        return () => { stop(); };
-    }, [stop]);
+    }, []);
+
+    useEffect(() => {
+        if (typeof window === "undefined" || !window.speechSynthesis) return;
+
+        synthRef.current = window.speechSynthesis;
+
+        const loadVoices = () => {
+            const availableVoices = window.speechSynthesis.getVoices();
+            if (availableVoices.length > 0) {
+                setVoices(availableVoices);
+                voiceCacheRef.current.clear(); // Invalidate cache when voices change
+            }
+        };
+
+        loadVoices();
+
+        if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = loadVoices;
+        }
+
+        // Initial warm-up utterance (may be blocked on Safari without user gesture,
+        // but we also attach gesture listeners below to handle that case)
+        try {
+            const warmup = new SpeechSynthesisUtterance(" ");
+            warmup.volume = 0;
+            warmup.rate = 2;
+            window.speechSynthesis.speak(warmup);
+        } catch {
+            // Expected to fail silently on Safari before user gesture
+        }
+
+        // Safari/iOS: resume synthesis after any user interaction
+        const handleUserGesture = () => {
+            if (!audioUnlockedRef.current && synthRef.current) {
+                unlockAudio();
+            }
+        };
+
+        // iOS suspends speech synthesis when tab goes to background — resume on focus
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === "visible") {
+                synthRef.current?.resume();
+            } else {
+                stop();
+                synthRef.current?.cancel();
+            }
+        };
+
+        const handleBeforeUnload = () => {
+            stop();
+            window.speechSynthesis.cancel();
+        };
+
+        window.addEventListener("touchstart", handleUserGesture, { once: true, passive: true });
+        window.addEventListener("pointerdown", handleUserGesture, { once: true, passive: true });
+        window.addEventListener("click", handleUserGesture, { once: true, passive: true });
+        window.addEventListener("visibilitychange", handleVisibilityChange);
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener("touchstart", handleUserGesture);
+            window.removeEventListener("pointerdown", handleUserGesture);
+            window.removeEventListener("click", handleUserGesture);
+            window.removeEventListener("visibilitychange", handleVisibilityChange);
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+            stop();
+        };
+    }, [stop, unlockAudio]);
 
     // Memoized voice resolver with cache
     const resolveVoice = useCallback((lang: string): SpeechSynthesisVoice | undefined => {
@@ -108,6 +152,14 @@ export function useTTS() {
 
         stop();
 
+        // Safari iOS: must call resume() before each speak() to prevent
+        // the synthesis from getting stuck in a paused state
+        try {
+            synthRef.current.resume();
+        } catch {
+            // ignore
+        }
+
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = lang;
         utterance.rate = 0.9;
@@ -121,6 +173,7 @@ export function useTTS() {
 
         utterance.onstart = () => {
             if (currentUtteranceRef.current === utterance) {
+                if (pendingTimeoutRef.current) clearTimeout(pendingTimeoutRef.current);
                 setIsPending(false);
                 setIsSpeaking(true);
             }
@@ -132,6 +185,7 @@ export function useTTS() {
                 if (repeat) {
                     repeatTimeoutRef.current = setTimeout(() => {
                         if (currentUtteranceRef.current === utterance) {
+                            try { synthRef.current?.resume(); } catch { /* ignore */ }
                             synthRef.current?.speak(utterance);
                         }
                     }, 1500);
@@ -140,15 +194,26 @@ export function useTTS() {
         };
 
         utterance.onerror = (e) => {
+            // 'interrupted' is a normal cancellation, not an error
+            if (e.error === "interrupted" || e.error === "canceled") return;
             if (currentUtteranceRef.current === utterance) {
                 setIsPending(false);
                 setIsSpeaking(false);
-                console.error("Speech Synthesis Error:", e);
+                console.warn("Speech Synthesis:", e.error);
             }
         };
 
         synthRef.current.speak(utterance);
+
+        // Safety net: if isPending stays true >4s, the audio context is stuck —
+        // reset to idle so the UI doesn't freeze on "loading" forever
+        pendingTimeoutRef.current = setTimeout(() => {
+            if (currentUtteranceRef.current === utterance) {
+                setIsPending(false);
+                setIsSpeaking(false);
+            }
+        }, 4000);
     }, [stop, resolveVoice]);
 
-    return { speak, stop, voices, isSpeaking, isPending };
+    return { speak, stop, unlockAudio, voices, isSpeaking, isPending };
 }

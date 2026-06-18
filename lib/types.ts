@@ -1,5 +1,6 @@
 export type Language = 'ar' | 'es' | 'ru' | 'de' | 'ur' | 'zh' | 'fr' | 'ko' | 'ja';
 export type Difficulty = 'beginner' | 'intermediate' | 'hard';
+export type ArabicFont = 'cairo' | 'amiri' | 'kufam' | 'noto-kufi' | 'tajawal' | 'scheherazade';
 
 export interface Word {
     id: string;
@@ -18,6 +19,8 @@ export interface SessionSettings {
     penThickness?: number;
     penColor?: string;
     loopWord?: boolean;
+    arabicFont?: ArabicFont;
+    mobileInputMode?: 'touch' | 'keyboard';
 }
 
 export interface SessionStats {

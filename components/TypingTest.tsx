@@ -5,7 +5,10 @@ import { Word } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Volume2, Loader2, Volume1, ChevronLeft, ChevronRight, Repeat, Eraser } from "lucide-react";
+import {
+    Volume2, Loader2, Volume1, ChevronLeft, ChevronRight,
+    Repeat, Eraser, Settings
+} from "lucide-react";
 import DrawingCanvas from "./DrawingCanvas";
 
 const TTS_LANG_MAP: Record<string, string> = {
@@ -31,6 +34,7 @@ interface TypingTestProps {
     onMismatch?: () => void;
     onSpeak: (text: string, lang: string, repeat?: boolean) => void;
     onStop?: () => void;
+    onUnlockAudio?: () => void;
     isSpeaking?: boolean;
     isPending?: boolean;
     isIOS?: boolean;
@@ -40,9 +44,17 @@ interface TypingTestProps {
     penColor?: string;
     isLooping?: boolean;
     onToggleLoop?: () => void;
+    onOpenSettings?: () => void;
+    arabicFontClass?: string;
+    mobileInputMode?: 'touch' | 'keyboard';
 }
 
-export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpeak, onStop, isSpeaking, isPending, isIOS, isPhone, isAudioRepeat, penThickness, penColor, isLooping, onToggleLoop }: TypingTestProps) {
+export default function TypingTest({
+    word, onComplete, onBack, onMismatch, onSpeak, onStop,
+    onUnlockAudio, isSpeaking, isPending, isIOS, isPhone,
+    isAudioRepeat, penThickness, penColor, isLooping, onToggleLoop,
+    onOpenSettings, arabicFontClass, mobileInputMode = 'touch',
+}: TypingTestProps) {
     const [userInput, setUserInput] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
     const [isFocused, setIsFocused] = useState(true);
@@ -51,7 +63,9 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
     const [loopCounter, setLoopCounter] = useState(0);
     const [clearTrigger, setClearTrigger] = useState(0);
     const initialMount = useRef(true);
+    const hasUnlockedRef = useRef(false);
 
+    // ── Audio auto-play ───────────────────────────────────────────────────
     useEffect(() => {
         let timeout: NodeJS.Timeout;
         const text = audioMode === "en" ? word.definition : word.original;
@@ -70,24 +84,46 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
             clearTimeout(timeout);
             onStop?.();
         };
-    }, [word, audioMode, isAudioRepeat, onSpeak, onStop]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [word, audioMode, isAudioRepeat]);
 
+    // ── Focus & reset on word change ─────────────────────────────────────
     useEffect(() => {
-        inputRef.current?.focus();
-        setTimeout(() => {
-            setUserInput("");
-            setIsShaking(false);
-        }, 0);
-    }, [word]);
+        if (!isIOS) inputRef.current?.focus();
+        setUserInput("");
+        setIsShaking(false);
+    }, [word, isIOS]);
 
+    // ── Error shake ────────────────────────────────────────────────────────
     const triggerError = useCallback(() => {
         setIsShaking(true);
         onMismatch?.();
         setTimeout(() => setIsShaking(false), 500);
     }, [onMismatch]);
 
+    // ── Normalized target (strip diacritics, keep only [a-z0-9]) ─────────
+    // BUG FIX: computed once per word, never stale
+    const normalizedRomanized = React.useMemo(() => {
+        return word.romanized
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-z0-9 ]/gi, "")
+            .toLowerCase()
+            .trim();
+    }, [word.romanized]);
+
+    // ── Keyboard shortcuts (laptop) ────────────────────────────────────────
     useEffect(() => {
+        if (isIOS) return;
         const handleKeyDown = (e: KeyboardEvent) => {
+            // ArrowLeft: go back to previous word
+            if (e.key === "ArrowLeft") {
+                e.preventDefault();
+                onBack?.();
+                setUserInput("");
+                return;
+            }
+            // Tab / Escape / ArrowRight: skip word (counts as error)
             if (e.key === "Tab" || e.key === "Escape" || e.key === "ArrowRight") {
                 e.preventDefault();
                 triggerError();
@@ -97,31 +133,44 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                 }, 300);
             }
         };
-
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [onComplete, word, triggerError]);
+    }, [onComplete, onBack, triggerError, isIOS]);
 
-    const normalizedRomanized = React.useMemo(() => {
-        return word.romanized.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/gi, "").toLowerCase();
-    }, [word.romanized]);
-
+    // ── Input handler — validates full prefix, not just last char ─────────
+    // BUG FIX: validates every character from 0..value.length to prevent
+    // stuck-green state after backspace sequences
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value.toLowerCase();
+        const raw = e.target.value.toLowerCase();
 
-        if (value.length > normalizedRomanized.length) {
+        // iOS audio unlock — first interaction with the hidden input
+        if (!hasUnlockedRef.current) {
+            onUnlockAudio?.();
+            hasUnlockedRef.current = true;
+        }
+
+        // Don't accept input longer than the target
+        if (raw.length > normalizedRomanized.length) {
             triggerError();
             return;
         }
 
-        const lastIndex = value.length - 1;
-        if (lastIndex >= 0 && value[lastIndex] !== normalizedRomanized[lastIndex]) {
-            triggerError();
+        // BUG FIX: Validate the *entire* prefix, not just the last character.
+        // This prevents the "stuck green after backspace" state because we only
+        // accept the new value if it is a valid prefix of the target word.
+        for (let i = 0; i < raw.length; i++) {
+            if (raw[i] !== normalizedRomanized[i]) {
+                triggerError();
+                // Accept the backspace (shorter string) but reject new incorrect chars
+                // Only reject if this is a new character being appended
+                if (raw.length >= userInput.length) return;
+                break;
+            }
         }
 
-        setUserInput(value);
+        setUserInput(raw);
 
-        if (value === normalizedRomanized) {
+        if (raw === normalizedRomanized) {
             setTimeout(() => {
                 if (isLooping) {
                     setUserInput("");
@@ -137,95 +186,231 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
         }
     };
 
+    const isArabicScript = word.language === "ar" || word.language === "ur";
+    const targetFontClass = isArabicScript ? arabicFontClass || "font-arabic" : "font-sans";
+
+    // ── Character coloring ─────────────────────────────────────────────────
+    const chars = normalizedRomanized.split("");
+    const renderChars = chars.map((char, index) => {
+        let colorClass = "text-foreground/20";
+        if (index < userInput.length) {
+            // BUG FIX: compare from full input, not just last — eliminates
+            // stale green chars after complex backspace + retype sequences
+            colorClass = userInput[index] === char
+                ? "text-accent"
+                : "text-red-500";
+        }
+        return { char, colorClass };
+    });
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ── Touch Layout (iPad & Phone hybrid) ──────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
+    const useTouchLayout = (isIOS && !isPhone) || (isPhone && mobileInputMode === "touch");
+
+    if (useTouchLayout) {
+        return (
+            <div className="fixed inset-0 flex flex-col overflow-hidden bg-background">
+                {/* ── Drawing canvas (full viewport) ── */}
+                <div className="absolute inset-0 z-10 pointer-events-auto">
+                    <DrawingCanvas
+                        key={`${word.id}-${loopCounter}-${clearTrigger}`}
+                        word={normalizedRomanized}
+                        onComplete={() => {
+                            setTimeout(() => {
+                                if (isLooping) {
+                                    setLoopCounter(p => p + 1);
+                                    const text = audioMode === "en" ? word.definition : word.original;
+                                    const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
+                                    onSpeak(text, lang || "en-US", !!isAudioRepeat);
+                                } else {
+                                    onComplete();
+                                }
+                            }, 400); // Slight delay so they see 100% progress
+                        }}
+                        onError={triggerError}
+                        penThickness={penThickness}
+                        penColor={penColor}
+                        isIOS={isIOS}
+                        clearTrigger={clearTrigger}
+                    />
+                </div>
+
+                {/* ── Left / Right navigation — tall side pills ── */}
+                <button
+                    onClick={() => { onBack?.(); setUserInput(""); }}
+                    aria-label="Previous word"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-16 h-32 flex items-center justify-center group pointer-events-auto"
+                >
+                    <span className="flex items-center justify-center w-12 h-24 rounded-[20px] bg-white/70 backdrop-blur-xl border border-black/[0.04] shadow-[0_8px_24px_rgba(0,0,0,0.06)] text-neutral-400 group-hover:text-neutral-700 group-active:scale-90 transition-all duration-200">
+                        <ChevronLeft size={32} strokeWidth={2.5} />
+                    </span>
+                </button>
+                <button
+                    onClick={() => { onComplete(); setUserInput(""); }}
+                    aria-label="Skip word"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-16 h-32 flex items-center justify-center group pointer-events-auto"
+                >
+                    <span className="flex items-center justify-center w-12 h-24 rounded-[20px] bg-white/70 backdrop-blur-xl border border-black/[0.04] shadow-[0_8px_24px_rgba(0,0,0,0.06)] text-neutral-400 group-hover:text-neutral-700 group-active:scale-90 transition-all duration-200">
+                        <ChevronRight size={32} strokeWidth={2.5} />
+                    </span>
+                </button>
+
+                {/* ── Word display (Arabic & Definition only) ── */}
+                <div className="absolute top-[20%] left-0 right-0 flex flex-col items-center justify-center px-20 z-0 select-none pointer-events-none">
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={word.id}
+                            initial={{ opacity: 0, y: -12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -12 }}
+                            transition={{ duration: 0.22, ease: [0.32, 0, 0.2, 1] }}
+                            className="flex flex-col items-center gap-4 w-full"
+                        >
+                            {/* Arabic / original script */}
+                            <motion.div
+                                animate={isShaking ? { x: [-10, 10, -10, 10, 0] } : {}}
+                                transition={{ duration: 0.35 }}
+                                className={cn(
+                                    "text-[clamp(2.5rem,6vw,4rem)] font-medium text-foreground leading-tight text-center",
+                                    targetFontClass
+                                )}
+                                dir={isArabicScript ? "rtl" : "ltr"}
+                            >
+                                {word.original}
+                            </motion.div>
+
+                            {/* English definition */}
+                            <div className="text-[clamp(1rem,2vw,1.4rem)] text-neutral-400 font-medium text-center max-w-lg leading-relaxed">
+                                {word.definition}
+                            </div>
+                        </motion.div>
+                    </AnimatePresence>
+                </div>
+
+                {/* ── Bottom Toolbar — ultra tactile ── */}
+                <div className="absolute bottom-6 left-0 right-0 z-30 pointer-events-auto flex justify-center">
+                    <div className="flex items-center justify-between gap-3 p-2 bg-white/60 backdrop-blur-2xl rounded-3xl border border-white/40 shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
+                        
+                        {/* Audio mode toggles */}
+                        <div className="flex items-center gap-1.5 p-1.5 bg-neutral-100/80 rounded-2xl">
+                            <button
+                                onClick={() => setAudioMode("en")}
+                                className={cn(
+                                    "px-5 py-3.5 rounded-xl text-base font-bold transition-all duration-200 active:scale-95",
+                                    audioMode === "en"
+                                        ? "bg-white text-foreground shadow-[0_4px_12px_rgba(0,0,0,0.06)]"
+                                        : "text-neutral-400 hover:text-neutral-600"
+                                )}
+                            >
+                                EN
+                            </button>
+                            <button
+                                onClick={() => setAudioMode("original")}
+                                className={cn(
+                                    "px-5 py-3.5 rounded-xl text-base font-bold transition-all duration-200 active:scale-95",
+                                    audioMode === "original"
+                                        ? "bg-white text-foreground shadow-[0_4px_12px_rgba(0,0,0,0.06)]"
+                                        : "text-neutral-400 hover:text-neutral-600"
+                                )}
+                            >
+                                {(word.language || "EN").toUpperCase()}
+                            </button>
+                        </div>
+
+                        {/* Sound button */}
+                        <button
+                            onClick={() => {
+                                onUnlockAudio?.();
+                                const text = audioMode === "en" ? word.definition : word.original;
+                                const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
+                                onSpeak(text, lang || "en-US", !!isAudioRepeat);
+                            }}
+                            disabled={isPending}
+                            className={cn(
+                                "flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl text-base font-bold transition-all duration-200 active:scale-95 shadow-sm",
+                                isSpeaking
+                                    ? "bg-accent text-white shadow-[0_8px_20px_rgba(7,150,105,0.25)]"
+                                    : "bg-white text-neutral-600 hover:text-foreground border border-neutral-100"
+                            )}
+                        >
+                            {isPending
+                                ? <Loader2 size={22} className="animate-spin" />
+                                : isSpeaking
+                                    ? <Volume1 size={22} className="animate-pulse" />
+                                    : <Volume2 size={22} />
+                            }
+                            <span>Sound</span>
+                        </button>
+
+                        {/* Clear / Erase */}
+                        <button
+                            onClick={() => setClearTrigger(p => p + 1)}
+                            className="flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl text-base font-bold bg-white text-neutral-600 hover:text-red-500 transition-all duration-200 active:scale-95 shadow-sm border border-neutral-100"
+                        >
+                            <Eraser size={22} />
+                            <span>Clear</span>
+                        </button>
+
+                        {/* Settings */}
+                        <button
+                            onClick={onOpenSettings}
+                            className="w-14 h-14 flex items-center justify-center rounded-2xl bg-white text-neutral-500 hover:text-neutral-800 transition-all duration-200 active:scale-95 shadow-sm border border-neutral-100"
+                            aria-label="Settings"
+                        >
+                            <Settings size={22} />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // ── Laptop / Desktop Layout — unchanged structure ───────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
     return (
         <div
             className="relative flex flex-col items-center justify-center min-h-[400px] md:min-h-[500px] w-full cursor-text"
-            onClick={() => {
-                if (!isIOS) inputRef.current?.focus();
-            }}
+            onClick={() => inputRef.current?.focus()}
         >
-            {/* Drawing canvas for iPad */}
-            <div
-                className={cn(
-                    "absolute inset-0 z-10",
-                    isIOS ? "pointer-events-auto" : "pointer-events-none opacity-0"
-                )}
-            >
-                <DrawingCanvas
-                    key={`${word.id}-${loopCounter}`}
-                    wordId={word.id}
-                    penThickness={penThickness}
-                    penColor={penColor}
-                    isIOS={isIOS}
-                    clearTrigger={clearTrigger}
-                />
-                {(isIOS || isPhone) && (
-                    <>
-                        <button
-                            onClick={() => { onBack?.(); setUserInput(""); }}
-                            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 p-3 text-muted/50 hover:text-foreground z-30 transition-colors"
-                        >
-                            <ChevronLeft size={28} />
-                        </button>
-                        <button
-                            onClick={() => { onComplete(); setUserInput(""); }}
-                            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 p-3 text-muted/50 hover:text-foreground z-30 transition-colors"
-                        >
-                            <ChevronRight size={28} />
-                        </button>
-                    </>
-                )}
-                <input
-                    ref={inputRef}
-                    type="text"
-                    className="absolute opacity-0 pointer-events-none"
-                    value={userInput}
-                    onChange={handleInputChange}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(false)}
-                    autoFocus
-                />
-            </div>
+            <input
+                ref={inputRef}
+                type="text"
+                className="absolute opacity-0 w-0 h-0 pointer-events-none"
+                value={userInput}
+                onChange={handleInputChange}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                autoFocus
+                autoCapitalize="none"
+                autoCorrect="off"
+                autoComplete="off"
+                spellCheck={false}
+            />
 
-            {/* ── Transliteration (the big typing word) ── */}
+            {/* Transliteration */}
             <motion.div
                 animate={isShaking ? { x: [-5, 5, -5, 5, 0] } : {}}
                 transition={{ duration: 0.4 }}
                 className="relative text-6xl md:text-7xl lg:text-8xl font-semibold tracking-tight select-none flex flex-wrap justify-center gap-[0.04em] mb-10 z-0"
-                onClick={(e) => {
-                    if (isIOS) {
-                        e.stopPropagation();
-                        inputRef.current?.focus();
-                    }
-                }}
             >
-                {normalizedRomanized.split("").map((char, index) => {
-                    let colorClass = "text-foreground/20";
-                    if (index < userInput.length) {
-                        colorClass = userInput[index] === char.toLowerCase()
-                            ? "text-accent"
-                            : "text-red-500";
-                    }
-
-                    return (
-                        <span key={index} className="relative">
-                            {isFocused && index === userInput.length && (
-                                <div className="absolute -left-[0.04em] top-[0.1em] bottom-[0.1em] w-[3px] bg-accent rounded-full animate-caret" />
-                            )}
-                            <span className={colorClass}>
-                                {char}
-                            </span>
-                        </span>
-                    );
-                })}
+                {renderChars.map(({ char, colorClass }, index) => (
+                    <span key={index} className="relative">
+                        {isFocused && index === userInput.length && (
+                            <span className="absolute -left-[0.04em] top-[0.1em] bottom-[0.1em] w-[3px] bg-accent rounded-full animate-caret" />
+                        )}
+                        <span className={colorClass}>{char}</span>
+                    </span>
+                ))}
                 {isFocused && userInput.length === normalizedRomanized.length && (
                     <span className="relative">
-                        <div className="absolute -left-[0.04em] top-[0.1em] bottom-[0.1em] w-[3px] bg-accent rounded-full animate-caret" />
+                        <span className="absolute -left-[0.04em] top-[0.1em] bottom-[0.1em] w-[3px] bg-accent rounded-full animate-caret" />
                     </span>
                 )}
             </motion.div>
 
-            {/* ── Original script + Definition ── */}
+            {/* Original script + definition */}
             <AnimatePresence mode="wait">
                 <motion.div
                     key={word.id}
@@ -233,26 +418,21 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -6 }}
                     transition={{ duration: 0.2 }}
-                    className={cn(
-                        "flex flex-col items-center gap-3 relative z-20",
-                        isIOS ? "pointer-events-none" : "pointer-events-auto"
-                    )}
+                    className="flex flex-col items-center gap-3 z-20"
                 >
-                    <div className={cn(
-                        "text-3xl md:text-4xl font-medium text-foreground",
-                        word.language === 'ar' || word.language === 'ur' ? "font-arabic" : "font-sans"
-                    )} dir={word.language === 'ar' || word.language === 'ur' ? "rtl" : "ltr"}>
+                    <div
+                        className={cn(
+                            "text-3xl md:text-4xl font-medium text-foreground",
+                            targetFontClass
+                        )}
+                        dir={isArabicScript ? "rtl" : "ltr"}
+                    >
                         {word.original}
                     </div>
-                    <div className="text-base text-muted font-normal">
-                        {word.definition}
-                    </div>
+                    <div className="text-base text-muted font-normal">{word.definition}</div>
 
-                    {/* ── Toolbar ── */}
-                    <div className={cn(
-                        "flex items-center justify-center text-muted z-10 mt-8",
-                        isIOS ? "pointer-events-auto gap-1" : "gap-1"
-                    )}>
+                    {/* Toolbar */}
+                    <div className="flex items-center justify-center text-muted z-10 mt-8 gap-1">
                         <button
                             onClick={(e) => { e.stopPropagation(); setAudioMode("en"); }}
                             className={cn(
@@ -287,41 +467,23 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                             }}
                             disabled={isPending}
                         >
-                            {isPending ? (
-                                <Loader2 size={15} className="animate-spin" />
-                            ) : isSpeaking ? (
-                                <Volume1 size={15} className="animate-pulse" />
-                            ) : (
-                                <Volume2 size={15} />
-                            )}
+                            {isPending
+                                ? <Loader2 size={15} className="animate-spin" />
+                                : isSpeaking
+                                    ? <Volume1 size={15} className="animate-pulse" />
+                                    : <Volume2 size={15} />}
                         </button>
+
                         <button
                             className={cn(
                                 "p-2 rounded-lg transition-colors flex items-center justify-center relative",
-                                isIOS
-                                    ? "hover:bg-extra-muted/50 text-muted hover:text-foreground"
-                                    : isLooping
-                                        ? "text-accent bg-accent/10"
-                                        : "hover:bg-extra-muted/50 text-muted hover:text-foreground"
+                                isLooping ? "text-accent bg-accent/10" : "hover:bg-extra-muted/50 text-muted hover:text-foreground"
                             )}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                if (isIOS) {
-                                    setClearTrigger(prev => prev + 1);
-                                } else {
-                                    onToggleLoop?.();
-                                }
-                            }}
-                            title={isIOS ? "Erase Canvas" : "Loop Word"}
+                            onClick={(e) => { e.stopPropagation(); onToggleLoop?.(); }}
+                            title="Loop Word"
                         >
-                            {isIOS ? (
-                                <Eraser size={15} />
-                            ) : (
-                                <>
-                                    <Repeat size={15} />
-                                    {isLooping && <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-accent rounded-full" />}
-                                </>
-                            )}
+                            <Repeat size={15} />
+                            {isLooping && <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-accent rounded-full" />}
                         </button>
                     </div>
                 </motion.div>

@@ -6,6 +6,9 @@
   --accent: #079669;
   --muted: #888888;
   --extra-muted: #ebebeb;
+
+  /* Kufam is loaded via CDN link in layout.tsx */
+  --font-kufam: "Kufam", sans-serif;
 }
 
 @theme inline {
@@ -14,9 +17,20 @@
   --color-accent: var(--accent);
   --color-muted: var(--muted);
   --color-extra-muted: var(--extra-muted);
-  --font-sans: "Inter", var(--font-geist-sans), ui-sans-serif, system-ui;
-  --font-arabic: var(--font-noto-arabic), "Noto Sans Arabic", "Geeza Pro", "Traditional Arabic", sans-serif;
+  --font-sans: "Inter", var(--font-inter), ui-sans-serif, system-ui;
+
+  /* Arabic font options — selected via data-arabic-font attribute on <body> */
+  --font-arabic: var(--font-cairo), "Cairo", sans-serif;
 }
+
+/* ── Dynamic Arabic font selection ─────────────────────────────────────── */
+/* Applied by setting data-arabic-font attribute on <body> via JS */
+body[data-arabic-font="cairo"]        { --font-arabic: var(--font-cairo), "Cairo", sans-serif; }
+body[data-arabic-font="amiri"]        { --font-arabic: var(--font-amiri), "Amiri", serif; }
+body[data-arabic-font="kufam"]        { --font-arabic: var(--font-kufam), "Kufam", sans-serif; }
+body[data-arabic-font="noto-kufi"]    { --font-arabic: var(--font-noto-kufi), "Noto Kufi Arabic", sans-serif; }
+body[data-arabic-font="tajawal"]      { --font-arabic: var(--font-tajawal), "Tajawal", sans-serif; }
+body[data-arabic-font="scheherazade"] { --font-arabic: var(--font-scheherazade), "Scheherazade New", serif; }
 
 @layer base {
   * {
@@ -44,7 +58,12 @@
   }
 }
 
-/* Caret blink — sharp on/off like monkeytype */
+/* ── Utility: Arabic script ─────────────────────────────────────────────── */
+.font-arabic {
+  font-family: var(--font-arabic);
+}
+
+/* ── Caret blink — sharp on/off like monkeytype ─────────────────────────── */
 @keyframes caret-blink {
   0%, 50% { opacity: 1; }
   51%, 100% { opacity: 0; }
@@ -53,7 +72,56 @@
   animation: caret-blink 1s infinite;
 }
 
-/* Scrollbar */
+/* ── Lexicon sidebar — GPU-composited slide ──────────────────────────────── */
+.lexicon-panel {
+  position: fixed;
+  inset-block: 0;
+  right: 0;
+  z-index: 50;
+  width: 100%;
+  max-width: 24rem;
+  background: var(--background);
+  box-shadow: -4px 0 40px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(0.32, 0, 0, 1);
+}
+.lexicon-panel.open {
+  transform: translateX(0);
+}
+.lexicon-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  background: rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.32s cubic-bezier(0.32, 0, 0, 1);
+}
+.lexicon-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── iPad bottom toolbar ─────────────────────────────────────────────────── */
+.ipad-toolbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────────── */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }

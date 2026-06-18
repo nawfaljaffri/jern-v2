@@ -1,4 +1,4 @@
-import { Language } from "./types";
+import { Language, ArabicFont } from "./types";
 
 export const LANGUAGES: { label: string; value: Language; countryCode: string; ttsLocale: string }[] = [
     { label: "Arabic", value: "ar", countryCode: "AE", ttsLocale: "ar-SA" },
@@ -17,3 +17,50 @@ export const FREQUENCY_TIERS = {
     intermediate: { min: 501, max: 2000 },
     hard: { min: 2001, max: 5000 },
 };
+
+export const ARABIC_FONTS: { label: string; value: ArabicFont; cssVar: string; preview: string; description: string }[] = [
+    {
+        label: "Cairo",
+        value: "cairo",
+        cssVar: "var(--font-cairo)",
+        preview: "مرحبا",
+        description: "Modern · Geometric",
+    },
+    {
+        label: "Amiri",
+        value: "amiri",
+        cssVar: "var(--font-amiri)",
+        preview: "مرحبا",
+        description: "Classical · Elegant",
+    },
+    {
+        label: "Kufam",
+        value: "kufam",
+        cssVar: "var(--font-kufam)",
+        preview: "مرحبا",
+        description: "Kufi · Bold",
+    },
+    {
+        label: "Noto Kufi",
+        value: "noto-kufi",
+        cssVar: "var(--font-noto-kufi)",
+        preview: "مرحبا",
+        description: "Kufi · Clean",
+    },
+    {
+        label: "Tajawal",
+        value: "tajawal",
+        cssVar: "var(--font-tajawal)",
+        preview: "مرحبا",
+        description: "Minimal · Contemporary",
+    },
+    {
+        label: "Scheherazade",
+        value: "scheherazade",
+        cssVar: "var(--font-scheherazade)",
+        preview: "مرحبا",
+        description: "Traditional · Refined",
+    },
+];
+
+export const DEFAULT_ARABIC_FONT: ArabicFont = "cairo";
