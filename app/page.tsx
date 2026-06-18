@@ -6,13 +6,13 @@ import { LANGUAGES, FREQUENCY_TIERS } from "@/lib/constants";
 import { Word, Language, Difficulty, SessionSettings } from "@/lib/types";
 import { transliterate } from "@/lib/transliterate";
 import { useTTS } from "@/hooks/useTTS";
-import { Settings, History, Volume2, Globe, ChevronRight, ChevronDown, CheckCircle2, RotateCcw, Search, Info } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Settings, History, Volume2, Globe, ChevronRight, ChevronDown, CheckCircle2, RotateCcw, Search, Info, X } from "lucide-react";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import Flag from "react-world-flags";
-import { useTheme } from "next-themes";
+
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -40,7 +40,7 @@ export default function Home() {
   const { speak, stop, voices, isSpeaking, isPending } = useTTS();
   const [isIOS, setIsIOS] = useState(false);
   const [isPhone, setIsPhone] = useState(false);
-  const { theme, setTheme } = useTheme();
+
 
   useEffect(() => {
     if (typeof navigator !== "undefined") {
@@ -60,11 +60,8 @@ export default function Home() {
   const wordsSinceRecallRef = useRef(0);
 
   const isVoiceMissing = React.useMemo(() => {
-    // Only show warning on iOS, as Android Chrome dynamically fetches TTS
-    // without returning it in `getVoices()`
     if (!isIOS) return false;
-
-    if (voices.length === 0) return false; // Still loading or not supported
+    if (voices.length === 0) return false;
     const langCode = LANGUAGES.find(l => l.value === settings.language)?.ttsLocale || "en-US";
     let matchedVoice = voices.find(v => v.lang.toLowerCase() === langCode.toLowerCase());
     if (!matchedVoice) {
@@ -74,14 +71,13 @@ export default function Home() {
     return !matchedVoice;
   }, [voices, settings.language, isIOS]);
 
-  // 1. Data Loader - Fetch JSON asynchronously
+  // 1. Data Loader
   const loadDataPack = useCallback(async (lang: Language) => {
     setIsLoading(true);
     try {
       const response = await fetch(`/data/${lang}.json`);
       const data = await response.json();
       setDataPack(data);
-      // Immediately try to fill the queue with the new data
       setUpcomingWords([]);
     } catch (error) {
       console.error("Failed to load data pack:", error);
@@ -94,7 +90,6 @@ export default function Home() {
     loadDataPack(settings.language);
   }, [settings.language, loadDataPack]);
 
-
   // 3. Pre-fetching Logic
   const refillUpcoming = useCallback((currentHistory: Word[]) => {
     if (dataPack.length === 0) return;
@@ -105,23 +100,18 @@ export default function Home() {
 
       const newWords: Word[] = [];
       const excludeIds = [...prev.map(w => w.id)];
-
-      // Filter history for current language only to avoid cross-contamination
       const langHistory = currentHistory.filter(w => w.language === settings.language);
-
-      // If data pack is extremely small, don't over-exclude history
       const historyExclusionLimit = dataPack.length < 50 ? 5 : langHistory.length;
       const historyToExclude = langHistory.slice(0, historyExclusionLimit).map(w => w.id);
       const fullExclude = [...excludeIds, ...historyToExclude];
 
       for (let i = 0; i < needed; i++) {
-        // Active Recall Injection: exactly every 5 new words
         if (settings.activeRecall && langHistory.length > 0 && wordsSinceRecallRef.current >= 5) {
           const recallWord = langHistory[Math.floor(Math.random() * langHistory.length)];
           newWords.push(recallWord);
           fullExclude.push(recallWord.id);
           excludeIds.push(recallWord.id);
-          wordsSinceRecallRef.current = 0; // Reset
+          wordsSinceRecallRef.current = 0;
         } else {
           const tier = FREQUENCY_TIERS[settings.difficulty];
           const filtered = dataPack.filter(w =>
@@ -132,17 +122,14 @@ export default function Home() {
 
           let pool = filtered;
           if (pool.length === 0) {
-            // Fallback 1: Ignore history, just avoid queue duplicates
             pool = dataPack.filter(w =>
               (w.frequency || 0) >= tier.min &&
               (w.frequency || 0) <= tier.max &&
               !excludeIds.includes(w.id)
             );
-            // Fallback 2: Completely desperate, just avoid queue duplicates regardless of tier
             if (pool.length === 0) {
               pool = dataPack.filter(w => !excludeIds.includes(w.id));
             }
-            // Fallback 3: Nuclear, just allow duplicates if the pack is smaller than queue
             if (pool.length === 0) {
               pool = dataPack;
             }
@@ -164,7 +151,6 @@ export default function Home() {
     });
   }, [dataPack, settings.difficulty, settings.activeRecall, settings.language]);
 
-  // Initialize and Refill
   useEffect(() => {
     if (dataPack.length > 0 && upcomingWords.length < 3) {
       refillUpcoming(history);
@@ -173,20 +159,14 @@ export default function Home() {
 
   const currentWord = upcomingWords[0];
 
-
-
   const handleComplete = useCallback(() => {
     if (!currentWord) return;
-
-    // Add to History (No duplicates)
     setHistory(prev => {
       if (prev.find(w => w.id === currentWord.id)) return prev;
       const updated = [currentWord, ...prev].slice(0, 500);
       localStorage.setItem('jern-history', JSON.stringify(updated));
       return updated;
     });
-
-    // Move upcoming queue
     setUpcomingWords(prev => prev.slice(1));
   }, [currentWord]);
 
@@ -195,7 +175,6 @@ export default function Home() {
       if (prev.length === 0) return prev;
       const lastMastered = prev[0];
       setUpcomingWords(currentQueue => [lastMastered, ...currentQueue]);
-
       const newHistory = prev.slice(1);
       localStorage.setItem('jern-history', JSON.stringify(newHistory));
       return newHistory;
@@ -211,7 +190,6 @@ export default function Home() {
       }
       return { ...prev, ...updates };
     });
-
     if (updates.audioRepeat === false) {
       stop();
     }
@@ -224,50 +202,47 @@ export default function Home() {
 
   if (isLoading && upcomingWords.length === 0) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-8 text-muted animate-pulse font-mono uppercase tracking-[0.3em] text-[10px]">
-        Loading Data Pack...
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <div className="flex items-center gap-1.5">
+          <div className="w-2 h-2 rounded-full bg-accent animate-bounce" style={{ animationDelay: '0ms' }} />
+          <div className="w-2 h-2 rounded-full bg-accent animate-bounce" style={{ animationDelay: '150ms' }} />
+          <div className="w-2 h-2 rounded-full bg-accent animate-bounce" style={{ animationDelay: '300ms' }} />
+        </div>
       </div>
     );
   }
 
   return (
     <main className="min-h-screen bg-background text-foreground flex flex-col font-sans overflow-hidden">
-      {/* Header */}
-      <header className="px-8 py-6 flex justify-between items-center bg-background/50 backdrop-blur-sm z-20">
-        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.location.reload()}>
-          <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-background font-bold transition-transform group-hover:scale-110">J</div>
-          <h1 className="text-xl font-medium tracking-tight">JERN</h1>
+      {/* ── Header ── */}
+      <header className="px-6 md:px-8 py-5 flex justify-between items-center z-20">
+        <div className="flex items-center cursor-pointer group" onClick={() => window.location.reload()}>
+          <h1 className="text-xl font-bold tracking-tight text-foreground group-hover:opacity-70 transition-opacity">JERN<span className="text-accent">.</span></h1>
         </div>
 
-        <div className="flex items-center gap-6 md:gap-8">
-          <button onClick={() => setIsInfoOpen(true)} className="text-muted hover:text-foreground transition-all">
-            <Info className="w-5 md:w-8 h-5 md:h-8" />
+        <div className="flex items-center gap-5">
+          <button onClick={() => setIsInfoOpen(true)} className="text-muted hover:text-foreground transition-colors">
+            <Info className="w-5 h-5" />
           </button>
-          <button onClick={() => setIsHistoryOpen(true)} className="text-muted hover:text-foreground transition-all relative">
-            <History className="w-5 md:w-8 h-5 md:h-8" />
-            {history.length > 0 && <span className="absolute -top-1 -right-1 w-2 md:w-3 h-2 md:h-3 bg-accent rounded-full" />}
+          <button onClick={() => setIsHistoryOpen(true)} className="text-muted hover:text-foreground transition-colors relative">
+            <History className="w-5 h-5" />
+            {history.length > 0 && <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-accent rounded-full" />}
           </button>
-          <button onClick={() => setIsSettingsOpen(true)} className="text-muted hover:text-foreground transition-all">
-            <Settings className="w-5 md:w-8 h-5 md:h-8" />
+          <button onClick={() => setIsSettingsOpen(true)} className="text-muted hover:text-foreground transition-colors">
+            <Settings className="w-5 h-5" />
           </button>
         </div>
       </header>
 
-      {/* Desktop Info Overlay */}
+      {/* ── Status bar ── */}
       {!isIOS && (
-        <div className="absolute top-[88px] md:top-[100px] left-0 w-full flex justify-between items-center opacity-40 pointer-events-none px-8 md:px-16 z-10">
-          <div className="text-xs md:text-sm font-medium uppercase tracking-widest flex items-center gap-3 pointer-events-auto">
-            <Globe className="w-4 h-4" />
-            <span>{LANGUAGES.find(l => l.value === settings.language)?.label} / {settings.difficulty}</span>
-          </div>
-          <div className="text-xs md:text-sm font-medium uppercase tracking-widest flex items-center gap-2 pointer-events-auto">
-            <CheckCircle2 className="w-4 h-4" />
-            <span>Mastered: {history.length}</span>
-          </div>
+        <div className="flex justify-between items-center px-6 md:px-8 pb-2 z-10">
+          <span className="text-sm text-muted/50 font-medium capitalize">{LANGUAGES.find(l => l.value === settings.language)?.label} · {settings.difficulty}</span>
+          <span className="text-sm text-muted/50 font-medium">{history.length} mastered</span>
         </div>
       )}
 
-      {/* Main Content */}
+      {/* ── Main Content ── */}
       <div
         className={cn(
           "flex-1 flex flex-col justify-center relative select-none mx-auto w-full",
@@ -276,15 +251,9 @@ export default function Home() {
       >
         {isIOS ? (
           <div className="absolute top-0 sm:top-8 w-full flex-col flex items-center pointer-events-none z-10 pt-4">
-            <div className="w-full flex justify-between items-center opacity-30 pointer-events-auto px-4">
-              <div className="text-[10px] md:text-sm font-mono uppercase tracking-[0.4em] flex items-center gap-4">
-                <Globe className="w-3 md:w-4 h-3 md:h-4" />
-                <span>{LANGUAGES.find(l => l.value === settings.language)?.label} / {settings.difficulty}</span>
-              </div>
-              <div className="text-[10px] md:text-sm font-mono uppercase tracking-[0.2em] flex items-center gap-2">
-                <CheckCircle2 className="w-3 md:w-4 h-3 md:h-4" />
-                <span>Mastered: {history.length}</span>
-              </div>
+            <div className="w-full flex justify-between items-center pointer-events-auto px-6">
+              <span className="text-sm text-muted/50 font-medium capitalize">{LANGUAGES.find(l => l.value === settings.language)?.label} · {settings.difficulty}</span>
+              <span className="text-sm text-muted/50 font-medium">{history.length} mastered</span>
             </div>
 
             <div className="mt-6 flex flex-col items-center gap-2 w-full text-center pointer-events-auto px-4 top-10 absolute">
@@ -295,9 +264,9 @@ export default function Home() {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="text-[9px] font-mono uppercase tracking-widest text-orange-500/80 bg-orange-500/10 border border-orange-500/20 px-4 py-1.5 rounded-full text-center"
+                    className="text-xs text-orange-600/80 bg-orange-50 border border-orange-200 px-4 py-2 rounded-xl text-center"
                   >
-                    ⚠️ This language is currently under development and may be unstable or inaccurate at times.
+                    ⚠️ This language is under development and may be unstable.
                   </motion.div>
                 )}
                 {settings.language === 'ur' && isIOS && (
@@ -306,9 +275,9 @@ export default function Home() {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="text-[9px] font-mono uppercase tracking-widest text-red-500/80 bg-red-500/10 border border-red-500/20 px-6 py-2.5 rounded-xl text-center max-w-lg leading-loose"
+                    className="text-xs text-red-600/80 bg-red-50 border border-red-200 px-4 py-2 rounded-xl text-center max-w-lg"
                   >
-                    🔇 Apple iOS currently does not support Urdu Text-To-Speech natively. Audio may only work on Android or Desktop browsers.
+                    🔇 iOS doesn't support Urdu TTS natively. Audio may only work on Android or desktop.
                   </motion.div>
                 )}
                 {isVoiceMissing && settings.language !== 'ur' && (
@@ -317,16 +286,16 @@ export default function Home() {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="text-[9px] font-mono uppercase tracking-widest text-red-500/80 bg-red-500/10 border border-red-500/20 px-6 py-2.5 rounded-xl text-center max-w-lg leading-loose"
+                    className="text-xs text-red-600/80 bg-red-50 border border-red-200 px-4 py-2 rounded-xl text-center max-w-lg"
                   >
-                    🔇 Missing Voice Data: You may need to download the {LANGUAGES.find(l => l.value === settings.language)?.label} voice in your device settings (e.g. Settings &gt; Accessibility &gt; Spoken Content &gt; Voices on iOS).
+                    🔇 Missing voice data. Download the {LANGUAGES.find(l => l.value === settings.language)?.label} voice in device settings.
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
           </div>
         ) : (
-          <div className="absolute top-20 w-full flex flex-col items-center gap-2 text-center pointer-events-auto px-4 z-10 w-full left-0 right-0">
+          <div className="absolute top-4 w-full flex flex-col items-center gap-2 text-center pointer-events-auto px-4 z-10 left-0 right-0">
             <AnimatePresence>
               {['ja', 'ko'].includes(settings.language) && (
                 <motion.div
@@ -334,9 +303,9 @@ export default function Home() {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="text-[9px] font-medium uppercase tracking-widest text-orange-500/80 bg-orange-500/10 border border-orange-500/20 px-4 py-1.5 rounded-full text-center max-w-max mx-auto"
+                  className="text-xs text-orange-600/80 bg-orange-50 border border-orange-200 px-4 py-2 rounded-xl text-center max-w-max mx-auto"
                 >
-                  ⚠️ This language is currently under development.
+                  ⚠️ This language is under development.
                 </motion.div>
               )}
               {isVoiceMissing && settings.language !== 'ur' && (
@@ -345,9 +314,9 @@ export default function Home() {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="text-[9px] font-medium uppercase tracking-widest text-red-500/80 bg-red-500/10 border border-red-500/20 px-6 py-2.5 rounded-xl text-center max-w-md mx-auto leading-loose"
+                  className="text-xs text-red-600/80 bg-red-50 border border-red-200 px-4 py-2 rounded-xl text-center max-w-md mx-auto"
                 >
-                  🔇 Missing Voice Data: You may need to download the {LANGUAGES.find(l => l.value === settings.language)?.label} voice in your device settings.
+                  🔇 Missing voice data. Download the {LANGUAGES.find(l => l.value === settings.language)?.label} voice in device settings.
                 </motion.div>
               )}
             </AnimatePresence>
@@ -374,102 +343,128 @@ export default function Home() {
               onToggleLoop={() => updateSettings({ loopWord: !settings.loopWord })}
             />
           ) : (
-            <div className="text-muted font-mono animate-pulse">Replenishing pool...</div>
+            <div className="flex items-center justify-center gap-1.5">
+              <div className="w-2 h-2 rounded-full bg-accent animate-bounce" style={{ animationDelay: '0ms' }} />
+              <div className="w-2 h-2 rounded-full bg-accent animate-bounce" style={{ animationDelay: '150ms' }} />
+              <div className="w-2 h-2 rounded-full bg-accent animate-bounce" style={{ animationDelay: '300ms' }} />
+            </div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Settings Modal */}
+      {/* ══════════════════════════════════════════════ */}
+      {/* ── Settings Modal ── */}
+      {/* ══════════════════════════════════════════════ */}
       <AnimatePresence>
         {isSettingsOpen && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-background/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm"
             onClick={() => setIsSettingsOpen(false)}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-background border border-extra-muted p-8 rounded-[2.5rem] shadow-2xl max-w-md w-full space-y-6"
+              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
+              className="bg-background rounded-2xl shadow-xl max-w-md w-full max-h-[85vh] overflow-y-auto custom-scrollbar"
               onClick={(e) => e.stopPropagation()}
             >
-              <div>
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-muted mb-4">Languages</h2>
-                <div className="grid grid-cols-3 gap-4">
-                  {LANGUAGES.map((lang) => (
+              {/* Header */}
+              <div className="flex items-center justify-between p-5 pb-0">
+                <h2 className="text-lg font-semibold">Settings</h2>
+                <button onClick={() => setIsSettingsOpen(false)} className="text-muted hover:text-foreground transition-colors">
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="p-5 space-y-6">
+                {/* Languages */}
+                <div>
+                  <p className="text-xs font-medium text-muted mb-3">Language</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {LANGUAGES.map((lang) => (
+                      <button
+                        key={lang.value}
+                        onClick={() => updateSettings({ language: lang.value })}
+                        className={cn(
+                          "p-3 rounded-xl flex flex-col items-center gap-2 transition-all text-sm font-medium",
+                          settings.language === lang.value
+                            ? "ring-2 ring-accent bg-accent/5 text-foreground"
+                            : "bg-extra-muted/30 text-foreground hover:bg-extra-muted/50"
+                        )}
+                      >
+                        <Flag code={lang.countryCode} className="h-5 rounded-sm" />
+                        <span>{lang.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Difficulty */}
+                <div>
+                  <p className="text-xs font-medium text-muted mb-3">Difficulty</p>
+                  <LayoutGroup>
+                    <div className="flex p-1 bg-extra-muted/40 rounded-xl relative">
+                      {(['beginner', 'intermediate', 'hard'] as Difficulty[]).map((d) => (
+                        <button
+                          key={d}
+                          onClick={() => updateSettings({ difficulty: d })}
+                          className={cn(
+                            "flex-1 py-2 rounded-lg text-xs font-medium capitalize transition-colors relative z-10",
+                            settings.difficulty === d ? "text-white" : "text-muted hover:text-foreground"
+                          )}
+                        >
+                          {settings.difficulty === d && (
+                            <motion.div
+                              layoutId="difficulty-pill"
+                              className="absolute inset-0 bg-accent rounded-lg"
+                              style={{ zIndex: -1 }}
+                              transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+                            />
+                          )}
+                          {d}
+                        </button>
+                      ))}
+                    </div>
+                  </LayoutGroup>
+                </div>
+
+                {/* Feedback */}
+                <div>
+                  <p className="text-xs font-medium text-muted mb-3">Feedback</p>
+                  <div className="space-y-2">
                     <button
-                      key={lang.value}
-                      onClick={() => updateSettings({ language: lang.value })}
-                      className={`p-3 rounded-2xl border transition-all flex flex-col items-center gap-2 ${settings.language === lang.value ? "border-accent bg-accent text-background" : "border-extra-muted hover:border-muted"
-                        }`}
+                      onClick={() => updateSettings({ audioRepeat: !settings.audioRepeat })}
+                      className="w-full p-4 rounded-xl bg-extra-muted/20 hover:bg-extra-muted/40 flex items-center justify-between transition-colors"
                     >
-                      <Flag code={lang.countryCode} className="h-6 object-cover rounded-sm shadow-sm" />
-                      <span className="text-[9px] font-bold uppercase tracking-tighter">{lang.label}</span>
+                      <div className="flex items-center gap-3">
+                        <Volume2 size={16} className={settings.audioRepeat ? "text-accent" : "text-muted"} />
+                        <span className="text-sm font-medium">Continuous Pronunciation</span>
+                      </div>
+                      <div className={cn("w-9 h-5 rounded-full relative transition-colors", settings.audioRepeat ? "bg-accent" : "bg-extra-muted")}>
+                        <div className={cn("absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-all", settings.audioRepeat ? "right-0.5" : "left-0.5")} />
+                      </div>
                     </button>
-                  ))}
-                </div>
-              </div>
 
-
-
-              <div className="space-y-4">
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">Difficulty</h2>
-                <div className="flex gap-2 p-1 bg-extra-muted/20 rounded-2xl">
-                  {(['beginner', 'intermediate', 'hard'] as Difficulty[]).map((d) => (
                     <button
-                      key={d}
-                      onClick={() => updateSettings({ difficulty: d })}
-                      className={`flex-1 py-3 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all ${settings.difficulty === d ? "bg-foreground text-background shadow-lg" : "hover:bg-extra-muted/40 text-muted"
-                        }`}
+                      onClick={() => updateSettings({ activeRecall: !settings.activeRecall })}
+                      className="w-full p-4 rounded-xl bg-extra-muted/20 hover:bg-extra-muted/40 flex items-center justify-between transition-colors"
                     >
-                      {d}
+                      <div className="flex items-center gap-3">
+                        <RotateCcw size={16} className={settings.activeRecall ? "text-accent" : "text-muted"} />
+                        <span className="text-sm font-medium">Spaced Repetition</span>
+                      </div>
+                      <div className={cn("w-9 h-5 rounded-full relative transition-colors", settings.activeRecall ? "bg-accent" : "bg-extra-muted")}>
+                        <div className={cn("absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-all", settings.activeRecall ? "right-0.5" : "left-0.5")} />
+                      </div>
                     </button>
-                  ))}
+                  </div>
                 </div>
-              </div>
 
-              <div className="space-y-4">
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">Feedback</h2>
-                <div className="space-y-3">
-                  <button
-                    onClick={() => updateSettings({ audioRepeat: !settings.audioRepeat })}
-                    className={`w-full p-5 rounded-3xl border flex items-center justify-between transition-all ${settings.audioRepeat ? "bg-accent/5 border-accent" : "border-extra-muted"
-                      }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className={`p-2 rounded-xl ${settings.audioRepeat ? "bg-accent text-background" : "bg-extra-muted text-muted"}`}>
-                        <Volume2 size={18} />
-                      </div>
-                      <span className="text-xs font-semibold">Continuous Pronunciation</span>
-                    </div>
-                    <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.audioRepeat ? "bg-accent" : "bg-extra-muted"}`}>
-                      <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${settings.audioRepeat ? "right-1" : "left-1"}`} />
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => updateSettings({ activeRecall: !settings.activeRecall })}
-                    className={`w-full p-5 rounded-3xl border flex items-center justify-between transition-all ${settings.activeRecall ? "bg-accent/5 border-accent" : "border-extra-muted"
-                      }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className={`p-2 rounded-xl ${settings.activeRecall ? "bg-accent text-background" : "bg-extra-muted text-muted"}`}>
-                        <RotateCcw size={18} />
-                      </div>
-                      <span className="text-xs font-semibold">Spaced Repetition</span>
-                    </div>
-                    <div className={`w-10 h-5 rounded-full relative transition-colors ${settings.activeRecall ? "bg-accent" : "bg-extra-muted"}`}>
-                      <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${settings.activeRecall ? "right-1" : "left-1"}`} />
-                    </div>
-                  </button>
-                </div>
-              </div>
-
-              {isIOS && (
-                <div className="space-y-4">
-                  <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">Apple Pencil</h2>
-                  <div className="space-y-3">
-                    <div className="w-full p-5 rounded-3xl border border-extra-muted flex flex-col gap-4">
-                      <span className="text-xs font-semibold">Thickness</span>
+                {isIOS && (
+                  <div>
+                    <p className="text-xs font-medium text-muted mb-3">Apple Pencil</p>
+                    <div className="p-4 rounded-xl bg-extra-muted/20">
+                      <span className="text-sm font-medium mb-2 block">Thickness</span>
                       <input
                         type="range"
                         min="1" max="20"
@@ -478,107 +473,76 @@ export default function Home() {
                         className="w-full accent-accent"
                       />
                     </div>
-                    <div className="w-full p-5 rounded-3xl border border-extra-muted flex flex-col gap-4">
-                      <span className="text-xs font-semibold">Color</span>
-                      <div className="flex gap-2">
-                        {[
-                          { label: "Adaptive", value: "default" },
-                          { label: "Blue", value: "#3b82f6" },
-                          { label: "Red", value: "#ef4444" },
-                          { label: "Green", value: "#22c55e" }
-                        ].map(c => (
-                          <button
-                            key={c.value}
-                            onClick={() => updateSettings({ penColor: c.value })}
-                            className={`flex-1 py-3 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all ${(settings.penColor || "default") === c.value
-                              ? "bg-foreground text-background shadow-lg"
-                              : "hover:bg-extra-muted/40 bg-extra-muted/20 text-muted"
-                              }`}
-                          >
-                            {c.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
                   </div>
-                </div>
-              )}
-
-              <div className="space-y-4">
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">Appearance</h2>
-                <div className="flex gap-2 p-1 bg-extra-muted/20 rounded-2xl">
-                  {['light', 'dark', 'system'].map((t) => (
-                    <button
-                      key={t}
-                      onClick={() => setTheme(t)}
-                      className={`flex-1 py-3 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all ${theme === t ? "bg-foreground text-background shadow-lg" : "hover:bg-extra-muted/40 text-muted"
-                        }`}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                </div>
+                )}
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Info Modal */}
+      {/* ══════════════════════════════════════════════ */}
+      {/* ── Info Modal ── */}
+      {/* ══════════════════════════════════════════════ */}
       <AnimatePresence>
         {isInfoOpen && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-background/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm"
             onClick={() => setIsInfoOpen(false)}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-background border border-extra-muted p-12 rounded-[3rem] shadow-2xl max-w-lg w-full space-y-8"
+              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
+              className="bg-background rounded-2xl shadow-xl max-w-md w-full p-6 space-y-6"
               onClick={(e) => e.stopPropagation()}
             >
-              <div>
-                <h2 className="text-2xl font-semibold tracking-tight mb-2">About JERN</h2>
-                <p className="text-muted text-sm leading-relaxed">
-                  JERN is a focused environment designed for deep linguistic association, built on the scientific principles of Dual Coding and Multisensory Integration. We believe that true learning happens when your motor skills (typing), your ears (listening), and your eyes (reading) are all focused on a single point of data at the same time, creating a multisensory loop that accelerates memory encoding; allowing you to type to remember and listen to understand.
-                </p>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">About JERN</h2>
+                <button onClick={() => setIsInfoOpen(false)} className="text-muted hover:text-foreground transition-colors">
+                  <X size={18} />
+                </button>
               </div>
 
+              <p className="text-sm text-muted leading-relaxed">
+                JERN is a focused environment for deep linguistic association, built on Dual Coding and Multisensory Integration. True learning happens when typing, listening, and reading converge on a single point — creating a loop that accelerates memory encoding.
+              </p>
+
               <div className="space-y-4">
-                <div className="flex gap-4 items-start">
-                  <div className="p-2 bg-accent/10 text-accent rounded-xl mt-1"><Globe size={16} /></div>
+                <div className="flex gap-3 items-start">
+                  <div className="p-2 bg-accent/10 text-accent rounded-lg mt-0.5 shrink-0"><Globe size={14} /></div>
                   <div>
-                    <h3 className="text-sm font-semibold mb-1">Total Privacy. 100% Local.</h3>
+                    <h3 className="text-sm font-semibold mb-0.5">100% Local & Private</h3>
                     <p className="text-xs text-muted leading-relaxed">
-                      JERN runs entirely in your browser. No data is saved to any external servers, and once the website has loaded, it can even work completely offline.
+                      Runs entirely in your browser. No data leaves your device. Works offline after first load.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex gap-4 items-start">
-                  <div className="p-2 bg-accent/10 text-accent rounded-xl mt-1"><RotateCcw size={16} /></div>
+                <div className="flex gap-3 items-start">
+                  <div className="p-2 bg-accent/10 text-accent rounded-lg mt-0.5 shrink-0"><RotateCcw size={14} /></div>
                   <div>
-                    <h3 className="text-sm font-semibold mb-1">Spaced Repetition</h3>
+                    <h3 className="text-sm font-semibold mb-0.5">Spaced Repetition</h3>
                     <p className="text-xs text-muted leading-relaxed">
-                      Our engine utilizes active recall, tracking your mastered words and seamlessly injecting tricky vocabulary back into your queue without breaking your typing flow.
+                      Tracks mastered words and reinjects tricky vocabulary into your queue without breaking flow.
                     </p>
                   </div>
                 </div>
 
-                <div className="flex gap-4 items-start">
-                  <div className="p-2 bg-accent/10 text-accent rounded-xl mt-1"><Volume2 size={16} /></div>
+                <div className="flex gap-3 items-start">
+                  <div className="p-2 bg-accent/10 text-accent rounded-lg mt-0.5 shrink-0"><Volume2 size={14} /></div>
                   <div>
-                    <h3 className="text-sm font-semibold mb-1">Dual-Language Audio</h3>
+                    <h3 className="text-sm font-semibold mb-0.5">Dual-Language Audio</h3>
                     <p className="text-xs text-muted leading-relaxed">
-                      Toggle the pronunciation engine between English and the target language instantly, or enable continuous pronunciation in the settings to enforce auditory pairing.
+                      Toggle pronunciation between English and the target language, or enable continuous mode in settings.
                     </p>
                   </div>
                 </div>
               </div>
 
               <div className="pt-4 border-t border-extra-muted text-center">
-                <p className="text-[10px] text-muted uppercase tracking-widest">
-                  Developed by <a href="https://www.linkedin.com/in/nawfaljafri/" target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-accent transition-colors font-semibold">Nawfal Jaffri</a>
+                <p className="text-xs text-muted">
+                  Made by <a href="https://www.linkedin.com/in/nawfaljafri/" target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-accent transition-colors font-medium">Nawfal Jafri</a>
                 </p>
               </div>
             </motion.div>
@@ -586,45 +550,50 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* Dictionary Sidebar */}
+      {/* ══════════════════════════════════════════════ */}
+      {/* ── Lexicon Sidebar ── */}
+      {/* ══════════════════════════════════════════════ */}
       <AnimatePresence>
         {isHistoryOpen && (
           <motion.div
             initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
-            className="fixed inset-y-0 right-0 z-50 w-full max-w-sm bg-background border-l border-extra-muted shadow-2xl p-10 flex flex-col"
+            transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+            className="fixed inset-y-0 right-0 z-50 w-full max-w-sm bg-background shadow-2xl flex flex-col"
           >
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-semibold tracking-tight">Core Lexicon</h2>
-              <button onClick={() => setIsHistoryOpen(false)} className="text-muted hover:text-foreground">
-                <ChevronRight size={28} />
+            <div className="flex items-center justify-between p-5">
+              <h2 className="text-lg font-semibold">Lexicon</h2>
+              <button onClick={() => setIsHistoryOpen(false)} className="text-muted hover:text-foreground transition-colors">
+                <X size={18} />
               </button>
             </div>
 
-            <div className="relative mb-8">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={16} />
-              <input
-                type="text"
-                placeholder="Search mastered words..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-extra-muted/10 border border-extra-muted rounded-2xl py-3 pl-12 pr-4 text-sm focus:outline-none focus:border-muted transition-colors"
-              />
+            <div className="px-5 pb-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={14} />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-extra-muted/30 rounded-xl py-2.5 pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
+                />
+              </div>
             </div>
 
-            <div className="space-y-6 flex-1 overflow-y-auto pr-2 pb-10">
-              {groupedHistory.length === 0 && <p className="text-muted text-sm italic py-10 opacity-40">Your brain is a tabula rasa. Move your fingers.</p>}
+            <div className="flex-1 overflow-y-auto px-5 pb-10 custom-scrollbar space-y-3">
+              {groupedHistory.length === 0 && <p className="text-muted text-sm py-10 text-center">No words mastered yet.</p>}
               {groupedHistory.map((group) => (
-                <div key={group.value} className="border border-extra-muted rounded-[2rem] overflow-hidden">
+                <div key={group.value} className="rounded-xl overflow-hidden bg-extra-muted/20">
                   <button
                     onClick={() => setExpandedLangInHistory(expandedLangInHistory === group.value ? null : group.value)}
-                    className="w-full flex items-center justify-between p-5 bg-extra-muted/10 hover:bg-extra-muted/20 transition-colors"
+                    className="w-full flex items-center justify-between p-3.5 hover:bg-extra-muted/40 transition-colors"
                   >
-                    <div className="flex items-center gap-4">
-                      <Flag code={group.countryCode} className="h-4 object-cover rounded-sm shadow-sm" />
-                      <span className="font-semibold text-sm">{group.label}</span>
-                      <span className="text-[10px] text-muted font-mono bg-extra-muted px-2 py-0.5 rounded-full">{group.words.length}</span>
+                    <div className="flex items-center gap-3">
+                      <Flag code={group.countryCode} className="h-4 rounded-sm" />
+                      <span className="font-medium text-sm">{group.label}</span>
+                      <span className="text-[10px] text-muted bg-extra-muted/60 px-1.5 py-0.5 rounded-md font-medium">{group.words.length}</span>
                     </div>
-                    {expandedLangInHistory === group.value ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                    {expandedLangInHistory === group.value ? <ChevronDown size={16} className="text-muted" /> : <ChevronRight size={16} className="text-muted" />}
                   </button>
 
                   <AnimatePresence>
@@ -652,7 +621,7 @@ function VirtualList({ words }: { words: Word[] }) {
   const rowVirtualizer = useVirtualizer({
     count: words.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 70,
+    estimateSize: () => 60,
     overscan: 5,
   });
 
@@ -663,7 +632,7 @@ function VirtualList({ words }: { words: Word[] }) {
     >
       <div
         ref={parentRef}
-        className="max-h-[50vh] overflow-y-auto p-4 custom-scrollbar"
+        className="max-h-[50vh] overflow-y-auto px-3 pb-3 custom-scrollbar"
       >
         <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, width: '100%', position: 'relative' }}>
           {rowVirtualizer.getVirtualItems().map((virtualRow) => {
@@ -679,19 +648,19 @@ function VirtualList({ words }: { words: Word[] }) {
                   height: `${virtualRow.size}px`,
                   transform: `translateY(${virtualRow.start}px)`,
                 }}
-                className="py-1"
+                className="py-0.5"
               >
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-extra-muted/5 group hover:bg-extra-muted/20 transition-all h-full">
+                <div className="flex items-center justify-between p-3 rounded-lg hover:bg-extra-muted/30 transition-colors h-full">
                   <div>
                     <div className={cn(
-                      "text-lg",
+                      "text-base font-medium",
                       word.language === 'ar' || word.language === 'ur' ? "font-arabic" : "font-sans"
                     )} dir={word.language === 'ar' || word.language === 'ur' ? "rtl" : "ltr"}>
                       {word.original}
                     </div>
-                    <div className="text-[10px] text-muted font-mono opacity-50 group-hover:opacity-100 transition-opacity">{word.romanized}</div>
+                    <div className="text-xs text-muted">{word.romanized}</div>
                   </div>
-                  <div className="text-[10px] font-bold uppercase text-muted tracking-tight max-w-[100px] text-right truncate">
+                  <div className="text-xs text-muted max-w-[100px] text-right truncate">
                     {word.definition}
                   </div>
                 </div>

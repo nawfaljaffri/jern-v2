@@ -6,8 +6,9 @@ export function useTTS() {
     const synthRef = useRef<SpeechSynthesis | null>(null);
     const repeatTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+    // Cache resolved voices per language to avoid scanning 50+ voices every speak() call
+    const voiceCacheRef = useRef<Map<string, SpeechSynthesisVoice>>(new Map());
 
-    // We store voices in state so components can react if needed
     const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [isPending, setIsPending] = useState(false);
@@ -29,21 +30,24 @@ export function useTTS() {
         if (typeof window !== "undefined" && window.speechSynthesis) {
             synthRef.current = window.speechSynthesis;
 
-            // Function to load voices
             const loadVoices = () => {
                 const availableVoices = window.speechSynthesis.getVoices();
                 if (availableVoices.length > 0) {
                     setVoices(availableVoices);
+                    voiceCacheRef.current.clear(); // Invalidate cache when voices change
                 }
             };
 
-            // Load immediately (Chrome sometimes has them ready)
             loadVoices();
 
-            // Safari / some engines load them asynchronously
             if (window.speechSynthesis.onvoiceschanged !== undefined) {
                 window.speechSynthesis.onvoiceschanged = loadVoices;
             }
+
+            // Warm up the synth engine with a silent utterance to eliminate first-call latency
+            const warmup = new SpeechSynthesisUtterance("");
+            warmup.volume = 0;
+            window.speechSynthesis.speak(warmup);
 
             const handleVisibilityChange = () => {
                 if (document.visibilityState === 'hidden') {
@@ -66,15 +70,42 @@ export function useTTS() {
                 stop();
             };
         }
-        return () => {
-            stop();
-        };
-    }, [stop]); // Added stop to dependency array as it's used in cleanup
+        return () => { stop(); };
+    }, [stop]);
+
+    // Memoized voice resolver with cache
+    const resolveVoice = useCallback((lang: string): SpeechSynthesisVoice | undefined => {
+        // Check cache first
+        const cached = voiceCacheRef.current.get(lang);
+        if (cached) return cached;
+
+        if (voices.length === 0) return undefined;
+
+        let matchedVoice: SpeechSynthesisVoice | undefined;
+
+        if (lang.startsWith("en")) {
+            const preferredUSNames = ["Samantha", "Ava", "Allison", "Susan", "Siri", "Google US English"];
+            matchedVoice = voices.find(v => v.lang === "en-US" && preferredUSNames.some(name => v.name.includes(name)) && (v.name.includes("Premium") || v.name.includes("Enhanced")));
+            if (!matchedVoice) matchedVoice = voices.find(v => v.lang === "en-US" && preferredUSNames.some(name => v.name.includes(name)));
+            if (!matchedVoice) matchedVoice = voices.find(v => v.lang === "en-US" && (v.name.includes("Premium") || v.name.includes("Enhanced")));
+            if (!matchedVoice) matchedVoice = voices.find(v => v.lang === "en-US");
+            if (!matchedVoice) matchedVoice = voices.find(v => v.lang.startsWith("en"));
+        } else {
+            matchedVoice = voices.find(v => v.lang.toLowerCase() === lang.toLowerCase());
+            if (!matchedVoice) {
+                const baseLang = lang.split('-')[0].toLowerCase();
+                matchedVoice = voices.find(v => v.lang.toLowerCase().startsWith(baseLang));
+            }
+        }
+
+        // Cache the result
+        if (matchedVoice) voiceCacheRef.current.set(lang, matchedVoice);
+        return matchedVoice;
+    }, [voices]);
 
     const speak = useCallback((text: string, lang: string = "en-US", repeat: boolean = false) => {
         if (!synthRef.current) return;
 
-        // Stop previous before starting new
         stop();
 
         const utterance = new SpeechSynthesisUtterance(text);
@@ -83,51 +114,8 @@ export function useTTS() {
 
         setIsPending(true);
 
-        // Smart Voice Selection logic
-        if (voices.length > 0) {
-            let matchedVoice;
-
-            // Special handling for English (especially on iOS to avoid robotic default)
-            if (lang.startsWith("en")) {
-                const preferredUSNames = ["Samantha", "Ava", "Allison", "Susan", "Siri", "Google US English"];
-
-                // 1. Try to find a premium/enhanced US voice matching preferred names
-                matchedVoice = voices.find(v => v.lang === "en-US" && preferredUSNames.some(name => v.name.includes(name)) && (v.name.includes("Premium") || v.name.includes("Enhanced")));
-
-                // 2. Try any of the preferred US names (standard quality)
-                if (!matchedVoice) {
-                    matchedVoice = voices.find(v => v.lang === "en-US" && preferredUSNames.some(name => v.name.includes(name)));
-                }
-
-                // 3. Try any premium en-US voice
-                if (!matchedVoice) {
-                    matchedVoice = voices.find(v => v.lang === "en-US" && (v.name.includes("Premium") || v.name.includes("Enhanced")));
-                }
-
-                // 4. Fallback to any en-US voice
-                if (!matchedVoice) {
-                    matchedVoice = voices.find(v => v.lang === "en-US");
-                }
-
-                // 5. Final fallback to any English voice
-                if (!matchedVoice) {
-                    matchedVoice = voices.find(v => v.lang.startsWith("en"));
-                }
-            } else {
-                // For other languages, try an exact match (e.g. 'fr-FR')
-                matchedVoice = voices.find(v => v.lang.toLowerCase() === lang.toLowerCase());
-
-                // Try matching just the base language (e.g. 'fr')
-                if (!matchedVoice) {
-                    const baseLang = lang.split('-')[0].toLowerCase();
-                    matchedVoice = voices.find(v => v.lang.toLowerCase().startsWith(baseLang));
-                }
-            }
-
-            if (matchedVoice) {
-                utterance.voice = matchedVoice;
-            }
-        }
+        const voice = resolveVoice(lang);
+        if (voice) utterance.voice = voice;
 
         currentUtteranceRef.current = utterance;
 
@@ -160,7 +148,7 @@ export function useTTS() {
         };
 
         synthRef.current.speak(utterance);
-    }, [stop, voices]);
+    }, [stop, resolveVoice]);
 
     return { speak, stop, voices, isSpeaking, isPending };
 }

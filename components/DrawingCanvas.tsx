@@ -168,14 +168,8 @@ export default function DrawingCanvas({ wordId, penThickness, penColor, isIOS, c
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        // Base color on dark mode preference or user setting
-        if (penColor && penColor !== "default") {
-            ctx.strokeStyle = penColor;
-        } else {
-            const isDark = document.documentElement.className.includes('dark') ||
-                (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            ctx.strokeStyle = isDark ? "rgba(255, 255, 255, 0.9)" : "rgba(0, 0, 0, 0.9)";
-        }
+        // Always use brand green
+        ctx.strokeStyle = "#079669";
 
         const baseThickness = penThickness || 6;
         const minWidth = Math.max(1, baseThickness * 0.5);
@@ -207,20 +201,20 @@ export default function DrawingCanvas({ wordId, penThickness, penColor, isIOS, c
                 }}
             />
             {isIOS && (
-                <div className="absolute top-2 right-4 flex gap-3 z-30 pointer-events-none">
+            <div className="absolute top-3 right-4 flex gap-2 z-30 pointer-events-none">
                     <button
                         onClick={undo}
                         disabled={undoStack.length === 0}
-                        className="pointer-events-auto p-3 bg-background/80 backdrop-blur-md rounded-full border border-extra-muted text-muted hover:text-foreground disabled:opacity-30 transition-all shadow-sm"
+                        className="pointer-events-auto p-2.5 bg-extra-muted/30 backdrop-blur-sm rounded-xl text-muted hover:text-foreground disabled:opacity-20 transition-all"
                     >
-                        <Undo2 size={24} />
+                        <Undo2 size={18} />
                     </button>
                     <button
                         onClick={redo}
                         disabled={redoStack.length === 0}
-                        className="pointer-events-auto p-3 bg-background/80 backdrop-blur-md rounded-full border border-extra-muted text-muted hover:text-foreground disabled:opacity-30 transition-all shadow-sm"
+                        className="pointer-events-auto p-2.5 bg-extra-muted/30 backdrop-blur-sm rounded-xl text-muted hover:text-foreground disabled:opacity-20 transition-all"
                     >
-                        <Redo2 size={24} />
+                        <Redo2 size={18} />
                     </button>
                 </div>
             )}
