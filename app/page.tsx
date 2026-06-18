@@ -385,234 +385,250 @@ export default function Home() {
                 {isSettingsOpen && (
                     <motion.div
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm"
+                        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/25 backdrop-blur-sm"
                         onClick={() => setIsSettingsOpen(false)}
                     >
                         <motion.div
-                            initial={{ scale: 0.96, opacity: 0, y: 8 }}
+                            initial={{ scale: 0.97, opacity: 0, y: 16 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.96, opacity: 0, y: 8 }}
-                            transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
-                            className="bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-neutral-100 max-w-md w-full max-h-[90vh] overflow-y-auto custom-scrollbar"
+                            exit={{ scale: 0.97, opacity: 0, y: 16 }}
+                            transition={{ type: "spring", bounce: 0.18, duration: 0.38 }}
+                            className="bg-[#fafafa] rounded-t-3xl sm:rounded-3xl shadow-[0_32px_80px_-12px_rgba(0,0,0,0.18)] w-full sm:max-w-[420px] max-h-[92vh] overflow-y-auto custom-scrollbar pb-safe"
                             onClick={e => e.stopPropagation()}
                         >
+                            {/* Drag handle (mobile) */}
+                            <div className="flex justify-center pt-3 pb-1 sm:hidden">
+                                <div className="w-10 h-1 rounded-full bg-neutral-200" />
+                            </div>
+
                             {/* Header */}
-                            <div className="flex items-center justify-between p-5 pb-0">
-                                <h2 className="text-lg font-semibold">Settings</h2>
-                                <button onClick={() => setIsSettingsOpen(false)} className="text-muted hover:text-foreground transition-colors">
-                                    <X size={18} />
+                            <div className="flex items-center justify-between px-6 pt-4 pb-2">
+                                <h2 className="text-[22px] font-bold tracking-tight">Settings</h2>
+                                <button
+                                    onClick={() => setIsSettingsOpen(false)}
+                                    className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-500 hover:bg-neutral-200 transition-colors"
+                                >
+                                    <X size={15} strokeWidth={2.5} />
                                 </button>
                             </div>
 
-                            <div className="p-0 pb-6 space-y-6">
-                                {/* Section: Learning Experience */}
-                                <div className="space-y-5">
-                                    <div className="px-5 pt-5">
-                                        <h3 className="text-[13px] font-bold text-accent uppercase tracking-wider">Learning Experience</h3>
+                            <div className="px-6 pb-8 space-y-7 mt-2">
+
+                                {/* ── Language ── */}
+                                <div>
+                                    <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Language</p>
+                                    <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 snap-x" style={{ scrollbarWidth: 'none' }}>
+                                        {LANGUAGES.map(lang => (
+                                            <button
+                                                key={lang.value}
+                                                onClick={() => updateSettings({ language: lang.value })}
+                                                className={cn(
+                                                    "snap-start shrink-0 h-11 px-5 rounded-2xl text-[15px] font-semibold transition-all duration-200",
+                                                    settings.language === lang.value
+                                                        ? "bg-accent text-white shadow-[0_4px_14px_rgba(5,150,105,0.35)]"
+                                                        : "bg-white border border-neutral-200 text-neutral-500 hover:border-neutral-300 hover:text-neutral-700"
+                                                )}
+                                            >
+                                                {lang.label}
+                                            </button>
+                                        ))}
                                     </div>
-                                    
-                                    {/* Languages */}
-                                    <div className="px-0">
-                                        <p className="text-xs font-medium text-muted mb-3 px-5">Language</p>
-                                        <div className="flex gap-2 overflow-x-auto pb-3 -mx-0 px-5 custom-scrollbar snap-x">
-                                            {LANGUAGES.map(lang => (
+                                </div>
+
+                                {/* ── Difficulty ── */}
+                                <div>
+                                    <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Difficulty</p>
+                                    <LayoutGroup id="settings-difficulty">
+                                        <div className="flex p-1 bg-neutral-100 rounded-2xl">
+                                            {(["beginner", "intermediate", "hard"] as Difficulty[]).map(d => (
                                                 <button
-                                                    key={lang.value}
-                                                    onClick={() => updateSettings({ language: lang.value })}
+                                                    key={d}
+                                                    onClick={() => updateSettings({ difficulty: d })}
                                                     className={cn(
-                                                        "snap-start shrink-0 py-2.5 px-5 rounded-[1.25rem] flex flex-col items-center justify-center transition-all min-w-[90px]",
-                                                        settings.language === lang.value
-                                                            ? "border-2 border-accent bg-accent/5 text-foreground shadow-sm"
-                                                            : "border border-neutral-200 bg-white text-muted hover:border-neutral-300 hover:text-foreground"
+                                                        "flex-1 py-2.5 rounded-xl text-[14px] font-semibold capitalize transition-colors relative z-10",
+                                                        settings.difficulty === d ? "text-white" : "text-neutral-400 hover:text-neutral-600"
                                                     )}
                                                 >
-                                                    <span className="text-[15px] font-semibold">{lang.label}</span>
+                                                    {settings.difficulty === d && (
+                                                        <motion.div
+                                                            layoutId="settings-difficulty-pill"
+                                                            className="absolute inset-0 bg-accent rounded-xl shadow-[0_2px_10px_rgba(5,150,105,0.3)]"
+                                                            style={{ zIndex: -1 }}
+                                                            transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
+                                                        />
+                                                    )}
+                                                    {d}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </LayoutGroup>
+                                </div>
+
+                                {/* ── Arabic Typeface ── */}
+                                {(settings.language === "ar" || settings.language === "ur") && (
+                                    <div>
+                                        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Script Style</p>
+                                        <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-1 px-1 snap-x" style={{ scrollbarWidth: 'none' }}>
+                                            {ARABIC_FONTS.map(font => (
+                                                <button
+                                                    key={font.value}
+                                                    onClick={() => updateSettings({ arabicFont: font.value })}
+                                                    className={cn(
+                                                        "snap-start shrink-0 w-[105px] h-[90px] rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all duration-200",
+                                                        (settings.arabicFont ?? DEFAULT_ARABIC_FONT) === font.value
+                                                            ? "border-accent bg-accent/8 shadow-[0_4px_14px_rgba(5,150,105,0.2)]"
+                                                            : "border-neutral-200 bg-white hover:border-neutral-300"
+                                                    )}
+                                                >
+                                                    <span
+                                                        className="text-[26px] leading-none"
+                                                        style={{ fontFamily: font.cssVar }}
+                                                    >
+                                                        {font.preview}
+                                                    </span>
+                                                    <span className={cn(
+                                                        "text-[10px] font-bold tracking-wider uppercase",
+                                                        (settings.arabicFont ?? DEFAULT_ARABIC_FONT) === font.value ? "text-accent" : "text-neutral-400"
+                                                    )}>
+                                                        {font.description.split('·')[0].trim()}
+                                                    </span>
                                                 </button>
                                             ))}
                                         </div>
                                     </div>
+                                )}
 
-                                    {/* Difficulty pill slider */}
-                                    <div className="px-5">
-                                        <p className="text-xs font-medium text-muted mb-3">Difficulty</p>
-                                        <LayoutGroup>
-                                            <div className="flex p-1.5 bg-extra-muted/40 rounded-[1.25rem]">
-                                                {(["beginner", "intermediate", "hard"] as Difficulty[]).map(d => (
+                                {/* ── Divider ── */}
+                                <div className="h-px bg-neutral-100" />
+
+                                {/* ── Handedness (iPad only) ── */}
+                                {isIOS && !isPhone && (
+                                    <div>
+                                        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Writing Hand</p>
+                                        <LayoutGroup id="settings-handed">
+                                            <div className="flex p-1 bg-neutral-100 rounded-2xl">
+                                                {(["right", "left"] as const).map(m => (
                                                     <button
-                                                        key={d}
-                                                        onClick={() => updateSettings({ difficulty: d })}
+                                                        key={m}
+                                                        onClick={() => updateSettings({ handedness: m })}
                                                         className={cn(
-                                                            "flex-1 py-2.5 rounded-xl text-[15px] font-medium capitalize transition-colors relative z-10",
-                                                            settings.difficulty === d ? "text-white" : "text-muted hover:text-foreground"
+                                                            "flex-1 py-2.5 rounded-xl text-[14px] font-semibold capitalize transition-colors relative z-10",
+                                                            (settings.handedness || 'right') === m ? "text-white" : "text-neutral-400 hover:text-neutral-600"
                                                         )}
                                                     >
-                                                        {settings.difficulty === d && (
+                                                        {(settings.handedness || 'right') === m && (
                                                             <motion.div
-                                                                layoutId="difficulty-pill"
-                                                                className="absolute inset-0 bg-accent rounded-xl"
+                                                                layoutId="settings-handed-pill"
+                                                                className="absolute inset-0 bg-accent rounded-xl shadow-[0_2px_10px_rgba(5,150,105,0.3)]"
                                                                 style={{ zIndex: -1 }}
-                                                                transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+                                                                transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
                                                             />
                                                         )}
-                                                        {d}
+                                                        {m === 'right' ? '✦ Right' : 'Left ✦'}
                                                     </button>
                                                 ))}
                                             </div>
                                         </LayoutGroup>
                                     </div>
+                                )}
 
-                                    {/* Feedback toggles */}
-                                    <div className="px-5">
-                                        <p className="text-xs font-medium text-muted mb-3">Feedback</p>
-                                        <div className="space-y-2">
-                                            <ToggleRow
-                                                icon={<RotateCcw size={18} className={settings.activeRecall ? "text-accent" : "text-muted"} />}
-                                                label="Spaced Repetition"
-                                                active={!!settings.activeRecall}
-                                                onToggle={() => updateSettings({ activeRecall: !settings.activeRecall })}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="h-px bg-neutral-100 mx-5" />
-
-                                {/* Section: Customization */}
-                                <div className="space-y-5">
-                                    <div className="px-5 pt-2">
-                                        <h3 className="text-[13px] font-bold text-accent uppercase tracking-wider">Customization</h3>
-                                    </div>
-
-                                    {/* Handedness (iPad/Tablet only) */}
-                                    {isIOS && !isPhone && (
-                                        <div className="px-5">
-                                            <p className="text-xs font-medium text-muted mb-3">Handedness</p>
-                                            <LayoutGroup id="handedness-group">
-                                                <div className="flex p-1.5 bg-extra-muted/40 rounded-[1.25rem]">
-                                                    {(["right", "left"] as const).map(m => (
-                                                        <button
-                                                            key={m}
-                                                            onClick={() => updateSettings({ handedness: m })}
-                                                            className={cn(
-                                                                "flex-1 py-2.5 rounded-xl text-[15px] font-medium capitalize transition-colors relative z-10",
-                                                                (settings.handedness || 'right') === m ? "text-white" : "text-muted hover:text-foreground"
-                                                            )}
-                                                        >
-                                                            {(settings.handedness || 'right') === m && (
-                                                                <motion.div
-                                                                    layoutId="handedness-pill"
-                                                                    className="absolute inset-0 bg-accent rounded-xl"
-                                                                    style={{ zIndex: -1 }}
-                                                                    transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
-                                                                />
-                                                            )}
-                                                            {m}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </LayoutGroup>
-                                        </div>
-                                    )}
-
-                                    {/* Phone Input Mode (Phone only) */}
-                                    {isPhone && (
-                                        <div className="px-5">
-                                            <p className="text-xs font-medium text-muted mb-3">Phone Input Mode</p>
-                                            <LayoutGroup id="mobile-mode-group">
-                                                <div className="flex p-1.5 bg-extra-muted/40 rounded-[1.25rem]">
-                                                    {(["touch", "keyboard"] as const).map(m => (
-                                                        <button
-                                                            key={m}
-                                                            onClick={() => updateSettings({ mobileInputMode: m })}
-                                                            className={cn(
-                                                                "flex-1 py-2.5 rounded-xl text-[15px] font-medium capitalize transition-colors relative z-10",
-                                                                settings.mobileInputMode === m ? "text-white" : "text-muted hover:text-foreground"
-                                                            )}
-                                                        >
-                                                            {settings.mobileInputMode === m && (
-                                                                <motion.div
-                                                                    layoutId="mobile-mode-pill"
-                                                                    className="absolute inset-0 bg-accent rounded-xl"
-                                                                    style={{ zIndex: -1 }}
-                                                                    transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
-                                                                />
-                                                            )}
-                                                            {m}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </LayoutGroup>
-                                        </div>
-                                    )}
-
-                                    {/* Apple Pencil (iPad only) */}
-                                    {isIOS && (
-                                        <div className="px-5">
-                                            <p className="text-xs font-medium text-muted mb-3">Apple Pencil</p>
-                                            <LayoutGroup id="pencil-group">
-                                                <div className="flex p-1.5 bg-extra-muted/40 rounded-[1.25rem]">
-                                                    {[
-                                                        { label: "Thin", val: 3 },
-                                                        { label: "Medium", val: 6 },
-                                                        { label: "Thick", val: 12 }
-                                                    ].map(m => (
-                                                        <button
-                                                            key={m.label}
-                                                            onClick={() => updateSettings({ penThickness: m.val })}
-                                                            className={cn(
-                                                                "flex-1 py-2.5 rounded-xl text-[15px] font-medium capitalize transition-colors relative z-10",
-                                                                (settings.penThickness || 6) === m.val ? "text-white" : "text-muted hover:text-foreground"
-                                                            )}
-                                                        >
-                                                            {(settings.penThickness || 6) === m.val && (
-                                                                <motion.div
-                                                                    layoutId="pencil-pill"
-                                                                    className="absolute inset-0 bg-accent rounded-xl"
-                                                                    style={{ zIndex: -1 }}
-                                                                    transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
-                                                                />
-                                                            )}
-                                                            {m.label}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            </LayoutGroup>
-                                        </div>
-                                    )}
-
-                                    {/* Arabic font selector */}
-                                    {(settings.language === "ar" || settings.language === "ur") && (
-                                        <div className="px-0">
-                                            <p className="text-xs font-medium text-muted mb-3 px-5">Arabic Typeface</p>
-                                            <div className="flex gap-2 overflow-x-auto pb-3 -mx-0 px-5 custom-scrollbar snap-x">
-                                                {ARABIC_FONTS.map(font => (
+                                {/* ── Pencil Thickness (iPad only) ── */}
+                                {isIOS && (
+                                    <div>
+                                        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Pen Weight</p>
+                                        <LayoutGroup id="settings-pencil">
+                                            <div className="flex p-1 bg-neutral-100 rounded-2xl">
+                                                {[
+                                                    { label: "Fine", val: 3 },
+                                                    { label: "Regular", val: 6 },
+                                                    { label: "Bold", val: 12 }
+                                                ].map(m => (
                                                     <button
-                                                        key={font.value}
-                                                        onClick={() => updateSettings({ arabicFont: font.value })}
+                                                        key={m.label}
+                                                        onClick={() => updateSettings({ penThickness: m.val })}
                                                         className={cn(
-                                                            "snap-start shrink-0 px-4 py-4 rounded-[1.25rem] border flex flex-col items-center justify-center gap-1 min-w-[120px] transition-all",
-                                                            (settings.arabicFont ?? DEFAULT_ARABIC_FONT) === font.value
-                                                                ? "border-accent bg-accent/5 text-accent shadow-sm"
-                                                                : "border-neutral-200 bg-white hover:border-neutral-300"
+                                                            "flex-1 py-2.5 rounded-xl text-[14px] font-semibold capitalize transition-colors relative z-10",
+                                                            (settings.penThickness || 6) === m.val ? "text-white" : "text-neutral-400 hover:text-neutral-600"
                                                         )}
                                                     >
-                                                        <span className="text-[28px] leading-tight" style={{ fontFamily: font.cssVar }}>
-                                                            {font.preview}
-                                                        </span>
-                                                        <span className="text-[11px] font-bold tracking-wider uppercase text-neutral-500 mt-1">
-                                                            {font.description.split('·')[0].trim()}
-                                                        </span>
+                                                        {(settings.penThickness || 6) === m.val && (
+                                                            <motion.div
+                                                                layoutId="settings-pencil-pill"
+                                                                className="absolute inset-0 bg-accent rounded-xl shadow-[0_2px_10px_rgba(5,150,105,0.3)]"
+                                                                style={{ zIndex: -1 }}
+                                                                transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
+                                                            />
+                                                        )}
+                                                        {m.label}
                                                     </button>
                                                 ))}
                                             </div>
-                                        </div>
-                                    )}
-                                </div>
+                                        </LayoutGroup>
+                                    </div>
+                                )}
+
+                                {/* ── Phone Input Mode (Phone only) ── */}
+                                {isPhone && (
+                                    <div>
+                                        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Input Mode</p>
+                                        <LayoutGroup id="settings-mobile">
+                                            <div className="flex p-1 bg-neutral-100 rounded-2xl">
+                                                {(["touch", "keyboard"] as const).map(m => (
+                                                    <button
+                                                        key={m}
+                                                        onClick={() => updateSettings({ mobileInputMode: m })}
+                                                        className={cn(
+                                                            "flex-1 py-2.5 rounded-xl text-[14px] font-semibold capitalize transition-colors relative z-10",
+                                                            settings.mobileInputMode === m ? "text-white" : "text-neutral-400 hover:text-neutral-600"
+                                                        )}
+                                                    >
+                                                        {settings.mobileInputMode === m && (
+                                                            <motion.div
+                                                                layoutId="settings-mobile-pill"
+                                                                className="absolute inset-0 bg-accent rounded-xl shadow-[0_2px_10px_rgba(5,150,105,0.3)]"
+                                                                style={{ zIndex: -1 }}
+                                                                transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
+                                                            />
+                                                        )}
+                                                        {m}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </LayoutGroup>
+                                    </div>
+                                )}
+
+                                {/* ── Divider ── */}
+                                <div className="h-px bg-neutral-100" />
+
+                                {/* ── Spaced Repetition toggle ── */}
+                                <button
+                                    onClick={() => updateSettings({ activeRecall: !settings.activeRecall })}
+                                    className="w-full flex items-center justify-between group"
+                                >
+                                    <div className="flex flex-col items-start gap-0.5 text-left">
+                                        <span className="text-[16px] font-semibold text-neutral-800">Spaced Repetition</span>
+                                        <span className="text-[13px] text-neutral-400 leading-snug">Revisit words you found harder, more often</span>
+                                    </div>
+                                    <div className={cn(
+                                        "relative flex-shrink-0 ml-4 w-12 h-7 rounded-full transition-colors duration-300",
+                                        settings.activeRecall ? "bg-accent" : "bg-neutral-200"
+                                    )}>
+                                        <motion.div
+                                            className="absolute top-1 w-5 h-5 rounded-full bg-white shadow-[0_2px_6px_rgba(0,0,0,0.2)]"
+                                            animate={{ x: settings.activeRecall ? 22 : 4 }}
+                                            transition={{ type: "spring", bounce: 0.25, duration: 0.3 }}
+                                        />
+                                    </div>
+                                </button>
+
                             </div>
                         </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
+
+
 
             {/* ══════════════════════════════════════════════════════════════ */}
             {/* ── Info Modal ────────────────────────────────────────────── */}
