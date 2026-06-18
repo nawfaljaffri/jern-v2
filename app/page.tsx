@@ -274,23 +274,25 @@ export default function Home() {
 
             {/* ─── iPad: top bar (language + mastered) ─────────────────────── */}
             {isIOS && (
-                <div className={`fixed top-0 left-0 right-0 z-40 flex justify-between items-center px-10 pt-[env(safe-area-inset-top,24px)] pb-4 pointer-events-none ${!isPhone ? (settings.handedness === 'left' ? "pr-[450px]" : "pl-[450px]") : ""}`}>
+                <div className={`fixed top-0 left-0 right-0 z-40 flex justify-between items-center px-10 pt-[max(env(safe-area-inset-top),32px)] pb-4 pointer-events-none ${!isPhone ? (settings.handedness === 'left' ? "pr-[450px]" : "pl-[450px]") : ""}`}>
                     <span className="text-base font-semibold text-neutral-400 capitalize tracking-wide">
                         {LANGUAGES.find(l => l.value === settings.language)?.label} · {settings.difficulty}
                     </span>
                     <div className="flex items-center gap-5">
-                        <button
-                            className="pointer-events-auto w-12 h-12 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md border border-black/[0.06] shadow-sm text-neutral-500 hover:text-neutral-800 transition-all active:scale-95 relative"
-                            onClick={() => setIsHistoryOpen(true)}
-                            aria-label="History"
-                        >
-                            <History size={20} />
+                        <div className="relative">
+                            <button
+                                className="pointer-events-auto w-12 h-12 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md border border-black/[0.06] shadow-sm text-neutral-500 hover:text-neutral-800 transition-all active:scale-95"
+                                onClick={() => setIsHistoryOpen(true)}
+                                aria-label="History"
+                            >
+                                <History size={20} />
+                            </button>
                             {history.length > 0 && (
-                                <span className="absolute -top-2 -right-2 min-w-6 h-6 px-1.5 bg-accent rounded-full text-[11px] font-bold text-white flex items-center justify-center border-[2.5px] border-white shadow-sm box-content">
+                                <span className="absolute -top-2 -right-2 min-w-6 h-6 px-1.5 bg-accent rounded-full text-[11px] font-bold text-white flex items-center justify-center border-[2px] border-white shadow-sm pointer-events-none">
                                     {history.length}
                                 </span>
                             )}
-                        </button>
+                        </div>
                         <button
                             className="pointer-events-auto w-12 h-12 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md border border-black/[0.06] shadow-sm text-neutral-500 hover:text-neutral-800 transition-all active:scale-95"
                             onClick={() => setIsInfoOpen(true)}

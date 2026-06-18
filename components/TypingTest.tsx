@@ -303,7 +303,7 @@ export default function TypingTest({
 
                 {/* ── Right Pane: Permanent Explainer (30%) ── */}
                 <div className="w-[420px] shrink-0 h-full bg-white border-l border-neutral-100 shadow-[-20px_0_40px_rgba(0,0,0,0.02)] flex flex-col z-40 relative">
-                    <div className="flex-1 overflow-y-auto p-10 pt-[env(safe-area-inset-top,40px)] custom-scrollbar">
+                    <div className="flex-1 overflow-y-auto px-10 pt-[calc(max(env(safe-area-inset-top),32px)+12px)] custom-scrollbar">
                         <div className="space-y-4 mb-10">
                             <div className="text-base font-semibold tracking-wide text-neutral-400 capitalize pb-2">
                                 Dictionary
