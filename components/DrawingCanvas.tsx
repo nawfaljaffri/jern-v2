@@ -93,10 +93,10 @@ export default function DrawingCanvas({
         const x = rect.width / 2;
         const hX = w / 2;
 
-        // HUGE sizing based on viewport width (or container width)
+        // Sizing based on viewport width (or container width)
         const isAr = word.language === 'ar' || word.language === 'ur';
-        const arabicFontSize = Math.max(90, Math.min(220, rect.width * 0.22));
-        const romFontSize = Math.max(50, Math.min(100, rect.width * 0.12));
+        const arabicFontSize = Math.max(70, Math.min(160, rect.width * 0.18));
+        const romFontSize = Math.max(50, Math.min(90, rect.width * 0.1));
         
         const arFont = `800 ${arabicFontSize}px ${getArabicFontString()}`;
         const arFontHidden = `800 ${arabicFontSize * dpr}px ${getArabicFontString()}`;
@@ -115,8 +115,8 @@ export default function DrawingCanvas({
         bgCtx.lineJoin = "round";
         bgCtx.lineCap = "round";
 
-        // Light mint/gray solid fill without dashes
-        const traceColor = "#d1fae5"; // Tailwind emerald-100
+        // Light gray solid fill
+        const traceColor = "#e2e8f0"; // slate-200
         
         // Top text
         bgCtx.font = arFont;
@@ -135,14 +135,14 @@ export default function DrawingCanvas({
         
         hCtx.fillStyle = "black";
         hCtx.strokeStyle = "black";
-        hCtx.lineWidth = 50 * dpr; 
+        hCtx.lineWidth = 70 * dpr; 
 
         hCtx.font = arFontHidden;
         hCtx.fillText(topText, hX, hTopY);
         hCtx.strokeText(topText, hX, hTopY);
 
         hCtx.font = romFontHidden;
-        hCtx.lineWidth = 40 * dpr;
+        hCtx.lineWidth = 50 * dpr;
         hCtx.fillText(word.romanized, hX, hBottomY);
         hCtx.strokeText(word.romanized, hX, hBottomY);
 
@@ -197,10 +197,10 @@ export default function DrawingCanvas({
             }
         }
 
-        if (outOfBoundsPixels > 0) {
+        if (outOfBoundsPixels > 50) {
             ctx.putImageData(drawData, 0, 0);
             onError();
-        } else if (drawnPixels > 100) {
+        } else if (drawnPixels > 200) {
             hasCompletedRef.current = true;
             onComplete();
         } else {

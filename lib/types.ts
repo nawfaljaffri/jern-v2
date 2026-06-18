@@ -9,6 +9,7 @@ export interface Word {
     definition: string;
     language?: Language;
     frequency?: number; // 1 to 5000
+    notes?: string;
 }
 
 export interface SessionSettings {

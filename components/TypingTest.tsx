@@ -64,10 +64,10 @@ export default function TypingTest({
     const [clearTrigger, setClearTrigger] = useState(0);
     const [checkTrigger, setCheckTrigger] = useState(0);
     const [isExplainerOpen, setIsExplainerOpen] = useState(false);
-    const [wiktionaryData, setWiktionaryData] = useState<string | null>(null);
-    const [isFetchingWiktionary, setIsFetchingWiktionary] = useState(false);
+    // Wiktionary data removed
     const initialMount = useRef(true);
     const hasUnlockedRef = useRef(false);
+    const isCompletingRef = useRef(false);
 
     // ── Audio auto-play ───────────────────────────────────────────────────
     useEffect(() => {
@@ -93,6 +93,7 @@ export default function TypingTest({
 
     // ── Focus & reset on word change ─────────────────────────────────────
     useEffect(() => {
+        isCompletingRef.current = false;
         if (!isIOS) inputRef.current?.focus();
         setUserInput("");
         setIsShaking(false);
@@ -105,42 +106,6 @@ export default function TypingTest({
         setTimeout(() => setIsShaking(false), 500);
     }, [onMismatch]);
 
-    // ── Wiktionary Fetcher ────────────────────────────────────────────────
-    useEffect(() => {
-        if (!isExplainerOpen || wiktionaryData !== null) return;
-        let isMounted = true;
-        
-        async function fetchInfo() {
-            setIsFetchingWiktionary(true);
-            try {
-                // Wiktionary REST API for definition
-                const res = await fetch(`https://en.wiktionary.org/api/rest_v1/page/definition/${encodeURIComponent(word.original)}`);
-                if (!res.ok) throw new Error("Not found");
-                const data = await res.json();
-                
-                // Extract first meaningful text
-                let extracted = "No detailed etymology found.";
-                if (data && data[word.language === 'ar' ? 'Arabic' : 'English']) {
-                    const langData = data[word.language === 'ar' ? 'Arabic' : 'English'];
-                    if (langData.length > 0 && langData[0].definitions) {
-                        // Strip HTML from definitions
-                        const rawHtml = langData[0].definitions[0].definition;
-                        const doc = new DOMParser().parseFromString(rawHtml, 'text/html');
-                        extracted = doc.body.textContent || "";
-                    }
-                }
-                if (isMounted) setWiktionaryData(extracted);
-            } catch (err) {
-                if (isMounted) setWiktionaryData("Could not load detailed dictionary information for this word.");
-            } finally {
-                if (isMounted) setIsFetchingWiktionary(false);
-            }
-        }
-        
-        fetchInfo();
-        
-        return () => { isMounted = false; };
-    }, [isExplainerOpen, word.original, word.language, wiktionaryData]);
 
     // ── Normalized target (strip diacritics, keep only [a-z0-9]) ─────────
     // BUG FIX: computed once per word, never stale
@@ -259,12 +224,15 @@ export default function TypingTest({
                             key={`${word.id}-${loopCounter}`}
                             word={word}
                             onComplete={() => {
+                                if (isCompletingRef.current) return;
+                                isCompletingRef.current = true;
                                 setTimeout(() => {
                                     if (isLooping) {
                                         setLoopCounter(p => p + 1);
                                         const text = audioMode === "en" ? word.definition : word.original;
                                         const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
                                         onSpeak(text, lang || "en-US", !!isAudioRepeat);
+                                        isCompletingRef.current = false;
                                     } else {
                                         onComplete();
                                     }
@@ -283,7 +251,12 @@ export default function TypingTest({
                     {/* ── Left / Right navigation — Flex Container ── */}
                     <div className="absolute inset-y-0 left-0 right-0 pointer-events-none flex items-center justify-between px-6 z-30">
                         <button
-                            onClick={() => { onBack?.(); setUserInput(""); }}
+                            onClick={() => { 
+                                if (isCompletingRef.current) return;
+                                isCompletingRef.current = true;
+                                onBack?.(); 
+                                setUserInput(""); 
+                            }}
                             aria-label="Previous word"
                             className="w-16 h-32 flex items-center justify-center group pointer-events-auto"
                         >
@@ -292,7 +265,12 @@ export default function TypingTest({
                             </span>
                         </button>
                         <button
-                            onClick={() => { onComplete(); setUserInput(""); }}
+                            onClick={() => { 
+                                if (isCompletingRef.current) return;
+                                isCompletingRef.current = true;
+                                onComplete(); 
+                                setUserInput(""); 
+                            }}
                             aria-label="Skip word"
                             className="w-16 h-32 flex items-center justify-center group pointer-events-auto"
                         >
@@ -397,20 +375,14 @@ export default function TypingTest({
                             </button>
                         </div>
 
-                        {/* Wiktionary Data */}
+                        {/* Explainer Notes */}
                         <div className="p-6 bg-neutral-50/80 rounded-3xl space-y-4 border border-neutral-100/60">
                             <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-2">
                                 <BookOpen size={16} /> Etymology & Notes
                             </h3>
-                            {isFetchingWiktionary ? (
-                                <div className="flex items-center gap-2 text-muted text-sm">
-                                    <Loader2 size={16} className="animate-spin" /> Fetching Dictionary...
-                                </div>
-                            ) : (
-                                <p className="text-base text-neutral-600 leading-relaxed">
-                                    {wiktionaryData || "No detailed notes found for this word."}
-                                </p>
-                            )}
+                            <p className="text-base text-neutral-600 leading-relaxed">
+                                {word.notes || "No detailed notes found for this word in the database. Add notes to dataPack to see them here."}
+                            </p>
                         </div>
                     </div>
                 </div>
