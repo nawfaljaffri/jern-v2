@@ -423,13 +423,13 @@ export default function TypingTest({
                                     )}
                                 </div>
                             
-                            <div className={cn("text-4xl font-medium text-foreground py-2", arabicFontClass)} dir={isArabicScript ? "rtl" : "ltr"}>
+                            <div className={cn("text-4xl font-medium text-foreground py-2 text-left", arabicFontClass)} dir="rtl">
                                 {word.original}
                             </div>
                             
-                            <div className="text-3xl text-accent font-medium">{word.romanized}</div>
+                            <div className="text-3xl text-accent font-medium text-left">{word.romanized}</div>
                             
-                            <div className="text-xl text-neutral-600 leading-relaxed mt-4">{word.definition}</div>
+                            <div className="text-xl text-neutral-600 leading-relaxed mt-4 text-left">{word.definition}</div>
                                 </div>
 
                                 <div className="mt-auto flex items-center justify-between p-2 bg-neutral-50 rounded-2xl border border-neutral-100 lg:mb-10">
@@ -533,7 +533,7 @@ export default function TypingTest({
                                             {dictionary[word.original].root_letters && (
                                                 <div className="pt-4 mt-4 border-t border-neutral-200/50 space-y-2">
                                                     <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Root Letters</div>
-                                                    <div className={cn("text-lg font-bold text-accent", arabicFontClass)} dir="rtl">
+                                                    <div className={cn("text-lg font-bold text-accent text-left", arabicFontClass)} dir="rtl">
                                                         {dictionary[word.original].root_letters}
                                                     </div>
                                                 </div>
