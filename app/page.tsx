@@ -296,6 +296,13 @@ export default function Home() {
                         >
                             <Info size={20} />
                         </button>
+                        <button
+                            className="pointer-events-auto w-12 h-12 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md border border-black/[0.06] shadow-sm text-neutral-500 hover:text-neutral-800 transition-all active:scale-95"
+                            onClick={() => setIsSettingsOpen(true)}
+                            aria-label="Settings"
+                        >
+                            <Settings size={20} />
+                        </button>
                     </div>
                 </div>
             )}
@@ -401,13 +408,12 @@ export default function Home() {
                                                 key={lang.value}
                                                 onClick={() => updateSettings({ language: lang.value })}
                                                 className={cn(
-                                                    "p-3 rounded-xl flex flex-col items-center gap-2 transition-all text-sm font-medium",
+                                                    "py-3 px-4 rounded-xl flex items-center justify-center transition-all text-[15px] font-medium",
                                                     settings.language === lang.value
                                                         ? "ring-2 ring-accent bg-accent/5 text-foreground"
                                                         : "bg-extra-muted/30 text-foreground hover:bg-extra-muted/50"
                                                 )}
                                             >
-                                                <Flag code={lang.countryCode} className="h-5 rounded-sm" />
                                                 <span>{lang.label}</span>
                                             </button>
                                         ))}
@@ -424,14 +430,14 @@ export default function Home() {
                                                     key={d}
                                                     onClick={() => updateSettings({ difficulty: d })}
                                                     className={cn(
-                                                        "flex-1 py-2 rounded-lg text-xs font-medium capitalize transition-colors relative z-10",
+                                                        "flex-1 py-2.5 rounded-[10px] text-[15px] font-medium capitalize transition-colors relative z-10",
                                                         settings.difficulty === d ? "text-white" : "text-muted hover:text-foreground"
                                                     )}
                                                 >
                                                     {settings.difficulty === d && (
                                                         <motion.div
                                                             layoutId="difficulty-pill"
-                                                            className="absolute inset-0 bg-accent rounded-lg"
+                                                            className="absolute inset-0 bg-accent rounded-[10px]"
                                                             style={{ zIndex: -1 }}
                                                             transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
                                                         />
@@ -451,7 +457,7 @@ export default function Home() {
                                             <select
                                                 value={settings.arabicFont ?? DEFAULT_ARABIC_FONT}
                                                 onChange={(e) => updateSettings({ arabicFont: e.target.value as ArabicFont })}
-                                                className="w-full appearance-none bg-extra-muted/20 border border-extra-muted/60 text-foreground text-sm font-medium rounded-xl px-4 py-3 pr-10 hover:bg-extra-muted/40 focus:outline-none focus:ring-2 focus:ring-accent transition-all cursor-pointer"
+                                                className="w-full appearance-none bg-extra-muted/20 border border-extra-muted/60 text-foreground text-[15px] font-medium rounded-xl px-4 py-3 pr-10 hover:bg-extra-muted/40 focus:outline-none focus:ring-2 focus:ring-accent transition-all cursor-pointer"
                                             >
                                                 {ARABIC_FONTS.map(font => (
                                                     <option key={font.value} value={font.value} className="bg-background text-foreground">
@@ -475,14 +481,14 @@ export default function Home() {
                                                         key={m}
                                                         onClick={() => updateSettings({ mobileInputMode: m })}
                                                         className={cn(
-                                                            "flex-1 py-2 rounded-lg text-xs font-medium capitalize transition-colors relative z-10",
+                                                            "flex-1 py-2.5 rounded-[10px] text-[15px] font-medium capitalize transition-colors relative z-10",
                                                             settings.mobileInputMode === m ? "text-white" : "text-muted hover:text-foreground"
                                                         )}
                                                     >
                                                         {settings.mobileInputMode === m && (
                                                             <motion.div
                                                                 layoutId="mobile-mode-pill"
-                                                                className="absolute inset-0 bg-accent rounded-lg"
+                                                                className="absolute inset-0 bg-accent rounded-[10px]"
                                                                 style={{ zIndex: -1 }}
                                                                 transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
                                                             />
@@ -506,14 +512,14 @@ export default function Home() {
                                                         key={m}
                                                         onClick={() => updateSettings({ handedness: m })}
                                                         className={cn(
-                                                            "flex-1 py-2 rounded-lg text-xs font-medium capitalize transition-colors relative z-10",
+                                                            "flex-1 py-2.5 rounded-[10px] text-[15px] font-medium capitalize transition-colors relative z-10",
                                                             (settings.handedness || 'right') === m ? "text-white" : "text-muted hover:text-foreground"
                                                         )}
                                                     >
                                                         {(settings.handedness || 'right') === m && (
                                                             <motion.div
                                                                 layoutId="handedness-pill"
-                                                                className="absolute inset-0 bg-accent rounded-lg"
+                                                                className="absolute inset-0 bg-accent rounded-[10px]"
                                                                 style={{ zIndex: -1 }}
                                                                 transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
                                                             />
@@ -690,7 +696,7 @@ function ToggleRow({ icon, label, active, onToggle }: {
         >
             <div className="flex items-center gap-3">
                 {icon}
-                <span className="text-sm font-medium">{label}</span>
+                <span className="text-[15px] font-medium">{label}</span>
             </div>
             <div className={cn("w-9 h-5 rounded-full relative transition-colors", active ? "bg-accent" : "bg-extra-muted")}>
                 <div className={cn("absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-all", active ? "right-0.5" : "left-0.5")} />

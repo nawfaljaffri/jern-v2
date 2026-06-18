@@ -201,13 +201,8 @@ export default function TypingTest({
     if (useTouchLayout) {
         return (
             <div className="fixed inset-0 overflow-hidden bg-extra-muted/20">
-                <div className="absolute top-6 right-6 z-50">
-                    <button onClick={onOpenSettings} className="w-14 h-14 flex items-center justify-center rounded-2xl bg-white/80 backdrop-blur-xl text-neutral-500 hover:text-neutral-800 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-neutral-100 active:scale-95 transition-all">
-                        <Settings size={24} />
-                    </button>
-                </div>
                 <div className={cn(
-                    "flex flex-col h-full pt-16",
+                    "flex flex-col h-full",
                     isIOS && !isPhone ? (isRightHanded ? "md:flex-row-reverse" : "md:flex-row") : "md:flex-row"
                 )}>
                     {/* ── Left Pane: Massive Tracing Canvas (70%) ── */}
@@ -296,15 +291,15 @@ export default function TypingTest({
                                 className="px-6 h-14 flex items-center gap-2 rounded-[1.25rem] bg-white text-neutral-500 font-bold hover:text-red-500 transition-all active:bg-red-500 active:text-white shadow-sm border border-neutral-100"
                             >
                                 <Eraser size={22} strokeWidth={2.5} />
-                                <span className="text-[15px]">Clear</span>
+                                <span className="text-[17px]">Clear</span>
                             </button>
                             <div className="w-px h-8 bg-neutral-200 mx-1" />
                             <button
                                 onClick={() => setCheckTrigger(p => p + 1)}
-                                className="flex items-center justify-center gap-2 px-10 h-14 rounded-[1.25rem] text-lg font-bold bg-white text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 active:bg-emerald-600 active:text-white transition-colors duration-100 shadow-sm border border-neutral-100"
+                                className="flex items-center justify-center gap-2 px-10 h-14 rounded-[1.25rem] font-bold bg-white text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 active:bg-emerald-600 active:text-white transition-colors duration-100 shadow-sm border border-neutral-100"
                             >
-                                <Check size={24} strokeWidth={2.5} />
-                                <span>Check</span>
+                                <Check size={22} strokeWidth={2.5} />
+                                <span className="text-[17px]">Check</span>
                             </button>
                         </div>
                     </div>
@@ -312,34 +307,44 @@ export default function TypingTest({
 
                 {/* ── Right Pane: Permanent Explainer (30%) ── */}
                 <div className="w-[420px] shrink-0 h-full bg-white border-l border-neutral-100 shadow-[-20px_0_40px_rgba(0,0,0,0.02)] flex flex-col z-40 relative">
-                    <div className="flex-1 overflow-y-auto p-12 custom-scrollbar">
-                        <div className="flex flex-col items-center text-center space-y-6 mb-12 mt-12">
-                            <div className="text-sm font-bold tracking-[0.2em] text-neutral-400 uppercase">
+                    <div className="flex-1 overflow-y-auto p-10 pt-[env(safe-area-inset-top,40px)] custom-scrollbar">
+                        <div className="space-y-4 mb-10">
+                            <div className="text-xl font-bold tracking-widest text-neutral-400 uppercase">
                                 Dictionary
                             </div>
                             
-                            <div className={cn("text-6xl font-normal text-neutral-800 py-4", arabicFontClass)} dir={isArabicScript ? "rtl" : "ltr"}>
+                            <div className={cn("text-5xl font-medium text-foreground py-2", arabicFontClass)} dir={isArabicScript ? "rtl" : "ltr"}>
                                 {word.original}
                             </div>
                             
-                            <div className="text-4xl text-emerald-600 font-medium">{word.romanized}</div>
-                            <div className="text-xl text-neutral-500">{word.definition}</div>
+                            <div className="text-3xl text-accent font-medium">{word.romanized}</div>
+                            
+                            <div className="text-xl text-neutral-600 leading-relaxed mt-4">{word.definition}</div>
                         </div>
 
-                        {/* Inline EN/AR Sound toggle */}
-                        <div className="flex items-center justify-center gap-3 mb-12">
-                            <div className="flex p-1 bg-neutral-100/80 rounded-[1.25rem]">
+                        <div className="flex items-center justify-between p-2 bg-neutral-50 rounded-2xl border border-neutral-100 mb-10">
+                            <div className="flex items-center gap-1">
                                 <button
                                     onClick={() => setAudioMode("en")}
-                                    className={cn("px-6 py-2.5 rounded-xl text-sm font-bold transition-all", audioMode === "en" ? "bg-white text-emerald-600 shadow-sm" : "text-neutral-500 hover:text-neutral-700")}
+                                    className={cn(
+                                        "px-5 py-3 rounded-xl text-sm font-bold transition-all duration-200 active:bg-emerald-600 active:text-white",
+                                        hasUnlockedRef.current
+                                            ? "text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 active:bg-emerald-600 active:text-white"
+                                            : "text-neutral-400 hover:text-neutral-600 hover:bg-neutral-50 active:bg-emerald-600 active:text-white"
+                                    )}
                                 >
                                     EN
                                 </button>
                                 <button
                                     onClick={() => setAudioMode("original")}
-                                    className={cn("px-6 py-2.5 rounded-xl text-sm font-bold transition-all", audioMode === "original" ? "bg-white text-emerald-600 shadow-sm" : "text-neutral-500 hover:text-neutral-700")}
+                                    className={cn(
+                                        "px-5 py-3 rounded-xl text-sm font-bold transition-all duration-200 active:bg-emerald-600 active:text-white",
+                                        audioMode === "original"
+                                            ? "bg-white text-foreground shadow-sm"
+                                            : "text-neutral-400 hover:text-neutral-600"
+                                    )}
                                 >
-                                    {word.language?.toUpperCase() || "AR"}
+                                    {(word.language || "EN").toUpperCase()}
                                 </button>
                             </div>
                             <button
@@ -349,24 +354,30 @@ export default function TypingTest({
                                     const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
                                     onSpeak(text, lang || "en-US", !!isAudioRepeat);
                                 }}
-                                className="w-[3.25rem] h-[3.25rem] flex items-center justify-center rounded-[1.25rem] bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 active:scale-95 transition-all"
+                                disabled={isPending}
+                                className={cn(
+                                    "flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 active:scale-95",
+                                    isSpeaking
+                                        ? "bg-accent text-white shadow-md"
+                                        : "bg-white text-accent hover:bg-accent hover:text-white shadow-sm border border-neutral-100"
+                                )}
                             >
-                                {isPending ? <Loader2 size={20} className="animate-spin" /> : <Volume2 size={20} />}
+                                {isPending ? <Loader2 size={24} className="animate-spin" /> : isSpeaking ? <Volume1 size={24} className="animate-pulse" /> : <Volume2 size={24} />}
                             </button>
                         </div>
 
                         {/* Explainer Notes */}
                         <div className="p-6 bg-neutral-50/80 rounded-3xl space-y-4 border border-neutral-100/60">
-                            <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-[0.1em] flex items-center justify-center gap-2">
+                            <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-2">
                                 <BookOpen size={16} /> Etymology & Notes
                             </h3>
-                            <p className="text-[15px] text-center text-neutral-600 leading-relaxed">
+                            <p className="text-base text-neutral-600 leading-relaxed">
                                 {word.notes || "No detailed notes found for this word in the database. Add notes to dataPack to see them here."}
                             </p>
                         </div>
-                        </div>
                     </div>
                 </div>
+            </div>
             </div>
         );
     }
@@ -405,7 +416,7 @@ export default function TypingTest({
                         transition={{ duration: 0.22, ease: [0.32, 0, 0.2, 1] }}
                         className="flex flex-col items-center gap-2 w-full"
                     >
-                        <div className="text-[clamp(1.2rem,2.5vw,1.6rem)] text-neutral-400 font-medium text-center max-w-2xl leading-relaxed">
+                        <div className="text-[clamp(1.5rem,3vw,2rem)] text-neutral-400 font-medium text-center max-w-2xl leading-relaxed">
                             {word.definition}
                         </div>
                     </motion.div>
@@ -445,7 +456,7 @@ export default function TypingTest({
                 >
                     <div
                         className={cn(
-                            "text-4xl md:text-5xl lg:text-6xl font-normal text-neutral-600",
+                            "text-5xl md:text-6xl lg:text-7xl font-normal text-neutral-500",
                             targetFontClass
                         )}
                         dir={isArabicScript ? "rtl" : "ltr"}
