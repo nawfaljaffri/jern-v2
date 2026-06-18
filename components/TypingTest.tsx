@@ -375,9 +375,53 @@ export default function TypingTest({
                             
                             <div className="flex flex-col">
                                 <div className="space-y-4 mb-10">
-                            <div className="text-base font-semibold tracking-wide text-neutral-400 capitalize pb-2">
-                                Dictionary
-                            </div>
+                                {/* Search Bar */}
+                                <div className="relative z-50 mb-6" ref={searchRef}>
+                                    <div className="flex items-center px-4 py-3 bg-neutral-50/80 rounded-2xl border border-neutral-100/60 focus-within:ring-2 focus-within:ring-accent/20 transition-all">
+                                        <Search size={18} className="text-neutral-400 mr-3" />
+                                        <input
+                                            type="text"
+                                            placeholder="Search dictionary..."
+                                            value={searchQuery}
+                                            onChange={(e) => {
+                                                setSearchQuery(e.target.value);
+                                                setIsSearchOpen(true);
+                                            }}
+                                            onFocus={() => setIsSearchOpen(true)}
+                                            className="w-full bg-transparent text-neutral-700 placeholder:text-neutral-400 outline-none text-[15px]"
+                                        />
+                                        {searchQuery && (
+                                            <button onClick={() => setSearchQuery("")} className="text-neutral-400 hover:text-neutral-600">
+                                                <X size={16} />
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {/* Search Dropdown */}
+                                    {isSearchOpen && searchResults.length > 0 && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-neutral-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                                            <div className="max-h-[300px] overflow-y-auto">
+                                                {searchResults.map((res) => (
+                                                    <button
+                                                        key={res.id}
+                                                        onClick={() => {
+                                                            onSearchSelect?.(res);
+                                                            setSearchQuery("");
+                                                            setIsSearchOpen(false);
+                                                        }}
+                                                        className="w-full text-left px-4 py-3 hover:bg-neutral-50 border-b border-neutral-50 last:border-0 transition-colors"
+                                                    >
+                                                        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+                                                            <div className="text-[15px] font-medium text-neutral-700 truncate">{res.definition}</div>
+                                                            <div className="text-[13px] text-neutral-400 truncate px-2 text-center">{res.romanized}</div>
+                                                            <div className={cn("text-lg text-accent text-right truncate", arabicFontClass)} dir="rtl">{res.original}</div>
+                                                        </div>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             
                             <div className={cn("text-4xl font-medium text-foreground py-2", arabicFontClass)} dir={isArabicScript ? "rtl" : "ltr"}>
                                 {word.original}
@@ -445,54 +489,7 @@ export default function TypingTest({
                             </div>
                         </div>
 
-                            <div className="flex flex-col h-full space-y-4 relative" ref={searchRef}>
-                                {/* Search Bar */}
-                                <div className="relative z-50">
-                                    <div className="flex items-center px-4 py-3 bg-neutral-50/80 rounded-2xl border border-neutral-100/60 focus-within:ring-2 focus-within:ring-accent/20 transition-all">
-                                        <Search size={18} className="text-neutral-400 mr-3" />
-                                        <input
-                                            type="text"
-                                            placeholder="Search dictionary..."
-                                            value={searchQuery}
-                                            onChange={(e) => {
-                                                setSearchQuery(e.target.value);
-                                                setIsSearchOpen(true);
-                                            }}
-                                            onFocus={() => setIsSearchOpen(true)}
-                                            className="w-full bg-transparent text-neutral-700 placeholder:text-neutral-400 outline-none text-[15px]"
-                                        />
-                                        {searchQuery && (
-                                            <button onClick={() => setSearchQuery("")} className="text-neutral-400 hover:text-neutral-600">
-                                                <X size={16} />
-                                            </button>
-                                        )}
-                                    </div>
-
-                                    {/* Search Dropdown */}
-                                    {isSearchOpen && searchResults.length > 0 && (
-                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-neutral-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                                            <div className="max-h-[300px] overflow-y-auto">
-                                                {searchResults.map((res) => (
-                                                    <button
-                                                        key={res.id}
-                                                        onClick={() => {
-                                                            onSearchSelect?.(res);
-                                                            setSearchQuery("");
-                                                            setIsSearchOpen(false);
-                                                        }}
-                                                        className="w-full text-left px-4 py-3 hover:bg-neutral-50 border-b border-neutral-50 last:border-0 transition-colors"
-                                                    >
-                                                        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-                                                            <div className="text-[15px] font-medium text-neutral-700 truncate">{res.definition}</div>
-                                                            <div className="text-[13px] text-neutral-400 truncate px-2 text-center">{res.romanized}</div>
-                                                            <div className={cn("text-lg text-accent text-right truncate", arabicFontClass)} dir="rtl">{res.original}</div>
-                                                        </div>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
+                            <div className="flex flex-col h-full space-y-4 relative">
 
                                 {/* Dictionary Notes */}
                                 <div className="p-6 bg-neutral-50/80 rounded-3xl space-y-5 border border-neutral-100/60 flex-1 relative overflow-hidden">
@@ -513,16 +510,19 @@ export default function TypingTest({
                                             )}
 
                                             {/* Middle Row: Grammar Tag & Pronunciation */}
-                                            <div className="flex items-center gap-4 pt-2">
+                                            <div className="flex flex-col gap-4 pt-2">
                                                 {dictionary[word.original].grammar_tag && (
-                                                    <div className="px-3 py-1 bg-accent/10 text-accent text-[13px] font-semibold rounded-lg shrink-0">
-                                                        {dictionary[word.original].grammar_tag}
+                                                    <div className="space-y-1 min-w-0">
+                                                        <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Grammar</div>
+                                                        <div className="text-[15px] text-neutral-700 leading-relaxed font-medium">
+                                                            {dictionary[word.original].grammar_tag}
+                                                        </div>
                                                     </div>
                                                 )}
                                                 {dictionary[word.original].syllables && (
                                                     <div className="space-y-1 min-w-0">
                                                         <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Syllables</div>
-                                                        <div className="text-[14px] text-neutral-600 truncate">
+                                                        <div className="text-[15px] text-neutral-700 leading-relaxed font-medium">
                                                             {dictionary[word.original].syllables}
                                                         </div>
                                                     </div>
@@ -530,18 +530,19 @@ export default function TypingTest({
                                             </div>
 
                                             {/* Word Origin */}
-                                            {(dictionary[word.original].root_letters || dictionary[word.original].root_meaning) && (
+                                            {dictionary[word.original].root_letters && (
                                                 <div className="pt-4 mt-4 border-t border-neutral-200/50 space-y-2">
-                                                    <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Word Origin</div>
-                                                    <div className="text-[15px] text-neutral-700 leading-relaxed">
-                                                        {dictionary[word.original].root_letters && (
-                                                            <span className={cn("text-lg font-bold text-accent mr-2", arabicFontClass)} dir="rtl">
-                                                                {dictionary[word.original].root_letters}
-                                                            </span>
-                                                        )}
-                                                        {dictionary[word.original].root_meaning && (
-                                                            <span>({dictionary[word.original].root_meaning})</span>
-                                                        )}
+                                                    <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Root Letters</div>
+                                                    <div className={cn("text-lg font-bold text-accent", arabicFontClass)} dir="rtl">
+                                                        {dictionary[word.original].root_letters}
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {dictionary[word.original].root_meaning && (
+                                                <div className="pt-4 mt-4 border-t border-neutral-200/50 space-y-1">
+                                                    <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Root Meaning</div>
+                                                    <div className="text-[15px] text-neutral-700 leading-relaxed font-medium">
+                                                        {dictionary[word.original].root_meaning}
                                                     </div>
                                                 </div>
                                             )}
