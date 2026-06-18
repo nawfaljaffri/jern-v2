@@ -171,16 +171,16 @@ export default function DrawingCanvas({
             let romFontSize = Math.max(70, Math.min(160, rect.width * 0.18));
             bgCtx.font = `800 ${romFontSize}px sans-serif`;
             const textWidth = bgCtx.measureText(word.romanized).width;
-            if (textWidth > rect.width * 0.85) {
-                romFontSize = Math.max(30, romFontSize * ((rect.width * 0.85) / textWidth));
+            if (textWidth > rect.width * 0.65) {
+                romFontSize = Math.max(30, romFontSize * ((rect.width * 0.65) / textWidth));
             }
 
             let arabicFontSize = Math.max(55, Math.min(100, rect.width * 0.11));
             if (isAr) {
                 bgCtx.font = `500 ${arabicFontSize}px ${getArabicFontString()}`;
                 const arTextWidth = bgCtx.measureText(word.original).width;
-                if (arTextWidth > rect.width * 0.85) {
-                    arabicFontSize = Math.max(20, arabicFontSize * ((rect.width * 0.85) / arTextWidth));
+                if (arTextWidth > rect.width * 0.65) {
+                    arabicFontSize = Math.max(20, arabicFontSize * ((rect.width * 0.65) / arTextWidth));
                 }
             }
             

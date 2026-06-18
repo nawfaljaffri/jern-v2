@@ -420,27 +420,29 @@ export default function Home() {
                                 <div>
                                     <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Language</p>
                                     <LayoutGroup id="settings-language">
-                                        <div className="flex p-1 bg-neutral-100 rounded-2xl overflow-x-auto snap-x" style={{ scrollbarWidth: 'none' }}>
-                                            {LANGUAGES.map(lang => (
-                                                <button
-                                                    key={lang.value}
-                                                    onClick={() => updateSettings({ language: lang.value })}
-                                                    className={cn(
-                                                        "snap-start shrink-0 px-4 py-2.5 rounded-xl text-[14px] font-semibold capitalize transition-colors relative z-10",
-                                                        settings.language === lang.value ? "text-white" : "text-neutral-400 hover:text-neutral-600"
-                                                    )}
-                                                >
-                                                    {settings.language === lang.value && (
-                                                        <motion.div
-                                                            layoutId="settings-language-pill"
-                                                            className="absolute inset-0 bg-accent rounded-xl"
-                                                            style={{ zIndex: -1 }}
-                                                            transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
-                                                        />
-                                                    )}
-                                                    {lang.label}
-                                                </button>
-                                            ))}
+                                        <div className="bg-neutral-100 rounded-2xl p-1 -mx-1">
+                                            <div className="flex overflow-x-auto snap-x" style={{ scrollbarWidth: 'none' }}>
+                                                {LANGUAGES.map(lang => (
+                                                    <button
+                                                        key={lang.value}
+                                                        onClick={() => updateSettings({ language: lang.value })}
+                                                        className={cn(
+                                                            "snap-start shrink-0 px-4 py-2.5 rounded-xl text-[14px] font-semibold capitalize transition-colors relative z-10",
+                                                            settings.language === lang.value ? "text-white" : "text-neutral-400 hover:text-neutral-600"
+                                                        )}
+                                                    >
+                                                        {settings.language === lang.value && (
+                                                            <motion.div
+                                                                layoutId="settings-language-pill"
+                                                                className="absolute inset-0 bg-accent rounded-xl"
+                                                                style={{ zIndex: -1 }}
+                                                                transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
+                                                            />
+                                                        )}
+                                                        {lang.label}
+                                                    </button>
+                                                ))}
+                                            </div>
                                         </div>
                                     </LayoutGroup>
                                 </div>
@@ -449,7 +451,7 @@ export default function Home() {
                                 <div>
                                     <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Difficulty</p>
                                     <LayoutGroup id="settings-difficulty">
-                                        <div className="flex p-1 bg-neutral-100 rounded-2xl">
+                                        <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
                                             {(["beginner", "intermediate", "hard"] as Difficulty[]).map(d => (
                                                 <button
                                                     key={d}
@@ -479,7 +481,7 @@ export default function Home() {
                                     <div>
                                         <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Script Style</p>
                                         <LayoutGroup id="settings-script">
-                                            <div className="flex p-1 bg-neutral-100 rounded-2xl">
+                                            <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
                                                 {ARABIC_FONTS.map(font => (
                                                     <button
                                                         key={font.value}
@@ -510,7 +512,7 @@ export default function Home() {
                                     <div>
                                         <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Writing Hand</p>
                                         <LayoutGroup id="settings-handed">
-                                            <div className="flex p-1 bg-neutral-100 rounded-2xl">
+                                            <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
                                                 {(["left", "right"] as const).map(m => (
                                                     <button
                                                         key={m}
@@ -541,7 +543,7 @@ export default function Home() {
                                     <div>
                                         <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Pen Weight</p>
                                         <LayoutGroup id="settings-pencil">
-                                            <div className="flex p-1 bg-neutral-100 rounded-2xl">
+                                            <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
                                                 {[
                                                     { label: "Fine", val: 3 },
                                                     { label: "Regular", val: 6 },
@@ -576,7 +578,7 @@ export default function Home() {
                                     <div>
                                         <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Input Mode</p>
                                         <LayoutGroup id="settings-mobile">
-                                            <div className="flex p-1 bg-neutral-100 rounded-2xl">
+                                            <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
                                                 {(["touch", "keyboard"] as const).map(m => (
                                                     <button
                                                         key={m}
