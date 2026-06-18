@@ -7,7 +7,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import {
     Volume2, Loader2, Volume1, ChevronLeft, ChevronRight,
-    Repeat, Eraser, Settings, Check, BookOpen, X, Undo2, Redo2, History
+    Repeat, Eraser, Settings, Check, BookOpen, X, Undo2, Redo2, History, Trash2
 } from "lucide-react";
 import DrawingCanvas from "./DrawingCanvas";
 
@@ -58,6 +58,7 @@ export default function TypingTest({
     onOpenSettings, onOpenHistory, arabicFontClass = "", handedness, mobileInputMode = 'touch',
 } : TypingTestProps & { onToggleAudioRepeat?: () => void }) {
     const [userInput, setUserInput] = useState("");
+    const [isErasing, setIsErasing] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
     const [isFocused, setIsFocused] = useState(true);
     const [isShaking, setIsShaking] = useState(false);
@@ -229,7 +230,7 @@ export default function TypingTest({
                             }}
                             onError={triggerError}
                             penThickness={penThickness}
-                            penColor={penColor}
+                            penColor={isErasing ? "erase" : penColor}
                             isIOS={isIOS}
                             clearTrigger={clearTrigger}
                             undoTrigger={undoTrigger}
@@ -289,12 +290,27 @@ export default function TypingTest({
                             >
                                 <Redo2 size={22} strokeWidth={2} />
                             </button>
+                            <button
+                                onClick={() => setIsErasing(p => !p)}
+                                className={cn(
+                                    "w-14 h-14 flex items-center justify-center rounded-[1.25rem] transition-all shadow-sm border",
+                                    isErasing 
+                                        ? "bg-rose-50 text-rose-500 border-rose-100" 
+                                        : "bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 border-neutral-100 active:bg-emerald-600 active:text-white"
+                                )}
+                                aria-label="Toggle Eraser"
+                            >
+                                <Eraser size={22} strokeWidth={2} />
+                            </button>
                             <div className="w-px h-8 bg-neutral-200 mx-1" />
                             <button
-                                onClick={() => setClearTrigger(p => p + 1)}
-                                className="px-8 h-14 flex items-center gap-2 rounded-[1.25rem] bg-white text-neutral-400 hover:text-neutral-600 font-medium transition-all active:scale-95 active:bg-red-500 active:text-white active:border-red-500 shadow-sm border border-neutral-100"
+                                onClick={() => {
+                                    setClearTrigger(p => p + 1);
+                                    setIsErasing(false);
+                                }}
+                                className="px-6 h-14 flex items-center gap-2 rounded-[1.25rem] bg-white text-neutral-400 hover:text-rose-500 hover:bg-rose-50 font-medium transition-all active:scale-95 active:bg-rose-500 active:text-white active:border-rose-500 shadow-sm border border-neutral-100"
                             >
-                                <Eraser size={20} strokeWidth={2} />
+                                <Trash2 size={20} strokeWidth={2} />
                                 <span className="text-[17px]">Clear</span>
                             </button>
                         </div>

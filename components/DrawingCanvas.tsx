@@ -51,17 +51,36 @@ export default function DrawingCanvas({
             ctx.lineCap = "round";
             ctx.lineJoin = "round";
             
+            if (path.points.length < 2) return;
+            
             for (let i = 1; i < path.points.length; i++) {
                 const prev = path.points[i - 1];
                 const curr = path.points[i];
                 
-                const minW = Math.max(8, path.thickness * 0.8);
+                const minW = Math.max(4, path.thickness * 0.7);
                 const maxW = path.thickness * 1.5;
                 ctx.lineWidth = minW + (maxW - minW) * Math.min(1, curr.pressure);
                 
                 ctx.beginPath();
-                ctx.moveTo(prev.x, prev.y);
-                ctx.lineTo(curr.x, curr.y);
+                
+                if (i === 1) {
+                    ctx.moveTo(prev.x, prev.y);
+                } else {
+                    const prevPrev = path.points[i - 2];
+                    const midX1 = (prevPrev.x + prev.x) / 2;
+                    const midY1 = (prevPrev.y + prev.y) / 2;
+                    ctx.moveTo(midX1, midY1);
+                }
+                
+                const midX2 = (prev.x + curr.x) / 2;
+                const midY2 = (prev.y + curr.y) / 2;
+                
+                if (i === path.points.length - 1) {
+                    ctx.quadraticCurveTo(prev.x, prev.y, curr.x, curr.y);
+                } else {
+                    ctx.quadraticCurveTo(prev.x, prev.y, midX2, midY2);
+                }
+                
                 ctx.stroke();
             }
         });
@@ -311,21 +330,38 @@ export default function DrawingCanvas({
         e.preventDefault();
         const currentPos = getPos(e);
         
-        const prevPos = currentPathRef.current[currentPathRef.current.length - 1];
+        const pathLen = currentPathRef.current.length;
+        const prevPos = currentPathRef.current[pathLen - 1];
         currentPathRef.current.push(currentPos);
         
         const ctx = getDrawCtx();
         if (ctx && prevPos) {
-            ctx.strokeStyle = penColor || "#059669"; // emerald-600
-            const base = penThickness || 8;
-            const minW = Math.max(8, base * 0.8);
+            ctx.strokeStyle = penColor === "erase" ? "rgba(0,0,0,1)" : (penColor || "#059669");
+            ctx.globalCompositeOperation = penColor === "erase" ? "destination-out" : "source-over";
+            const base = penColor === "erase" ? (penThickness || 8) * 3 : (penThickness || 8);
+            const minW = Math.max(4, base * 0.7);
             const maxW = base * 1.5;
             ctx.lineWidth = minW + (maxW - minW) * Math.min(1, currentPos.pressure);
 
             ctx.beginPath();
-            ctx.moveTo(prevPos.x, prevPos.y);
-            ctx.lineTo(currentPos.x, currentPos.y);
+            const prevPrev = pathLen >= 2 ? currentPathRef.current[pathLen - 2] : null;
+            
+            if (!prevPrev) {
+                ctx.moveTo(prevPos.x, prevPos.y);
+                ctx.lineTo(currentPos.x, currentPos.y);
+            } else {
+                const midX1 = (prevPrev.x + prevPos.x) / 2;
+                const midY1 = (prevPrev.y + prevPos.y) / 2;
+                const midX2 = (prevPos.x + currentPos.x) / 2;
+                const midY2 = (prevPos.y + currentPos.y) / 2;
+                
+                ctx.moveTo(midX1, midY1);
+                ctx.quadraticCurveTo(prevPos.x, prevPos.y, midX2, midY2);
+            }
             ctx.stroke();
+            
+            // reset composite
+            ctx.globalCompositeOperation = "source-over";
         }
 
     }, [getDrawCtx, penThickness, penColor]);
