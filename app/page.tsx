@@ -353,6 +353,8 @@ export default function Home() {
                             onSpeak={speak}
                             onStop={stop}
                             onUnlockAudio={unlockAudio}
+                            allWords={dataPack}
+                            onSearchSelect={(w) => setUpcomingWords(prev => [w, ...prev.slice(1)])}
                             isSpeaking={isSpeaking}
                             isPending={isPending}
                             isIOS={isIOS}

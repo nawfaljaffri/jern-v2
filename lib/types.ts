@@ -2,6 +2,14 @@ export type Language = 'ar' | 'es' | 'ru' | 'de' | 'ur' | 'zh' | 'fr' | 'ko' | '
 export type Difficulty = 'beginner' | 'intermediate' | 'hard';
 export type ArabicFont = 'system' | 'cairo' | 'amiri' | 'kufam' | 'noto-kufi' | 'tajawal' | 'scheherazade';
 
+export interface DictionaryEntry {
+    definition?: string;
+    grammar_tag?: string;
+    syllables?: string;
+    root_letters?: string;
+    root_meaning?: string;
+}
+
 export interface Word {
     id: string;
     romanized: string;
@@ -10,6 +18,7 @@ export interface Word {
     language?: Language;
     frequency?: number; // 1 to 5000
     notes?: string;
+    dictionaryEntry?: DictionaryEntry;
 }
 
 export interface SessionSettings {

@@ -1,0 +1,37 @@
+{
+  "أين": {
+    "definition": "in or to what place or position.",
+    "grammar_tag": "Question Word",
+    "syllables": "ay - na",
+    "root_letters": "أ ي ن",
+    "root_meaning": "place or time"
+  },
+  "مستوى": {
+    "definition": "A position on a scale of amount, quantity, extent, or quality.",
+    "grammar_tag": "Noun",
+    "syllables": "al - mus - ta - waa",
+    "root_letters": "س و ي",
+    "root_meaning": "to be equal or straight"
+  },
+  "أنت": {
+    "definition": "Used to refer to the person or people that the speaker is addressing.",
+    "grammar_tag": "Pronoun",
+    "syllables": "an - ta",
+    "root_letters": "أ ن ت",
+    "root_meaning": "second person singular"
+  },
+  "يكون": {
+    "definition": "To exist, occur, or happen.",
+    "grammar_tag": "Verb",
+    "syllables": "ya - kun",
+    "root_letters": "ك و ن",
+    "root_meaning": "to be or exist"
+  },
+  "كتاب": {
+    "definition": "A written or printed work consisting of pages glued or sewn together along one side and bound in covers.",
+    "grammar_tag": "Noun",
+    "syllables": "ki - taab",
+    "root_letters": "ك ت ب",
+    "root_meaning": "to write or document"
+  }
+}

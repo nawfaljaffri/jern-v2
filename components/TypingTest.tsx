@@ -7,7 +7,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import {
     Volume2, Loader2, Volume1, ChevronLeft, ChevronRight,
-    Repeat, Eraser, Settings, Check, BookOpen, X, Undo2, Redo2, History, Trash2, RefreshCcw
+    Repeat, Eraser, Settings, Check, BookOpen, X, Undo2, Redo2, History, Trash2, RefreshCcw, Search
 } from "lucide-react";
 import DrawingCanvas from "./DrawingCanvas";
 
@@ -43,6 +43,8 @@ interface TypingTestProps {
     penThickness?: number;
     penColor?: string;
     isLooping?: boolean;
+    allWords?: Word[];
+    onSearchSelect?: (word: Word) => void;
     onToggleLoop?: () => void;
     onOpenSettings?: () => void;
     onOpenHistory?: () => void;
@@ -58,6 +60,7 @@ export default function TypingTest({
     onUnlockAudio, isSpeaking, isPending, isIOS, isPhone,
     isAudioRepeat, onToggleAudioRepeat, penThickness, penColor, isLooping, onToggleLoop,
     onOpenSettings, onOpenHistory, arabicFontClass = "", arabicFont, handedness, mobileInputMode = 'touch',
+    allWords, onSearchSelect
 } : TypingTestProps) {
     const [userInput, setUserInput] = useState("");
     const [isErasing, setIsErasing] = useState(false);
@@ -71,6 +74,9 @@ export default function TypingTest({
     const [redoTrigger, setRedoTrigger] = useState(0);
     const [checkTrigger, setCheckTrigger] = useState(0);
     const [isExplainerOpen, setIsExplainerOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const searchRef = useRef<HTMLDivElement>(null);
     const isRightHanded = handedness === 'right';
     const initialMount = useRef(true);
     const hasUnlockedRef = useRef(false);
@@ -97,6 +103,45 @@ export default function TypingTest({
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [word, audioMode, isAudioRepeat]);
+
+    // Close search on click outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+                setIsSearchOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    // Memoize search results
+    const searchResults = React.useMemo(() => {
+        if (!searchQuery.trim() || !allWords) return [];
+        const query = searchQuery.toLowerCase();
+        return allWords.filter(w => 
+            w.definition.toLowerCase().includes(query) || 
+            w.original.includes(query) ||
+            w.romanized.toLowerCase().includes(query)
+        ).slice(0, 10);
+    }, [searchQuery, allWords]);
+
+    // Update audio loop internal logic
+    useEffect(() => {
+        if (!isAudioRepeat) {
+            onStop?.();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [word, audioMode, isAudioRepeat]);
+
+    const [dictionary, setDictionary] = useState<Record<string, import("@/lib/types").DictionaryEntry>>({});
+    
+    useEffect(() => {
+        fetch("/data/ar_dictionary.json")
+            .then(res => res.json())
+            .then(data => setDictionary(data))
+            .catch(() => {});
+    }, []);
 
     // ── Focus & reset on word change ─────────────────────────────────────
     useEffect(() => {
@@ -400,15 +445,112 @@ export default function TypingTest({
                             </div>
                         </div>
 
-                        <div className="flex flex-col h-full">
-                                {/* Explainer Notes */}
-                                <div className="p-6 bg-neutral-50/80 rounded-3xl space-y-4 border border-neutral-100/60 flex-1">
+                            <div className="flex flex-col h-full space-y-4 relative" ref={searchRef}>
+                                {/* Search Bar */}
+                                <div className="relative z-50">
+                                    <div className="flex items-center px-4 py-3 bg-neutral-50/80 rounded-2xl border border-neutral-100/60 focus-within:ring-2 focus-within:ring-accent/20 transition-all">
+                                        <Search size={18} className="text-neutral-400 mr-3" />
+                                        <input
+                                            type="text"
+                                            placeholder="Search dictionary..."
+                                            value={searchQuery}
+                                            onChange={(e) => {
+                                                setSearchQuery(e.target.value);
+                                                setIsSearchOpen(true);
+                                            }}
+                                            onFocus={() => setIsSearchOpen(true)}
+                                            className="w-full bg-transparent text-neutral-700 placeholder:text-neutral-400 outline-none text-[15px]"
+                                        />
+                                        {searchQuery && (
+                                            <button onClick={() => setSearchQuery("")} className="text-neutral-400 hover:text-neutral-600">
+                                                <X size={16} />
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {/* Search Dropdown */}
+                                    {isSearchOpen && searchResults.length > 0 && (
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-neutral-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                                            <div className="max-h-[300px] overflow-y-auto">
+                                                {searchResults.map((res) => (
+                                                    <button
+                                                        key={res.id}
+                                                        onClick={() => {
+                                                            onSearchSelect?.(res);
+                                                            setSearchQuery("");
+                                                            setIsSearchOpen(false);
+                                                        }}
+                                                        className="w-full text-left px-4 py-3 hover:bg-neutral-50 border-b border-neutral-50 last:border-0 transition-colors"
+                                                    >
+                                                        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+                                                            <div className="text-[15px] font-medium text-neutral-700 truncate">{res.definition}</div>
+                                                            <div className="text-[13px] text-neutral-400 truncate px-2 text-center">{res.romanized}</div>
+                                                            <div className={cn("text-lg text-accent text-right truncate", arabicFontClass)} dir="rtl">{res.original}</div>
+                                                        </div>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Dictionary Notes */}
+                                <div className="p-6 bg-neutral-50/80 rounded-3xl space-y-5 border border-neutral-100/60 flex-1 relative overflow-hidden">
                                     <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-2">
-                                        <BookOpen size={16} /> Etymology & Notes
+                                        <BookOpen size={16} /> Dictionary
                                     </h3>
-                                    <p className="text-base text-neutral-600 leading-relaxed">
-                                        {word.notes || "No detailed notes found for this word in the database. Add notes to dataPack to see them here."}
-                                    </p>
+                                    
+                                    {dictionary[word.original] ? (
+                                        <div className="space-y-4 animate-in fade-in duration-300">
+                                            {/* English Definition */}
+                                            {dictionary[word.original].definition && (
+                                                <div className="space-y-1">
+                                                    <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Definition</div>
+                                                    <div className="text-[15px] text-neutral-700 leading-relaxed font-medium">
+                                                        {dictionary[word.original].definition}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Middle Row: Grammar Tag & Pronunciation */}
+                                            <div className="flex items-center gap-4 pt-2">
+                                                {dictionary[word.original].grammar_tag && (
+                                                    <div className="px-3 py-1 bg-accent/10 text-accent text-[13px] font-semibold rounded-lg shrink-0">
+                                                        {dictionary[word.original].grammar_tag}
+                                                    </div>
+                                                )}
+                                                {dictionary[word.original].syllables && (
+                                                    <div className="space-y-1 min-w-0">
+                                                        <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Syllables</div>
+                                                        <div className="text-[14px] text-neutral-600 truncate">
+                                                            {dictionary[word.original].syllables}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Word Origin */}
+                                            {(dictionary[word.original].root_letters || dictionary[word.original].root_meaning) && (
+                                                <div className="pt-4 mt-4 border-t border-neutral-200/50 space-y-2">
+                                                    <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Word Origin</div>
+                                                    <div className="text-[15px] text-neutral-700 leading-relaxed">
+                                                        {dictionary[word.original].root_letters && (
+                                                            <span className={cn("text-lg font-bold text-accent mr-2", arabicFontClass)} dir="rtl">
+                                                                {dictionary[word.original].root_letters}
+                                                            </span>
+                                                        )}
+                                                        {dictionary[word.original].root_meaning && (
+                                                            <span>({dictionary[word.original].root_meaning})</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <p className="text-base text-neutral-500 leading-relaxed">
+                                            {word.notes || "No detailed dictionary notes found for this word."}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </div>
