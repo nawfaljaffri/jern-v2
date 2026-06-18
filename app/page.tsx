@@ -284,13 +284,6 @@ export default function Home() {
                         )}
                         <button
                             className="pointer-events-auto w-12 h-12 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md border border-black/[0.06] shadow-sm text-neutral-500 hover:text-neutral-800 transition-all active:scale-95"
-                            onClick={() => setIsHistoryOpen(true)}
-                            aria-label="Lexicon"
-                        >
-                            <History size={20} />
-                        </button>
-                        <button
-                            className="pointer-events-auto w-12 h-12 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md border border-black/[0.06] shadow-sm text-neutral-500 hover:text-neutral-800 transition-all active:scale-95"
                             onClick={() => setIsInfoOpen(true)}
                             aria-label="About"
                         >
@@ -359,6 +352,7 @@ export default function Home() {
                             isLooping={settings.loopWord}
                             onToggleLoop={() => updateSettings({ loopWord: !settings.loopWord })}
                             onOpenSettings={() => setIsSettingsOpen(true)}
+                            onOpenHistory={() => setIsHistoryOpen(true)}
                             arabicFontClass={arabicFontClass}
                             handedness={settings.handedness || 'right'}
                         />
@@ -387,7 +381,7 @@ export default function Home() {
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.96, opacity: 0, y: 8 }}
                             transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
-                            className="bg-background rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto custom-scrollbar"
+                            className="bg-background/80 backdrop-blur-2xl rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto custom-scrollbar"
                             onClick={e => e.stopPropagation()}
                         >
                             {/* Header */}
@@ -398,7 +392,7 @@ export default function Home() {
                                 </button>
                             </div>
 
-                            <div className="p-5 space-y-6">
+                            <div className="p-4 space-y-4">
                                 {/* Languages */}
                                 <div>
                                     <p className="text-xs font-medium text-muted mb-3">Language</p>
@@ -408,7 +402,7 @@ export default function Home() {
                                                 key={lang.value}
                                                 onClick={() => updateSettings({ language: lang.value })}
                                                 className={cn(
-                                                    "py-3 px-4 rounded-xl flex items-center justify-center transition-all text-[15px] font-medium",
+                                                    "py-2 px-3 rounded-lg flex items-center justify-center transition-all text-sm font-medium",
                                                     settings.language === lang.value
                                                         ? "ring-2 ring-accent bg-accent/5 text-foreground"
                                                         : "bg-extra-muted/30 text-foreground hover:bg-extra-muted/50"
@@ -430,14 +424,14 @@ export default function Home() {
                                                     key={d}
                                                     onClick={() => updateSettings({ difficulty: d })}
                                                     className={cn(
-                                                        "flex-1 py-2.5 rounded-[10px] text-[15px] font-medium capitalize transition-colors relative z-10",
+                                                        "flex-1 py-2 rounded-lg text-sm font-medium capitalize transition-colors relative z-10",
                                                         settings.difficulty === d ? "text-white" : "text-muted hover:text-foreground"
                                                     )}
                                                 >
                                                     {settings.difficulty === d && (
                                                         <motion.div
                                                             layoutId="difficulty-pill"
-                                                            className="absolute inset-0 bg-accent rounded-[10px]"
+                                                            className="absolute inset-0 bg-accent rounded-lg"
                                                             style={{ zIndex: -1 }}
                                                             transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
                                                         />
@@ -457,7 +451,7 @@ export default function Home() {
                                             <select
                                                 value={settings.arabicFont ?? DEFAULT_ARABIC_FONT}
                                                 onChange={(e) => updateSettings({ arabicFont: e.target.value as ArabicFont })}
-                                                className="w-full appearance-none bg-extra-muted/20 border border-extra-muted/60 text-foreground text-[15px] font-medium rounded-xl px-4 py-3 pr-10 hover:bg-extra-muted/40 focus:outline-none focus:ring-2 focus:ring-accent transition-all cursor-pointer"
+                                                className="w-full appearance-none bg-extra-muted/20 border border-extra-muted/60 text-foreground text-sm font-medium rounded-lg px-3 py-2 pr-10 hover:bg-extra-muted/40 focus:outline-none focus:ring-2 focus:ring-accent transition-all cursor-pointer"
                                             >
                                                 {ARABIC_FONTS.map(font => (
                                                     <option key={font.value} value={font.value} className="bg-background text-foreground">
@@ -481,14 +475,14 @@ export default function Home() {
                                                         key={m}
                                                         onClick={() => updateSettings({ mobileInputMode: m })}
                                                         className={cn(
-                                                            "flex-1 py-2.5 rounded-[10px] text-[15px] font-medium capitalize transition-colors relative z-10",
+                                                            "flex-1 py-2 rounded-lg text-sm font-medium capitalize transition-colors relative z-10",
                                                             settings.mobileInputMode === m ? "text-white" : "text-muted hover:text-foreground"
                                                         )}
                                                     >
                                                         {settings.mobileInputMode === m && (
                                                             <motion.div
                                                                 layoutId="mobile-mode-pill"
-                                                                className="absolute inset-0 bg-accent rounded-[10px]"
+                                                                className="absolute inset-0 bg-accent rounded-lg"
                                                                 style={{ zIndex: -1 }}
                                                                 transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
                                                             />
@@ -512,14 +506,14 @@ export default function Home() {
                                                         key={m}
                                                         onClick={() => updateSettings({ handedness: m })}
                                                         className={cn(
-                                                            "flex-1 py-2.5 rounded-[10px] text-[15px] font-medium capitalize transition-colors relative z-10",
+                                                            "flex-1 py-2 rounded-lg text-sm font-medium capitalize transition-colors relative z-10",
                                                             (settings.handedness || 'right') === m ? "text-white" : "text-muted hover:text-foreground"
                                                         )}
                                                     >
                                                         {(settings.handedness || 'right') === m && (
                                                             <motion.div
                                                                 layoutId="handedness-pill"
-                                                                className="absolute inset-0 bg-accent rounded-[10px]"
+                                                                className="absolute inset-0 bg-accent rounded-lg"
                                                                 style={{ zIndex: -1 }}
                                                                 transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
                                                             />
@@ -554,9 +548,8 @@ export default function Home() {
                                 {/* Apple Pencil (iPad only) */}
                                 {isIOS && (
                                     <div>
-                                        <p className="text-xs font-medium text-muted mb-3">Apple Pencil</p>
-                                        <div className="p-4 rounded-xl bg-extra-muted/20">
-                                            <span className="text-sm font-medium mb-3 block">Thickness</span>
+                                        <p className="text-xs font-medium text-muted mb-3">Apple Pencil Thickness</p>
+                                        <div className="px-1">
                                             <input
                                                 type="range"
                                                 min="1" max="20"
@@ -626,9 +619,9 @@ export default function Home() {
                 aria-hidden="true"
             />
             {/* Panel — always in DOM, toggled via CSS class for GPU compositing */}
-            <div className={cn("lexicon-panel", isHistoryOpen && "open")}>
+            <div className={cn("lexicon-panel backdrop-blur-2xl bg-white/90 dark:bg-black/90", isHistoryOpen && "open")}>
                 <div className="flex items-center justify-between p-5 shrink-0">
-                    <h2 className="text-lg font-semibold">Lexicon</h2>
+                    <h2 className="text-lg font-semibold">History</h2>
                     <button onClick={() => setIsHistoryOpen(false)} className="text-muted hover:text-foreground transition-colors"><X size={18} /></button>
                 </div>
                 <div className="px-5 pb-4 shrink-0">
@@ -671,6 +664,13 @@ export default function Home() {
                                         w.definition.toLowerCase().includes(searchQuery.toLowerCase())
                                     )}
                                     arabicFontClass={arabicFontClass}
+                                    onSelectWord={(word) => {
+                                        setUpcomingWords(prev => {
+                                            const filtered = prev.filter(w => w.id !== word.id);
+                                            return [word, ...filtered];
+                                        });
+                                        setIsHistoryOpen(false);
+                                    }}
                                 />
                             )}
                         </div>
@@ -717,7 +717,7 @@ function InfoRow({ icon, title, body }: { icon: React.ReactNode; title: string; 
     );
 }
 
-function VirtualList({ words, arabicFontClass }: { words: Word[]; arabicFontClass?: string }) {
+function VirtualList({ words, arabicFontClass, onSelectWord }: { words: Word[]; arabicFontClass?: string; onSelectWord?: (w: Word) => void }) {
     const parentRef = useRef<HTMLDivElement>(null);
     const rowVirtualizer = useVirtualizer({
         count: words.length,
@@ -745,7 +745,10 @@ function VirtualList({ words, arabicFontClass }: { words: Word[]; arabicFontClas
                             }}
                             className="py-0.5"
                         >
-                            <div className="flex items-center justify-between p-3 rounded-lg hover:bg-extra-muted/30 transition-colors h-full">
+                            <div 
+                                onClick={() => onSelectWord?.(word)}
+                                className={cn("flex items-center justify-between p-3 rounded-lg hover:bg-extra-muted/30 transition-colors h-full", onSelectWord && "cursor-pointer")}
+                            >
                                 <div>
                                     <div
                                         className={cn("text-base font-medium", isAr ? (arabicFontClass || "font-arabic") : "font-sans")}

@@ -1,13 +1,5 @@
 [
   {
-    "id": "ur-1",
-    "original": "en",
-    "romanized": "en",
-    "definition": "en",
-    "language": "ur",
-    "frequency": 1
-  },
-  {
     "id": "ur-2",
     "original": "دی",
     "romanized": "di",
@@ -32,14 +24,6 @@
     "frequency": 4
   },
   {
-    "id": "ur-5",
-    "original": "a",
-    "romanized": "a",
-    "definition": "a",
-    "language": "ur",
-    "frequency": 5
-  },
-  {
     "id": "ur-6",
     "original": "کی",
     "romanized": "ki",
@@ -62,14 +46,6 @@
     "definition": "in",
     "language": "ur",
     "frequency": 8
-  },
-  {
-    "id": "ur-9",
-    "original": "i",
-    "romanized": "i",
-    "definition": "i",
-    "language": "ur",
-    "frequency": 9
   },
   {
     "id": "ur-10",
@@ -14280,14 +14256,6 @@
     "frequency": 1785
   },
   {
-    "id": "ur-1786",
-    "original": "اتارنا fucking",
-    "romanized": "atarna fucking",
-    "definition": "fucking",
-    "language": "ur",
-    "frequency": 1786
-  },
-  {
     "id": "ur-1787",
     "original": "باہر",
     "romanized": "bahar",
@@ -16854,14 +16822,6 @@
     "definition": "rise",
     "language": "ur",
     "frequency": 2107
-  },
-  {
-    "id": "ur-2108",
-    "original": "FAŁSZ",
-    "romanized": "fałsz",
-    "definition": "FAŁSZ",
-    "language": "ur",
-    "frequency": 2108
   },
   {
     "id": "ur-2109",
@@ -21120,14 +21080,6 @@
     "frequency": 2640
   },
   {
-    "id": "ur-2641",
-    "original": "mm-hmm",
-    "romanized": "mm-hmm",
-    "definition": "mm-hmm",
-    "language": "ur",
-    "frequency": 2641
-  },
-  {
     "id": "ur-2642",
     "original": "تصفیہ",
     "romanized": "tasafiya",
@@ -21734,14 +21686,6 @@
     "definition": "provider",
     "language": "ur",
     "frequency": 2717
-  },
-  {
-    "id": "ur-2718",
-    "original": "اتارنا fucking",
-    "romanized": "atarna fucking",
-    "definition": "fucking",
-    "language": "ur",
-    "frequency": 2718
   },
   {
     "id": "ur-2719",
@@ -36910,14 +36854,6 @@
     "definition": "bad",
     "language": "ur",
     "frequency": 4614
-  },
-  {
-    "id": "ur-4615",
-    "original": "mmm",
-    "romanized": "mmm",
-    "definition": "mmm",
-    "language": "ur",
-    "frequency": 4615
   },
   {
     "id": "ur-4616",
