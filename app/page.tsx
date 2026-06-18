@@ -265,8 +265,13 @@ export default function Home() {
             {/* ─── Status bar (laptop only) ─────────────────────────────────── */}
             {!isIOS && (
                 <div className="flex justify-between items-center px-6 md:px-8 pb-2 z-10 shrink-0">
-                    <span className="text-sm text-muted/50 font-medium capitalize">
-                        {LANGUAGES.find(l => l.value === settings.language)?.label} · {settings.difficulty}
+                    <span className="text-sm text-muted/50 font-medium capitalize flex items-center gap-2">
+                        <span>{LANGUAGES.find(l => l.value === settings.language)?.label} · {settings.difficulty}</span>
+                        {["ja", "ko"].includes(settings.language) && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-600 text-[10px] font-bold uppercase tracking-widest">
+                                Beta
+                            </span>
+                        )}
                     </span>
                     <span className="text-sm text-muted/50 font-medium">{history.length} practiced</span>
                 </div>
@@ -275,8 +280,13 @@ export default function Home() {
             {/* ─── iPad: top bar (language + mastered) ─────────────────────── */}
             {isIOS && (
                 <div className={`fixed top-0 left-0 right-0 z-40 flex justify-between items-center px-10 pt-[max(env(safe-area-inset-top),32px)] pb-4 pointer-events-none ${!isPhone ? (settings.handedness === 'left' ? "lg:pr-[450px]" : "lg:pl-[450px]") : ""}`}>
-                    <span className="text-base font-semibold text-neutral-400 capitalize tracking-wide">
-                        {LANGUAGES.find(l => l.value === settings.language)?.label} · {settings.difficulty}
+                    <span className="text-base font-semibold text-neutral-400 capitalize tracking-wide flex items-center gap-2">
+                        <span>{LANGUAGES.find(l => l.value === settings.language)?.label} · {settings.difficulty}</span>
+                        {["ja", "ko"].includes(settings.language) && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-amber-100/50 text-amber-600 text-[10px] font-bold uppercase tracking-widest">
+                                Beta
+                            </span>
+                        )}
                     </span>
                     <div className="flex items-center gap-5">
                         <div className="relative">
@@ -315,15 +325,6 @@ export default function Home() {
             {!isIOS && (
                 <div className="absolute top-20 w-full flex flex-col items-center gap-2 px-4 z-10 left-0 right-0 pointer-events-none">
                     <AnimatePresence>
-                        {["ja", "ko"].includes(settings.language) && (
-                            <motion.div
-                                key="unstable"
-                                initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
-                                className="text-xs text-orange-600/80 bg-orange-50 border border-orange-200 px-4 py-2 rounded-xl text-center max-w-max mx-auto pointer-events-auto"
-                            >
-                                ⚠️ This language is under development.
-                            </motion.div>
-                        )}
                         {isVoiceMissing && settings.language !== "ur" && (
                             <motion.div
                                 key="voice-missing"
@@ -419,7 +420,7 @@ export default function Home() {
                                 <div>
                                     <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Language</p>
                                     <LayoutGroup id="settings-language">
-                                        <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1 overflow-x-auto snap-x" style={{ scrollbarWidth: 'none' }}>
+                                        <div className="flex p-1 bg-neutral-100 rounded-2xl overflow-x-auto snap-x" style={{ scrollbarWidth: 'none' }}>
                                             {LANGUAGES.map(lang => (
                                                 <button
                                                     key={lang.value}
@@ -448,7 +449,7 @@ export default function Home() {
                                 <div>
                                     <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Difficulty</p>
                                     <LayoutGroup id="settings-difficulty">
-                                        <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
+                                        <div className="flex p-1 bg-neutral-100 rounded-2xl">
                                             {(["beginner", "intermediate", "hard"] as Difficulty[]).map(d => (
                                                 <button
                                                     key={d}
@@ -478,7 +479,7 @@ export default function Home() {
                                     <div>
                                         <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Script Style</p>
                                         <LayoutGroup id="settings-script">
-                                            <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
+                                            <div className="flex p-1 bg-neutral-100 rounded-2xl">
                                                 {ARABIC_FONTS.map(font => (
                                                     <button
                                                         key={font.value}
@@ -509,7 +510,7 @@ export default function Home() {
                                     <div>
                                         <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Writing Hand</p>
                                         <LayoutGroup id="settings-handed">
-                                            <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
+                                            <div className="flex p-1 bg-neutral-100 rounded-2xl">
                                                 {(["left", "right"] as const).map(m => (
                                                     <button
                                                         key={m}
@@ -540,7 +541,7 @@ export default function Home() {
                                     <div>
                                         <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Pen Weight</p>
                                         <LayoutGroup id="settings-pencil">
-                                            <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
+                                            <div className="flex p-1 bg-neutral-100 rounded-2xl">
                                                 {[
                                                     { label: "Fine", val: 3 },
                                                     { label: "Regular", val: 6 },
@@ -575,7 +576,7 @@ export default function Home() {
                                     <div>
                                         <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Input Mode</p>
                                         <LayoutGroup id="settings-mobile">
-                                            <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
+                                            <div className="flex p-1 bg-neutral-100 rounded-2xl">
                                                 {(["touch", "keyboard"] as const).map(m => (
                                                     <button
                                                         key={m}
@@ -601,8 +602,6 @@ export default function Home() {
                                     </div>
                                 )}
 
-                                {/* ── Divider ── */}
-                                <div className="h-px bg-neutral-100" />
 
                                 {/* ── Spaced Repetition toggle ── */}
                                 <button

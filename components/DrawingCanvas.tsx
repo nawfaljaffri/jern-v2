@@ -152,59 +152,80 @@ export default function DrawingCanvas({
         const hCtx = hCanvas.getContext("2d", { willReadFrequently: true });
         if (!bgCtx || !hCtx) return;
 
-        bgCtx.clearRect(0, 0, rect.width, rect.height);
-        hCtx.clearRect(0, 0, w, h);
-
-        const x = rect.width / 2;
-        const hX = w / 2;
-
-        // NEW HIERARCHY: Tracing text (Romanized) is large and on top.
-        const romFontSize = Math.max(70, Math.min(160, rect.width * 0.18));
-        const arabicFontSize = Math.max(55, Math.min(100, rect.width * 0.11));
-        
-        // Use weight 500 for Arabic so it's not too thick
-        const arFont = `500 ${arabicFontSize}px ${getArabicFontString()}`;
-        const romFont = `800 ${romFontSize}px sans-serif`;
-        const romFontHidden = `800 ${romFontSize * dpr}px sans-serif`;
-
-        const topY = rect.height / 2 - (rect.height * 0.05);
-        const bottomY = rect.height / 2 + (rect.height * 0.17);
-        const hTopY = h / 2 - (h * 0.05);
-
-        bgCtx.textAlign = "center";
-        bgCtx.textBaseline = "middle";
-        bgCtx.lineJoin = "round";
-        bgCtx.lineCap = "round";
-
-        // Neutral gray (slightly darker)
-        const traceColor = "#ebebeb";
-        
-        // Top text (Romanized)
-        bgCtx.font = romFont;
-        bgCtx.fillStyle = traceColor;
-        bgCtx.fillText(word.romanized, x, topY);
-
-        // Bottom text (Arabic)
-        bgCtx.font = arFont;
         const isAr = word.language === 'ar' || word.language === 'ur';
-        bgCtx.fillText(isAr ? word.original : "", x, bottomY);
+        const baseRomFont = `800 ${Math.max(70, Math.min(160, rect.width * 0.18))}px sans-serif`;
+        const baseArFont = `500 ${Math.max(55, Math.min(100, rect.width * 0.11))}px ${getArabicFontString()}`;
 
-        // Hidden Mask (for validation against Romanized)
-        hCtx.textAlign = "center";
-        hCtx.textBaseline = "middle";
-        hCtx.lineJoin = "round";
-        hCtx.lineCap = "round";
-        
-        hCtx.fillStyle = "black";
-        hCtx.strokeStyle = "black";
-        hCtx.lineWidth = 70 * dpr; 
+        const fontsToLoad = [document.fonts.load(baseRomFont)];
+        if (isAr) fontsToLoad.push(document.fonts.load(baseArFont));
 
-        hCtx.font = romFontHidden;
-        hCtx.fillText(word.romanized, hX, hTopY);
-        hCtx.strokeText(word.romanized, hX, hTopY);
+        Promise.all(fontsToLoad).then(() => {
+            if (!bgCanvasRef.current || !drawCanvasRef.current) return;
 
-        // Make sure drawings scale correctly when resized
-        redrawAllPaths();
+            bgCtx.clearRect(0, 0, rect.width, rect.height);
+            hCtx.clearRect(0, 0, w, h);
+
+            const x = rect.width / 2;
+            const hX = w / 2;
+
+            let romFontSize = Math.max(70, Math.min(160, rect.width * 0.18));
+            bgCtx.font = `800 ${romFontSize}px sans-serif`;
+            const textWidth = bgCtx.measureText(word.romanized).width;
+            if (textWidth > rect.width * 0.85) {
+                romFontSize = Math.max(30, romFontSize * ((rect.width * 0.85) / textWidth));
+            }
+
+            let arabicFontSize = Math.max(55, Math.min(100, rect.width * 0.11));
+            if (isAr) {
+                bgCtx.font = `500 ${arabicFontSize}px ${getArabicFontString()}`;
+                const arTextWidth = bgCtx.measureText(word.original).width;
+                if (arTextWidth > rect.width * 0.85) {
+                    arabicFontSize = Math.max(20, arabicFontSize * ((rect.width * 0.85) / arTextWidth));
+                }
+            }
+            
+            const arFont = `500 ${arabicFontSize}px ${getArabicFontString()}`;
+            const romFont = `800 ${romFontSize}px sans-serif`;
+            const romFontHidden = `800 ${romFontSize * dpr}px sans-serif`;
+
+            const topY = rect.height / 2 - (rect.height * 0.05);
+            const bottomY = rect.height / 2 + (rect.height * 0.17);
+            const hTopY = h / 2 - (h * 0.05);
+
+            bgCtx.textAlign = "center";
+            bgCtx.textBaseline = "middle";
+            bgCtx.lineJoin = "round";
+            bgCtx.lineCap = "round";
+
+            // Neutral gray (slightly darker)
+            const traceColor = "#ebebeb";
+            
+            // Top text (Romanized)
+            bgCtx.font = romFont;
+            bgCtx.fillStyle = traceColor;
+            bgCtx.fillText(word.romanized, x, topY);
+
+            // Bottom text (Arabic)
+            bgCtx.font = arFont;
+            bgCtx.fillText(isAr ? word.original : "", x, bottomY);
+
+            // Hidden Mask (for validation against Romanized)
+            hCtx.textAlign = "center";
+            hCtx.textBaseline = "middle";
+            hCtx.lineJoin = "round";
+            hCtx.lineCap = "round";
+            
+            hCtx.fillStyle = "black";
+            hCtx.strokeStyle = "black";
+            hCtx.lineWidth = (romFontSize * 0.45) * dpr; 
+
+            hCtx.font = romFontHidden;
+            hCtx.fillText(word.romanized, hX, hTopY);
+            hCtx.strokeText(word.romanized, hX, hTopY);
+
+            // Make sure drawings scale correctly when resized
+            redrawAllPaths();
+        });
 
     }, [word, targetFontClass, arabicFont, redrawAllPaths]);
 
