@@ -7,7 +7,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import {
     Volume2, Loader2, Volume1, ChevronLeft, ChevronRight,
-    Repeat, Eraser, Settings, Check, BookOpen, X, Undo2, Redo2
+    Repeat, Eraser, Settings, Check, BookOpen, X, Undo2, Redo2, History
 } from "lucide-react";
 import DrawingCanvas from "./DrawingCanvas";
 
@@ -45,6 +45,7 @@ interface TypingTestProps {
     isLooping?: boolean;
     onToggleLoop?: () => void;
     onOpenSettings?: () => void;
+    onOpenHistory?: () => void;
     arabicFontClass?: string;
     handedness: 'left' | 'right';
     mobileInputMode?: 'touch' | 'keyboard';
@@ -54,7 +55,7 @@ export default function TypingTest({
     word, onComplete, onBack, onMismatch, onSpeak, onStop,
     onUnlockAudio, isSpeaking, isPending, isIOS, isPhone,
     isAudioRepeat, penThickness, penColor, isLooping, onToggleLoop,
-    onOpenSettings, arabicFontClass = "", handedness, mobileInputMode = 'touch',
+    onOpenSettings, onOpenHistory, arabicFontClass = "", handedness, mobileInputMode = 'touch',
 }: TypingTestProps) {
     const [userInput, setUserInput] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
@@ -292,6 +293,14 @@ export default function TypingTest({
                             >
                                 <Eraser size={20} strokeWidth={2.5} />
                                 <span className="text-[17px]">Clear</span>
+                            </button>
+                            <div className="w-px h-8 bg-neutral-200 mx-1" />
+                            <button
+                                onClick={onOpenHistory}
+                                className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
+                                aria-label="History"
+                            >
+                                <History size={22} strokeWidth={2.5} />
                             </button>
                             <div className="w-px h-8 bg-neutral-200 mx-1" />
                             <button
