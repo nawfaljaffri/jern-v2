@@ -387,7 +387,7 @@ export default function TypingTest({
     // ─────────────────────────────────────────────────────────────────────────
     return (
         <div
-            className="relative flex flex-col items-center justify-center min-h-[400px] md:min-h-[500px] w-full cursor-text"
+            className="relative flex flex-col items-center justify-center min-h-[400px] md:min-h-[500px] w-full cursor-text pb-16 md:pb-24"
             onClick={() => inputRef.current?.focus()}
         >
             <input
@@ -406,7 +406,7 @@ export default function TypingTest({
             />
 
             {/* ── Definition display (Top) ── */}
-            <div className="flex flex-col items-center justify-center px-8 z-0 select-none pointer-events-none mb-8">
+            <div className="flex flex-col items-center justify-center px-8 z-0 select-none pointer-events-none mb-6">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={word.id}
@@ -416,7 +416,7 @@ export default function TypingTest({
                         transition={{ duration: 0.22, ease: [0.32, 0, 0.2, 1] }}
                         className="flex flex-col items-center gap-2 w-full"
                     >
-                        <div className="text-[clamp(1.5rem,3vw,2rem)] text-neutral-400 font-medium text-center max-w-2xl leading-relaxed">
+                        <div className="text-2xl md:text-3xl text-neutral-400 font-medium text-center max-w-2xl leading-relaxed">
                             {word.definition}
                         </div>
                     </motion.div>
@@ -427,7 +427,7 @@ export default function TypingTest({
             <motion.div
                 animate={isShaking ? { x: [-5, 5, -5, 5, 0] } : {}}
                 transition={{ duration: 0.4 }}
-                className="relative text-6xl md:text-7xl lg:text-8xl font-semibold tracking-tight select-none flex flex-wrap justify-center gap-[0.04em] mb-8 z-0"
+                className="relative text-6xl md:text-7xl lg:text-8xl font-semibold tracking-tight select-none flex flex-wrap justify-center gap-[0.04em] mb-12 z-0"
             >
                 {renderChars.map(({ char, colorClass }, index) => (
                     <span key={index} className="relative">
