@@ -417,22 +417,30 @@ export default function Home() {
                                 {/* ── Language ── */}
                                 <div>
                                     <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Language</p>
-                                    <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 snap-x" style={{ scrollbarWidth: 'none' }}>
-                                        {LANGUAGES.map(lang => (
-                                            <button
-                                                key={lang.value}
-                                                onClick={() => updateSettings({ language: lang.value })}
-                                                className={cn(
-                                                    "snap-start shrink-0 h-11 px-5 rounded-2xl text-[15px] font-semibold transition-all duration-200",
-                                                    settings.language === lang.value
-                                                        ? "bg-accent text-white"
-                                                        : "bg-white border border-neutral-200 text-neutral-500 hover:border-neutral-300 hover:text-neutral-700"
-                                                )}
-                                            >
-                                                {lang.label}
-                                            </button>
-                                        ))}
-                                    </div>
+                                    <LayoutGroup id="settings-language">
+                                        <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1 overflow-x-auto snap-x" style={{ scrollbarWidth: 'none' }}>
+                                            {LANGUAGES.map(lang => (
+                                                <button
+                                                    key={lang.value}
+                                                    onClick={() => updateSettings({ language: lang.value })}
+                                                    className={cn(
+                                                        "snap-start shrink-0 px-4 py-2.5 rounded-xl text-[14px] font-semibold capitalize transition-colors relative z-10",
+                                                        settings.language === lang.value ? "text-white" : "text-neutral-400 hover:text-neutral-600"
+                                                    )}
+                                                >
+                                                    {settings.language === lang.value && (
+                                                        <motion.div
+                                                            layoutId="settings-language-pill"
+                                                            className="absolute inset-0 bg-accent rounded-xl"
+                                                            style={{ zIndex: -1 }}
+                                                            transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
+                                                        />
+                                                    )}
+                                                    {lang.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </LayoutGroup>
                                 </div>
 
                                 {/* ── Difficulty ── */}
@@ -468,38 +476,32 @@ export default function Home() {
                                 {(settings.language === "ar" || settings.language === "ur") && (
                                     <div>
                                         <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Script Style</p>
-                                        <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-1 px-1 snap-x" style={{ scrollbarWidth: 'none' }}>
-                                            {ARABIC_FONTS.map(font => (
-                                                <button
-                                                    key={font.value}
-                                                    onClick={() => updateSettings({ arabicFont: font.value })}
-                                                    className={cn(
-                                                        "snap-start shrink-0 w-[96px] h-[86px] rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all duration-200",
-                                                        (settings.arabicFont ?? DEFAULT_ARABIC_FONT) === font.value
-                                                            ? "border-accent bg-accent/8"
-                                                            : "border-neutral-200 bg-white hover:border-neutral-300"
-                                                    )}
-                                                >
-                                                    <span
-                                                        className="text-[22px] leading-none"
-                                                        style={{ fontFamily: font.cssVar }}
+                                        <LayoutGroup id="settings-script">
+                                            <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
+                                                {ARABIC_FONTS.map(font => (
+                                                    <button
+                                                        key={font.value}
+                                                        onClick={() => updateSettings({ arabicFont: font.value })}
+                                                        className={cn(
+                                                            "flex-1 py-2.5 rounded-xl text-[14px] font-semibold capitalize transition-colors relative z-10",
+                                                            (settings.arabicFont ?? DEFAULT_ARABIC_FONT) === font.value ? "text-white" : "text-neutral-400 hover:text-neutral-600"
+                                                        )}
                                                     >
-                                                        {font.preview}
-                                                    </span>
-                                                    <span className={cn(
-                                                        "text-[10px] font-bold tracking-wider uppercase",
-                                                        (settings.arabicFont ?? DEFAULT_ARABIC_FONT) === font.value ? "text-accent" : "text-neutral-400"
-                                                    )}>
-                                                        {font.description.split('·')[0].trim()}
-                                                    </span>
-                                                </button>
-                                            ))}
-                                        </div>
+                                                        {(settings.arabicFont ?? DEFAULT_ARABIC_FONT) === font.value && (
+                                                            <motion.div
+                                                                layoutId="settings-script-pill"
+                                                                className="absolute inset-0 bg-accent rounded-xl"
+                                                                style={{ zIndex: -1 }}
+                                                                transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
+                                                            />
+                                                        )}
+                                                        {font.description}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </LayoutGroup>
                                     </div>
                                 )}
-
-                                {/* ── Divider ── */}
-                                <div className="h-px bg-neutral-100" />
 
                                 {/* ── Handedness (iPad only) ── */}
                                 {isIOS && !isPhone && (
