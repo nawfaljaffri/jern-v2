@@ -288,17 +288,17 @@ export default function TypingTest({
                             <div className="w-px h-8 bg-neutral-200 mx-1" />
                             <button
                                 onClick={() => setClearTrigger(p => p + 1)}
-                                className="px-6 h-14 flex items-center gap-2 rounded-[1.25rem] bg-white text-neutral-500 font-bold hover:text-red-500 transition-all active:bg-red-500 active:text-white shadow-sm border border-neutral-100"
+                                className="px-8 h-14 flex items-center gap-2 rounded-[1.25rem] bg-white text-neutral-400 hover:text-neutral-600 font-medium transition-all active:scale-95 active:bg-neutral-50 shadow-sm border border-neutral-100"
                             >
-                                <Eraser size={22} strokeWidth={2.5} />
+                                <Eraser size={20} strokeWidth={2.5} />
                                 <span className="text-[17px]">Clear</span>
                             </button>
                             <div className="w-px h-8 bg-neutral-200 mx-1" />
                             <button
                                 onClick={() => setCheckTrigger(p => p + 1)}
-                                className="flex items-center justify-center gap-2 px-10 h-14 rounded-[1.25rem] font-bold bg-white text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 active:bg-emerald-600 active:text-white transition-colors duration-100 shadow-sm border border-neutral-100"
+                                className="flex items-center justify-center gap-2 px-8 h-14 rounded-[1.25rem] font-medium bg-white text-neutral-400 hover:text-neutral-600 hover:bg-neutral-50 active:scale-95 transition-colors duration-100 shadow-[0_4px_12px_rgba(0,0,0,0.02)] border border-neutral-100"
                             >
-                                <Check size={22} strokeWidth={2.5} />
+                                <Check size={20} strokeWidth={2.5} />
                                 <span className="text-[17px]">Check</span>
                             </button>
                         </div>
@@ -309,11 +309,11 @@ export default function TypingTest({
                 <div className="w-[420px] shrink-0 h-full bg-white border-l border-neutral-100 shadow-[-20px_0_40px_rgba(0,0,0,0.02)] flex flex-col z-40 relative">
                     <div className="flex-1 overflow-y-auto p-10 pt-[env(safe-area-inset-top,40px)] custom-scrollbar">
                         <div className="space-y-4 mb-10">
-                            <div className="text-xl font-bold tracking-widest text-neutral-400 uppercase">
+                            <div className="text-sm font-semibold tracking-wide text-neutral-400 capitalize mt-2">
                                 Dictionary
                             </div>
                             
-                            <div className={cn("text-5xl font-medium text-foreground py-2", arabicFontClass)} dir={isArabicScript ? "rtl" : "ltr"}>
+                            <div className={cn("text-4xl font-medium text-foreground py-2", arabicFontClass)} dir={isArabicScript ? "rtl" : "ltr"}>
                                 {word.original}
                             </div>
                             
@@ -328,8 +328,8 @@ export default function TypingTest({
                                     onClick={() => setAudioMode("en")}
                                     className={cn(
                                         "px-5 py-3 rounded-xl text-sm font-bold transition-all duration-200 active:bg-emerald-600 active:text-white",
-                                        hasUnlockedRef.current
-                                            ? "text-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 active:bg-emerald-600 active:text-white"
+                                        audioMode === "en"
+                                            ? "bg-white text-foreground shadow-sm"
                                             : "text-neutral-400 hover:text-neutral-600 hover:bg-neutral-50 active:bg-emerald-600 active:text-white"
                                     )}
                                 >
@@ -406,7 +406,7 @@ export default function TypingTest({
             />
 
             {/* ── Definition display (Top) ── */}
-            <div className="flex flex-col items-center justify-center px-8 z-0 select-none pointer-events-none mb-6">
+            <div className="flex flex-col items-center justify-center px-8 z-0 select-none pointer-events-none mb-10">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={word.id}
@@ -416,7 +416,7 @@ export default function TypingTest({
                         transition={{ duration: 0.22, ease: [0.32, 0, 0.2, 1] }}
                         className="flex flex-col items-center gap-2 w-full"
                     >
-                        <div className="text-2xl md:text-3xl text-neutral-400 font-medium text-center max-w-2xl leading-relaxed">
+                        <div className="text-3xl md:text-4xl text-neutral-400 font-medium text-center max-w-2xl leading-relaxed">
                             {word.definition}
                         </div>
                     </motion.div>
@@ -427,7 +427,7 @@ export default function TypingTest({
             <motion.div
                 animate={isShaking ? { x: [-5, 5, -5, 5, 0] } : {}}
                 transition={{ duration: 0.4 }}
-                className="relative text-6xl md:text-7xl lg:text-8xl font-semibold tracking-tight select-none flex flex-wrap justify-center gap-[0.04em] mb-12 z-0"
+                className="relative text-6xl md:text-7xl lg:text-8xl font-semibold tracking-tight select-none flex flex-wrap justify-center gap-[0.04em] mb-10 z-0"
             >
                 {renderChars.map(({ char, colorClass }, index) => (
                     <span key={index} className="relative">
@@ -456,7 +456,7 @@ export default function TypingTest({
                 >
                     <div
                         className={cn(
-                            "text-5xl md:text-6xl lg:text-7xl font-normal text-neutral-500",
+                            "text-6xl md:text-7xl lg:text-[5rem] font-normal text-neutral-400",
                             targetFontClass
                         )}
                         dir={isArabicScript ? "rtl" : "ltr"}
