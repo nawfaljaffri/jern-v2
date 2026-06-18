@@ -54,7 +54,7 @@ interface TypingTestProps {
 export default function TypingTest({
     word, onComplete, onBack, onMismatch, onSpeak, onStop,
     onUnlockAudio, isSpeaking, isPending, isIOS, isPhone,
-    isAudioRepeat, penThickness, penColor, isLooping, onToggleLoop,
+    isAudioRepeat, onToggleAudioRepeat, penThickness, penColor, isLooping, onToggleLoop,
     onOpenSettings, onOpenHistory, arabicFontClass = "", handedness, mobileInputMode = 'touch',
 } : TypingTestProps & { onToggleAudioRepeat?: () => void }) {
     const [userInput, setUserInput] = useState("");
