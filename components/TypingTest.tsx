@@ -169,6 +169,37 @@ export default function TypingTest({
             .trim();
     }, [word.romanized]);
 
+    // ── Global Undo/Redo listeners (for Apple Pencil native palette) ───────
+    useEffect(() => {
+        const handleGlobalUndoRedo = (e: KeyboardEvent) => {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
+                e.preventDefault();
+                if (e.shiftKey) {
+                    setRedoTrigger(p => p + 1);
+                } else {
+                    setUndoTrigger(p => p + 1);
+                }
+            }
+        };
+        
+        const handleBeforeInput = (e: InputEvent) => {
+            if (e.inputType === 'historyUndo') {
+                e.preventDefault();
+                setUndoTrigger(p => p + 1);
+            } else if (e.inputType === 'historyRedo') {
+                e.preventDefault();
+                setRedoTrigger(p => p + 1);
+            }
+        };
+
+        window.addEventListener("keydown", handleGlobalUndoRedo);
+        window.addEventListener("beforeinput", handleBeforeInput as EventListener);
+        return () => {
+            window.removeEventListener("keydown", handleGlobalUndoRedo);
+            window.removeEventListener("beforeinput", handleBeforeInput as EventListener);
+        };
+    }, []);
+
     // ── Keyboard shortcuts (laptop) ────────────────────────────────────────
     useEffect(() => {
         if (isIOS) return;
@@ -423,13 +454,15 @@ export default function TypingTest({
                                     )}
                                 </div>
                             
-                            <div className={cn("text-4xl font-medium text-foreground py-2 text-left", arabicFontClass)} dir="rtl">
-                                {word.original}
-                            </div>
-                            
-                            <div className="text-3xl text-accent font-medium text-left">{word.romanized}</div>
-                            
-                            <div className="text-xl text-neutral-600 leading-relaxed mt-4 text-left">{word.definition}</div>
+                                <div className="px-6">
+                                    <div className={cn("text-4xl font-medium text-foreground py-2 text-left", arabicFontClass)} dir="rtl">
+                                        {word.original}
+                                    </div>
+                                    
+                                    <div className="text-3xl text-accent font-medium text-left">{word.romanized}</div>
+                                    
+                                    <div className="text-xl text-neutral-600 leading-relaxed mt-4 text-left">{word.definition}</div>
+                                </div>
                                 </div>
 
                                 <div className="mt-auto flex items-center justify-between p-2 bg-neutral-50 rounded-2xl border border-neutral-100 lg:mb-10">
