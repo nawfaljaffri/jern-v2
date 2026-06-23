@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, useDragControls } from "framer-motion";
+import { motion, AnimatePresence, useDragControls, useMotionValue } from "framer-motion";
 import { Undo2, Redo2, Eraser, Trash2, GripHorizontal, GripVertical } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -27,14 +27,14 @@ interface CanvasToolbarProps {
 }
 
 const ZONES: { id: ToolbarPosition; boxClass: string }[] = [
-    { id: "top-left", boxClass: "top-4 left-4 w-32 h-32" },
-    { id: "top-center", boxClass: "top-4 left-1/3 right-1/3 h-24" },
-    { id: "top-right", boxClass: "top-4 right-4 w-32 h-32" },
-    { id: "left-center", boxClass: "top-1/3 bottom-1/3 left-4 w-24" },
-    { id: "right-center", boxClass: "top-1/3 bottom-1/3 right-4 w-24" },
-    { id: "bottom-left", boxClass: "bottom-4 left-4 w-32 h-32" },
-    { id: "bottom-center", boxClass: "bottom-4 left-1/3 right-1/3 h-24" },
-    { id: "bottom-right", boxClass: "bottom-4 right-4 w-32 h-32" },
+    { id: "top-left", boxClass: "top-4 left-4 w-24 h-24" },
+    { id: "top-center", boxClass: "top-4 left-1/3 right-1/3 h-16" },
+    { id: "top-right", boxClass: "top-4 right-4 w-24 h-24" },
+    { id: "left-center", boxClass: "top-1/3 bottom-1/3 left-4 w-16" },
+    { id: "right-center", boxClass: "top-1/3 bottom-1/3 right-4 w-16" },
+    { id: "bottom-left", boxClass: "bottom-4 left-4 w-24 h-24" },
+    { id: "bottom-center", boxClass: "bottom-4 left-1/3 right-1/3 h-16" },
+    { id: "bottom-right", boxClass: "bottom-4 right-4 w-24 h-24" },
 ];
 
 export function CanvasToolbar({
@@ -49,6 +49,8 @@ export function CanvasToolbar({
     const [activeZone, setActiveZone] = useState<ToolbarPosition | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const dragControls = useDragControls();
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
 
     // Persistence
     useEffect(() => {
@@ -67,13 +69,13 @@ export function CanvasToolbar({
         const rect = containerRef.current.parentElement?.getBoundingClientRect();
         if (!rect) return null;
 
-        const x = clientX - rect.left;
-        const y = clientY - rect.top;
+        const cx = clientX - rect.left;
+        const cy = clientY - rect.top;
         const w = rect.width;
         const h = rect.height;
 
-        const col = x < w / 3 ? "left" : x > (2 * w) / 3 ? "right" : "center";
-        const row = y < h / 3 ? "top" : y > (2 * h) / 3 ? "bottom" : "center";
+        const col = cx < w / 3 ? "left" : cx > (2 * w) / 3 ? "right" : "center";
+        const row = cy < h / 3 ? "top" : cy > (2 * h) / 3 ? "bottom" : "center";
 
         if (row === "center" && col === "center") return position; // default to current if middle
         if (row === "center") return `${col}-center` as ToolbarPosition;
@@ -94,6 +96,10 @@ export function CanvasToolbar({
             default: return "bottom-8 left-1/2 -translate-x-1/2";
         }
     };
+
+    const grabberClass = position.includes("right") 
+        ? (isVertical ? "w-full h-6 order-first mb-1 border-b border-neutral-100" : "w-6 h-full order-first mr-1 border-r border-neutral-100") 
+        : (isVertical ? "w-full h-6 order-last mt-1 border-t border-neutral-100" : "w-6 h-full order-last ml-1 border-l border-neutral-100");
 
     return (
         <div className="absolute inset-0 pointer-events-none z-40" ref={containerRef}>
@@ -125,6 +131,7 @@ export function CanvasToolbar({
             <motion.div
                 layout
                 drag
+                style={{ x, y }}
                 dragControls={dragControls}
                 dragListener={false}
                 dragMomentum={false}
@@ -138,15 +145,12 @@ export function CanvasToolbar({
                     setActiveZone(null);
                     const zone = calculateZone(info.point.x, info.point.y);
                     if (zone) setPosition(zone);
+                    // Explicitly reset drag offset to 0 so layout animation purely handles CSS changes
+                    x.set(0);
+                    y.set(0);
                 }}
-                // We use transform: none to prevent framer-motion from keeping the drag offset!
-                // Wait, if we drag, framer-motion applies x and y transform.
-                // We want layout animations to take over on drop.
-                // We can set style={{ x: 0, y: 0 }} when not dragging.
-                animate={{ x: 0, y: 0 }}
-                transition={{ type: "spring", stiffness: 300, damping: 25 }}
                 className={cn(
-                    "absolute pointer-events-auto flex gap-2 p-2.5 bg-white/90 backdrop-blur-md rounded-[2rem] border border-neutral-200 shadow-[0_16px_40px_rgba(0,0,0,0.08)]",
+                    "absolute pointer-events-auto flex gap-2 p-2.5 bg-white/90 backdrop-blur-md rounded-[2rem] border border-neutral-200 shadow-[0_16px_40px_rgba(0,0,0,0.08)] transition-shadow",
                     getPositionClasses(position),
                     isVertical ? "flex-col items-center" : "flex-row items-center",
                     isDragging ? "cursor-grabbing scale-105 shadow-2xl z-50" : "cursor-grab"
@@ -158,7 +162,7 @@ export function CanvasToolbar({
                     style={{ touchAction: "none" }}
                     className={cn(
                         "flex items-center justify-center text-neutral-300 hover:text-neutral-500",
-                        isVertical ? "w-full h-6 order-last mt-1 border-t border-neutral-100" : "w-6 h-full order-last ml-1 border-l border-neutral-100"
+                        grabberClass
                     )}
                 >
                     {isVertical ? <GripHorizontal size={18} /> : <GripVertical size={18} />}
