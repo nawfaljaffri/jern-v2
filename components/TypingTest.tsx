@@ -12,6 +12,7 @@ import {
 import DrawingCanvas, { DrawingCanvasRef } from "./DrawingCanvas";
 import DictionaryCard from "./DictionaryCard";
 import { useTypingInput } from "@/hooks/useTypingInput";
+import { CanvasToolbar } from "./CanvasToolbar";
 
 const TTS_LANG_MAP: Record<string, string> = {
     ar: "ar-SA",
@@ -287,47 +288,16 @@ export default function TypingTest({
                         </button>
                     </div>
 
-                    <div className="absolute bottom-8 left-0 right-0 z-30 pointer-events-auto flex justify-center">
-                        <div className="flex items-center gap-2 p-2.5 bg-white rounded-[2rem] border border-neutral-100 shadow-[0_16px_40px_rgba(0,0,0,0.06)]">
-                            <button
-                                onClick={() => canvasRef.current?.undo()}
-                                className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
-                                aria-label="Undo stroke"
-                            >
-                                <Undo2 size={22} strokeWidth={2} />
-                            </button>
-                            <button
-                                onClick={() => canvasRef.current?.redo()}
-                                className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
-                                aria-label="Redo stroke"
-                            >
-                                <Redo2 size={22} strokeWidth={2} />
-                            </button>
-                            <button
-                                onClick={() => setIsErasing(p => !p)}
-                                className={cn(
-                                    "w-14 h-14 flex items-center justify-center rounded-[1.25rem] transition-all shadow-sm border",
-                                    isErasing 
-                                        ? "bg-rose-50 text-rose-500 border-rose-100" 
-                                        : "bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 border-neutral-100 active:bg-emerald-600 active:text-white"
-                                )}
-                                aria-label="Toggle Eraser"
-                            >
-                                <Eraser size={22} strokeWidth={2} />
-                            </button>
-                            <div className="w-px h-8 bg-neutral-200 mx-1" />
-                            <button
-                                onClick={() => {
-                                    canvasRef.current?.clear();
-                                    setIsErasing(false);
-                                }}
-                                className="px-6 h-14 flex items-center gap-2 rounded-[1.25rem] bg-white text-neutral-400 hover:text-rose-500 hover:bg-rose-50 font-medium transition-all active:scale-95 active:bg-rose-500 active:text-white active:border-rose-500 shadow-sm border border-neutral-100"
-                            >
-                                <Trash2 size={20} strokeWidth={2} />
-                                <span className="text-[17px]">Clear</span>
-                            </button>
-                        </div>
-                    </div>
+                    <CanvasToolbar 
+                        onUndo={() => canvasRef.current?.undo()}
+                        onRedo={() => canvasRef.current?.redo()}
+                        onClear={() => {
+                            canvasRef.current?.clear();
+                            setIsErasing(false);
+                        }}
+                        isErasing={isErasing}
+                        onToggleEraser={() => setIsErasing(p => !p)}
+                    />
                 </div>
 
                 {/* ── Right Pane: Permanent Explainer (30%) ── */}
