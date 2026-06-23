@@ -2,19 +2,17 @@
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import TypingTest from "@/components/TypingTest";
-import { LANGUAGES, FREQUENCY_TIERS, ARABIC_FONTS, DEFAULT_ARABIC_FONT } from "@/lib/constants";
-import { Word, Language, Difficulty, SessionSettings, ArabicFont } from "@/lib/types";
+import SettingsModal from "@/components/SettingsModal";
+import InfoModal from "@/components/InfoModal";
+import LexiconPanel from "@/components/LexiconPanel";
+import { LANGUAGES, FREQUENCY_TIERS, DEFAULT_ARABIC_FONT } from "@/lib/constants";
+import { Word, Language, SessionSettings, ArabicFont } from "@/lib/types";
 import { transliterate } from "@/lib/transliterate";
 import { useTTS } from "@/hooks/useTTS";
-import {
-    Settings, History, Volume2, Globe, ChevronRight, ChevronDown,
-    RotateCcw, Search, Info, X, ChevronUp,
-} from "lucide-react";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { Settings, History, Info } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import Flag from "react-world-flags";
 
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -50,9 +48,7 @@ export default function Home() {
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isInfoOpen, setIsInfoOpen] = useState(false);
-    const [expandedLangInHistory, setExpandedLangInHistory] = useState<Language | null>("ar");
     const [isLoading, setIsLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState("");
 
     const { speak, stop, unlockAudio, voices, isSpeaking, isPending } = useTTS();
     const [isIOS, setIsIOS] = useState(false);
@@ -213,11 +209,6 @@ export default function Home() {
         });
         if (updates.audioRepeat === false) stop();
     };
-
-    const groupedHistory = LANGUAGES.map(lang => ({
-        ...lang,
-        words: history.filter(w => w.language === lang.value || w.id.startsWith(lang.value)),
-    })).filter(g => g.words.length > 0);
 
     const arabicFontClass = getArabicFontClass(settings.arabicFont ?? DEFAULT_ARABIC_FONT);
 
@@ -382,458 +373,33 @@ export default function Home() {
                 </AnimatePresence>
             </div>
 
-            {/* ══════════════════════════════════════════════════════════════ */}
-            {/* ── Settings Modal ────────────────────────────────────────── */}
-            {/* ══════════════════════════════════════════════════════════════ */}
-            <AnimatePresence>
-                {isSettingsOpen && (
-                    <motion.div
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/25 backdrop-blur-sm"
-                        onClick={() => setIsSettingsOpen(false)}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.97, opacity: 0, y: 16 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.97, opacity: 0, y: 16 }}
-                            transition={{ type: "spring", bounce: 0.18, duration: 0.38 }}
-                            className="bg-[#fafafa] rounded-t-3xl sm:rounded-3xl shadow-[0_32px_80px_-12px_rgba(0,0,0,0.18)] w-full sm:max-w-[420px] max-h-[92vh] overflow-y-auto custom-scrollbar pb-safe"
-                            onClick={e => e.stopPropagation()}
-                        >
-                            {/* Drag handle (mobile) */}
-                            <div className="flex justify-center pt-3 pb-1 sm:hidden">
-                                <div className="w-10 h-1 rounded-full bg-neutral-200" />
-                            </div>
-
-                            {/* Header */}
-                            <div className="flex items-center justify-between px-6 pt-4 pb-2">
-                                <h2 className="text-[22px] font-bold tracking-tight">Settings</h2>
-                                <button
-                                    onClick={() => setIsSettingsOpen(false)}
-                                    className="w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-500 hover:bg-neutral-200 transition-colors"
-                                >
-                                    <X size={15} strokeWidth={2.5} />
-                                </button>
-                            </div>
-
-                            <div className="px-6 pb-8 space-y-7 mt-2">
-
-                                {/* ── Language ── */}
-                                <div>
-                                    <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Language</p>
-                                    <LayoutGroup id="settings-language">
-                                        <div className="bg-neutral-100 rounded-2xl p-1 -mx-1">
-                                            <div className="flex overflow-x-auto snap-x" style={{ scrollbarWidth: 'none' }}>
-                                                {LANGUAGES.map(lang => (
-                                                    <button
-                                                        key={lang.value}
-                                                        onClick={() => updateSettings({ language: lang.value })}
-                                                        className={cn(
-                                                            "snap-start shrink-0 px-4 py-2.5 rounded-xl text-[14px] font-semibold capitalize transition-colors relative z-10",
-                                                            settings.language === lang.value ? "text-white" : "text-neutral-400 hover:text-neutral-600"
-                                                        )}
-                                                    >
-                                                        {settings.language === lang.value && (
-                                                            <motion.div
-                                                                layoutId="settings-language-pill"
-                                                                className="absolute inset-0 bg-accent rounded-xl"
-                                                                style={{ zIndex: -1 }}
-                                                                transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
-                                                            />
-                                                        )}
-                                                        {lang.label}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </LayoutGroup>
-                                </div>
-
-                                {/* ── Difficulty ── */}
-                                <div>
-                                    <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Difficulty</p>
-                                    <LayoutGroup id="settings-difficulty">
-                                        <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
-                                            {(["beginner", "intermediate", "hard"] as Difficulty[]).map(d => (
-                                                <button
-                                                    key={d}
-                                                    onClick={() => updateSettings({ difficulty: d })}
-                                                    className={cn(
-                                                        "flex-1 py-2.5 rounded-xl text-[14px] font-semibold capitalize transition-colors relative z-10",
-                                                        settings.difficulty === d ? "text-white" : "text-neutral-400 hover:text-neutral-600"
-                                                    )}
-                                                >
-                                                    {settings.difficulty === d && (
-                                                        <motion.div
-                                                            layoutId="settings-difficulty-pill"
-                                                            className="absolute inset-0 bg-accent rounded-xl"
-                                                            style={{ zIndex: -1 }}
-                                                            transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
-                                                        />
-                                                    )}
-                                                    {d}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </LayoutGroup>
-                                </div>
-
-                                {/* ── Arabic Typeface ── */}
-                                {(settings.language === "ar" || settings.language === "ur") && (
-                                    <div>
-                                        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Script Style</p>
-                                        <LayoutGroup id="settings-script">
-                                            <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
-                                                {ARABIC_FONTS.map(font => (
-                                                    <button
-                                                        key={font.value}
-                                                        onClick={() => updateSettings({ arabicFont: font.value })}
-                                                        className={cn(
-                                                            "flex-1 py-2.5 rounded-xl text-[14px] font-semibold capitalize transition-colors relative z-10",
-                                                            (settings.arabicFont ?? DEFAULT_ARABIC_FONT) === font.value ? "text-white" : "text-neutral-400 hover:text-neutral-600"
-                                                        )}
-                                                    >
-                                                        {(settings.arabicFont ?? DEFAULT_ARABIC_FONT) === font.value && (
-                                                            <motion.div
-                                                                layoutId="settings-script-pill"
-                                                                className="absolute inset-0 bg-accent rounded-xl"
-                                                                style={{ zIndex: -1 }}
-                                                                transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
-                                                            />
-                                                        )}
-                                                        {font.description}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </LayoutGroup>
-                                    </div>
-                                )}
-
-                                {/* ── Handedness (iPad only) ── */}
-                                {isIOS && !isPhone && (
-                                    <div>
-                                        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Writing Hand</p>
-                                        <LayoutGroup id="settings-handed">
-                                            <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
-                                                {(["left", "right"] as const).map(m => (
-                                                    <button
-                                                        key={m}
-                                                        onClick={() => updateSettings({ handedness: m })}
-                                                        className={cn(
-                                                            "flex-1 py-2.5 rounded-xl text-[14px] font-semibold capitalize transition-colors relative z-10",
-                                                            (settings.handedness || 'right') === m ? "text-white" : "text-neutral-400 hover:text-neutral-600"
-                                                        )}
-                                                    >
-                                                        {(settings.handedness || 'right') === m && (
-                                                            <motion.div
-                                                                layoutId="settings-handed-pill"
-                                                                className="absolute inset-0 bg-accent rounded-xl"
-                                                                style={{ zIndex: -1 }}
-                                                                transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
-                                                            />
-                                                        )}
-                                                        {m}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </LayoutGroup>
-                                    </div>
-                                )}
-
-                                {/* ── Pencil Thickness (iPad only) ── */}
-                                {isIOS && (
-                                    <div>
-                                        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Pen Weight</p>
-                                        <LayoutGroup id="settings-pencil">
-                                            <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
-                                                {[
-                                                    { label: "Fine", val: 3 },
-                                                    { label: "Regular", val: 6 },
-                                                    { label: "Bold", val: 12 }
-                                                ].map(m => (
-                                                    <button
-                                                        key={m.label}
-                                                        onClick={() => updateSettings({ penThickness: m.val })}
-                                                        className={cn(
-                                                            "flex-1 py-2.5 rounded-xl text-[14px] font-semibold capitalize transition-colors relative z-10",
-                                                            (settings.penThickness || 6) === m.val ? "text-white" : "text-neutral-400 hover:text-neutral-600"
-                                                        )}
-                                                    >
-                                                        {(settings.penThickness || 6) === m.val && (
-                                                            <motion.div
-                                                                layoutId="settings-pencil-pill"
-                                                                className="absolute inset-0 bg-accent rounded-xl"
-                                                                style={{ zIndex: -1 }}
-                                                                transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
-                                                            />
-                                                        )}
-                                                        {m.label}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </LayoutGroup>
-                                    </div>
-                                )}
-
-                                {/* ── Phone Input Mode (Phone only) ── */}
-                                {isPhone && (
-                                    <div>
-                                        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Input Mode</p>
-                                        <LayoutGroup id="settings-mobile">
-                                            <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
-                                                {(["touch", "keyboard"] as const).map(m => (
-                                                    <button
-                                                        key={m}
-                                                        onClick={() => updateSettings({ mobileInputMode: m })}
-                                                        className={cn(
-                                                            "flex-1 py-2.5 rounded-xl text-[14px] font-semibold capitalize transition-colors relative z-10",
-                                                            settings.mobileInputMode === m ? "text-white" : "text-neutral-400 hover:text-neutral-600"
-                                                        )}
-                                                    >
-                                                        {settings.mobileInputMode === m && (
-                                                            <motion.div
-                                                                layoutId="settings-mobile-pill"
-                                                                className="absolute inset-0 bg-accent rounded-xl"
-                                                                style={{ zIndex: -1 }}
-                                                                transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
-                                                            />
-                                                        )}
-                                                        {m}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </LayoutGroup>
-                                    </div>
-                                )}
-
-
-                                {/* ── Spaced Repetition toggle ── */}
-                                <button
-                                    onClick={() => updateSettings({ activeRecall: !settings.activeRecall })}
-                                    className="w-full flex items-center justify-between group"
-                                >
-                                    <div className="flex flex-col items-start gap-0.5 text-left">
-                                        <span className="text-[16px] font-semibold text-neutral-800">Spaced Repetition</span>
-                                        <span className="text-[13px] text-neutral-400 leading-snug">Revisit words you found harder, more often</span>
-                                    </div>
-                                    <div className={cn(
-                                        "relative flex-shrink-0 ml-4 w-12 h-7 rounded-full transition-colors duration-300",
-                                        settings.activeRecall ? "bg-accent" : "bg-neutral-200"
-                                    )}>
-                                        <motion.div
-                                            className="absolute top-1 w-5 h-5 rounded-full bg-white shadow-[0_2px_6px_rgba(0,0,0,0.2)]"
-                                            animate={{ x: settings.activeRecall ? 22 : 4 }}
-                                            transition={{ type: "spring", bounce: 0.25, duration: 0.3 }}
-                                        />
-                                    </div>
-                                </button>
-
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-
-
-            {/* ══════════════════════════════════════════════════════════════ */}
-            {/* ── Info Modal ────────────────────────────────────────────── */}
-            {/* ══════════════════════════════════════════════════════════════ */}
-            <AnimatePresence>
-                {isInfoOpen && (
-                    <motion.div
-                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm"
-                        onClick={() => setIsInfoOpen(false)}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.96, opacity: 0, y: 8 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.96, opacity: 0, y: 8 }}
-                            transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
-                            className="bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-neutral-100 max-w-md w-full p-6 space-y-6"
-                            onClick={e => e.stopPropagation()}
-                        >
-                            <div className="flex items-center justify-between">
-                                <h2 className="text-lg font-semibold">About JERN</h2>
-                                <button onClick={() => setIsInfoOpen(false)} className="text-muted hover:text-foreground transition-colors"><X size={18} /></button>
-                            </div>
-                            <p className="text-sm text-muted leading-relaxed">
-                                JERN is a focused environment for deep linguistic association, built on Dual Coding and Multisensory Integration. True learning happens when typing, listening, and reading converge on a single point — creating a loop that accelerates memory encoding.
-                            </p>
-                            <div className="space-y-4">
-                                <InfoRow icon={<Globe size={14} />} title="100% Local & Private" body="Runs entirely in your browser. No data leaves your device. Works offline after first load." />
-                                <InfoRow icon={<RotateCcw size={14} />} title="Spaced Repetition" body="Tracks mastered words and reinjects tricky vocabulary into your queue without breaking flow." />
-                                <InfoRow icon={<Volume2 size={14} />} title="Dual-Language Audio" body="Toggle pronunciation between English and the target language, or enable continuous mode in settings." />
-                            </div>
-                            <div className="pt-4 border-t border-extra-muted text-center">
-                                <p className="text-xs text-muted">
-                                    Made by{" "}
-                                    <a href="https://www.linkedin.com/in/nawfaljafri/" target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-accent transition-colors font-medium">
-                                        Nawfal Jafri
-                                    </a>
-                                </p>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* ══════════════════════════════════════════════════════════════ */}
-            {/* ── Lexicon Sidebar — GPU-composited CSS slide ────────────── */}
-            {/* ══════════════════════════════════════════════════════════════ */}
-            {/* Overlay */}
-            <div
-                className={cn("lexicon-overlay cursor-pointer", isHistoryOpen && "open")}
-                onClick={() => setIsHistoryOpen(false)}
-                aria-hidden="true"
+            <SettingsModal
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+                settings={settings}
+                updateSettings={updateSettings}
+                isIOS={isIOS}
+                isPhone={isPhone}
             />
-            {/* Panel — always in DOM, toggled via CSS class for GPU compositing */}
-            <div className={cn("lexicon-panel bg-white border-l border-neutral-100 shadow-[-20px_0_40px_rgba(0,0,0,0.02)]", isHistoryOpen && "open")}>
-                <div className="flex items-center justify-between p-5 shrink-0">
-                    <h2 className="text-lg font-semibold">History</h2>
-                    <button onClick={() => setIsHistoryOpen(false)} className="text-muted hover:text-foreground transition-colors"><X size={18} /></button>
-                </div>
-                <div className="px-5 pb-4 shrink-0">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={14} />
-                        <input
-                            type="text"
-                            placeholder="Search..."
-                            value={searchQuery}
-                            onChange={e => setSearchQuery(e.target.value)}
-                            className="w-full bg-extra-muted/30 rounded-xl py-2.5 pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
-                        />
-                    </div>
-                </div>
-                <div className="flex-1 overflow-y-auto px-5 pb-10 custom-scrollbar space-y-3">
-                    {groupedHistory.length === 0 && (
-                        <p className="text-muted text-sm py-10 text-center">No words mastered yet.</p>
-                    )}
-                    {groupedHistory.map(group => (
-                        <div key={group.value} className="rounded-xl overflow-hidden bg-extra-muted/20">
-                            <button
-                                onClick={() => setExpandedLangInHistory(expandedLangInHistory === group.value ? null : group.value)}
-                                className="w-full flex items-center justify-between p-3.5 hover:bg-extra-muted/40 transition-colors"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <Flag code={group.countryCode} className="h-4 rounded-sm" />
-                                    <span className="font-medium text-sm">{group.label}</span>
-                                    <span className="text-[10px] text-muted bg-extra-muted/60 px-1.5 py-0.5 rounded-md font-medium">{group.words.length}</span>
-                                </div>
-                                {expandedLangInHistory === group.value
-                                    ? <ChevronUp size={16} className="text-muted" />
-                                    : <ChevronDown size={16} className="text-muted" />}
-                            </button>
 
-                            {expandedLangInHistory === group.value && (
-                                <VirtualList
-                                    words={group.words.filter(w =>
-                                        w.original.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                        w.romanized.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                        w.definition.toLowerCase().includes(searchQuery.toLowerCase())
-                                    )}
-                                    arabicFontClass={arabicFontClass}
-                                    onSelectWord={(word) => {
-                                        setUpcomingWords(prev => {
-                                            const filtered = prev.filter(w => w.id !== word.id);
-                                            return [word, ...filtered];
-                                        });
-                                        setIsHistoryOpen(false);
-                                    }}
-                                />
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </div>
+            <InfoModal
+                isOpen={isInfoOpen}
+                onClose={() => setIsInfoOpen(false)}
+            />
+
+            <LexiconPanel
+                isOpen={isHistoryOpen}
+                onClose={() => setIsHistoryOpen(false)}
+                history={history}
+                onSelectWord={(w) => {
+                    setUpcomingWords(prev => {
+                        const filtered = prev.filter(word => word.id !== w.id);
+                        return [w, ...filtered];
+                    });
+                    setIsHistoryOpen(false);
+                }}
+                arabicFontClass={arabicFontClass}
+            />
         </main>
-    );
-}
-
-// ── Shared sub-components ─────────────────────────────────────────────────
-
-function ToggleRow({ icon, label, active, onToggle }: {
-    icon: React.ReactNode;
-    label: string;
-    active: boolean;
-    onToggle: () => void;
-}) {
-    return (
-        <button
-            onClick={onToggle}
-            className="w-full p-4 rounded-xl bg-extra-muted/20 hover:bg-extra-muted/40 flex items-center justify-between transition-colors"
-        >
-            <div className="flex items-center gap-3">
-                {icon}
-                <span className="text-[15px] font-medium">{label}</span>
-            </div>
-            <div className={cn("w-9 h-5 rounded-full relative transition-colors", active ? "bg-accent" : "bg-extra-muted")}>
-                <div className={cn("absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-all", active ? "right-0.5" : "left-0.5")} />
-            </div>
-        </button>
-    );
-}
-
-function InfoRow({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
-    return (
-        <div className="flex gap-3 items-start">
-            <div className="p-2 bg-accent/10 text-accent rounded-lg mt-0.5 shrink-0">{icon}</div>
-            <div>
-                <h3 className="text-sm font-semibold mb-0.5">{title}</h3>
-                <p className="text-xs text-muted leading-relaxed">{body}</p>
-            </div>
-        </div>
-    );
-}
-
-function VirtualList({ words, arabicFontClass, onSelectWord }: { words: Word[]; arabicFontClass?: string; onSelectWord?: (w: Word) => void }) {
-    const parentRef = useRef<HTMLDivElement>(null);
-    const rowVirtualizer = useVirtualizer({
-        count: words.length,
-        getScrollElement: () => parentRef.current,
-        estimateSize: () => 64,
-        overscan: 5,
-    });
-
-    return (
-        <div ref={parentRef} className="max-h-[50vh] overflow-y-auto px-3 pb-3 custom-scrollbar">
-            <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: "relative" }}>
-                {rowVirtualizer.getVirtualItems().map(virtualRow => {
-                    const word = words[virtualRow.index];
-                    const isAr = word.language === "ar" || word.language === "ur";
-                    return (
-                        <div
-                            key={virtualRow.index}
-                            style={{
-                                position: "absolute",
-                                top: 0,
-                                left: 0,
-                                width: "100%",
-                                height: `${virtualRow.size}px`,
-                                transform: `translateY(${virtualRow.start}px)`,
-                            }}
-                            className="py-0.5"
-                        >
-                            <div 
-                                onClick={() => onSelectWord?.(word)}
-                                className={cn("flex items-center justify-between p-3 rounded-lg hover:bg-extra-muted/30 transition-colors h-full", onSelectWord && "cursor-pointer")}
-                            >
-                                <div>
-                                    <div
-                                        className={cn("text-base font-medium", isAr ? (arabicFontClass || "font-arabic") : "font-sans")}
-                                        dir={isAr ? "rtl" : "ltr"}
-                                    >
-                                        {word.original}
-                                    </div>
-                                    <div className="text-xs text-muted">{word.romanized}</div>
-                                </div>
-                                <div className="text-xs text-muted max-w-[100px] text-right truncate">{word.definition}</div>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
     );
 }

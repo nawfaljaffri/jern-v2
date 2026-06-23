@@ -1,10 +1,17 @@
 "use client";
 
-import React, { useRef, useEffect, useCallback, useState } from "react";
+import React, { useRef, useEffect, useCallback, useState, forwardRef, useImperativeHandle } from "react";
 import { Word } from "@/lib/types";
 
 interface Point { x: number; y: number; pressure: number }
 interface Path { points: Point[]; thickness: number; color: string }
+
+export interface DrawingCanvasRef {
+    clear: () => void;
+    undo: () => void;
+    redo: () => void;
+    check: () => void;
+}
 
 interface DrawingCanvasProps {
     word: Word;
@@ -13,18 +20,14 @@ interface DrawingCanvasProps {
     penThickness?: number;
     penColor?: string;
     isIOS?: boolean;
-    clearTrigger?: number;
-    checkTrigger?: number;
-    undoTrigger?: number;
-    redoTrigger?: number;
     targetFontClass?: string;
     arabicFont?: string;
 }
 
-export default function DrawingCanvas({
+const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(({
     word, onComplete, onError, penThickness, penColor,
-    isIOS, clearTrigger = 0, checkTrigger = 0, undoTrigger = 0, redoTrigger = 0, targetFontClass, arabicFont
-}: DrawingCanvasProps) {
+    isIOS, targetFontClass, arabicFont
+}, ref) => {
     const bgCanvasRef = useRef<HTMLCanvasElement>(null);
     const drawCanvasRef = useRef<HTMLCanvasElement>(null);
     const hiddenCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -33,6 +36,7 @@ export default function DrawingCanvas({
     const hasCompletedRef = useRef(false);
     
     const [paths, setPaths] = useState<Path[]>([]);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [redoStack, setRedoStack] = useState<Path[]>([]);
     const currentPathRef = useRef<Point[]>([]);
     const lastDimsRef = useRef({ w: 0, h: 0 });
@@ -90,19 +94,18 @@ export default function DrawingCanvas({
         }
     }, [getDrawCtx]);
 
-    const getArabicFontString = () => {
-        const isAr = word.language === 'ar' || word.language === 'ur';
-        if (!isAr) return "sans-serif";
-        
-        switch (arabicFont) {
-            case "system": return "system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
-            case "cairo": return '"Cairo", sans-serif';
-            case "scheherazade": return '"Scheherazade New", serif';
-            default: return "system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
-        }
-    };
-
     const renderCanvases = useCallback(() => {
+        const getArabicFontString = () => {
+            const isAr = word.language === 'ar' || word.language === 'ur';
+            if (!isAr) return "sans-serif";
+            
+            switch (arabicFont) {
+                case "system": return "system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+                case "cairo": return '"Cairo", sans-serif';
+                case "scheherazade": return '"Scheherazade New", serif';
+                default: return "system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+            }
+        };
         const bgCanvas = bgCanvasRef.current;
         const drawCanvas = drawCanvasRef.current;
         if (!bgCanvas || !drawCanvas || !bgCanvas.parentElement) return;
@@ -230,21 +233,17 @@ export default function DrawingCanvas({
     }, [word, targetFontClass, arabicFont, redrawAllPaths]);
 
     useEffect(() => {
-        renderCanvases();
+        const initTimer = setTimeout(renderCanvases, 0);
         const timer = setTimeout(renderCanvases, 150);
         window.addEventListener("resize", renderCanvases);
         return () => {
+            clearTimeout(initTimer);
             clearTimeout(timer);
             window.removeEventListener("resize", renderCanvases);
         };
     }, [renderCanvases]);
 
-    useEffect(() => {
-        if (clearTrigger > 0) clearDrawCanvas();
-    }, [clearTrigger, clearDrawCanvas]);
-
-    useEffect(() => {
-        if (undoTrigger === 0) return;
+    const handleUndo = useCallback(() => {
         setPaths(p => {
             if (p.length === 0) return p;
             const newPaths = [...p];
@@ -252,10 +251,9 @@ export default function DrawingCanvas({
             if (popped) setRedoStack(r => [...r, popped]);
             return newPaths;
         });
-    }, [undoTrigger]);
+    }, []);
 
-    useEffect(() => {
-        if (redoTrigger === 0) return;
+    const handleRedo = useCallback(() => {
         setRedoStack(r => {
             if (r.length === 0) return r;
             const newStack = [...r];
@@ -263,15 +261,9 @@ export default function DrawingCanvas({
             if (popped) setPaths(p => [...p, popped]);
             return newStack;
         });
-    }, [redoTrigger]);
+    }, []);
 
-    useEffect(() => {
-        redrawAllPaths();
-    }, [paths, redrawAllPaths]);
-
-    useEffect(() => {
-        if (checkTrigger === 0) return;
-        
+    const handleCheck = useCallback(() => {
         const drawCanvas = drawCanvasRef.current;
         const hCanvas = hiddenCanvasRef.current;
         const ctx = drawCanvas?.getContext("2d", { willReadFrequently: true });
@@ -313,8 +305,14 @@ export default function DrawingCanvas({
         } else {
             onError();
         }
-        
-    }, [checkTrigger, onComplete, onError]);
+    }, [onComplete, onError]);
+
+    useImperativeHandle(ref, () => ({
+        clear: clearDrawCanvas,
+        undo: handleUndo,
+        redo: handleRedo,
+        check: handleCheck
+    }), [clearDrawCanvas, handleUndo, handleRedo, handleCheck]);
 
     const getPos = (e: React.PointerEvent<HTMLCanvasElement>) => {
         const canvas = drawCanvasRef.current;
@@ -414,4 +412,7 @@ export default function DrawingCanvas({
             />
         </div>
     );
-}
+});
+
+DrawingCanvas.displayName = "DrawingCanvas";
+export default DrawingCanvas;

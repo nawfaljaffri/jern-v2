@@ -1,0 +1,3522 @@
+[
+  {
+    "id": "ar-2",
+    "original": "ال",
+    "romanized": "al",
+    "definition": "the",
+    "language": "ar",
+    "frequency": 2
+  },
+  {
+    "id": "ar-3",
+    "original": "يكون",
+    "romanized": "yakun",
+    "definition": "be",
+    "language": "ar",
+    "frequency": 3
+  },
+  {
+    "id": "ar-4",
+    "original": "و",
+    "romanized": "w",
+    "definition": "and",
+    "language": "ar",
+    "frequency": 4
+  },
+  {
+    "id": "ar-5",
+    "original": "أ",
+    "romanized": "a",
+    "definition": "a",
+    "language": "ar",
+    "frequency": 5
+  },
+  {
+    "id": "ar-6",
+    "original": "من",
+    "romanized": "man",
+    "definition": "of",
+    "language": "ar",
+    "frequency": 6
+  },
+  {
+    "id": "ar-7",
+    "original": "ل",
+    "romanized": "l",
+    "definition": "to",
+    "language": "ar",
+    "frequency": 13
+  },
+  {
+    "id": "ar-8",
+    "original": "في",
+    "romanized": "fi",
+    "definition": "in",
+    "language": "ar",
+    "frequency": 2605
+  },
+  {
+    "id": "ar-9",
+    "original": "أنا",
+    "romanized": "'ana",
+    "definition": "i",
+    "language": "ar",
+    "frequency": 9
+  },
+  {
+    "id": "ar-10",
+    "original": "أنت",
+    "romanized": "'ant",
+    "definition": "you",
+    "language": "ar",
+    "frequency": 10
+  },
+  {
+    "id": "ar-11",
+    "original": "ذلك",
+    "romanized": "dhalik",
+    "definition": "it",
+    "language": "ar",
+    "frequency": 1555
+  },
+  {
+    "id": "ar-12",
+    "original": "لديك",
+    "romanized": "ladayk",
+    "definition": "have",
+    "language": "ar",
+    "frequency": 12
+  },
+  {
+    "id": "ar-14",
+    "original": "ذلك",
+    "romanized": "dhalik",
+    "definition": "that",
+    "language": "ar",
+    "frequency": 858
+  },
+  {
+    "id": "ar-15",
+    "original": "ل",
+    "romanized": "l",
+    "definition": "for",
+    "language": "ar",
+    "frequency": 2203
+  },
+  {
+    "id": "ar-16",
+    "original": "افعل",
+    "romanized": "afeal",
+    "definition": "do",
+    "language": "ar",
+    "frequency": 16
+  },
+  {
+    "id": "ar-17",
+    "original": "هو",
+    "romanized": "hu",
+    "definition": "he",
+    "language": "ar",
+    "frequency": 17
+  },
+  {
+    "id": "ar-18",
+    "original": "مع",
+    "romanized": "mae",
+    "definition": "with",
+    "language": "ar",
+    "frequency": 18
+  },
+  {
+    "id": "ar-19",
+    "original": "على",
+    "romanized": "ealaa",
+    "definition": "on",
+    "language": "ar",
+    "frequency": 121
+  },
+  {
+    "id": "ar-20",
+    "original": "هذا",
+    "romanized": "hadha",
+    "definition": "this",
+    "language": "ar",
+    "frequency": 3872
+  },
+  {
+    "id": "ar-21",
+    "original": "لا",
+    "romanized": "la",
+    "definition": "n't",
+    "language": "ar",
+    "frequency": 21
+  },
+  {
+    "id": "ar-22",
+    "original": "نحن",
+    "romanized": "nahn",
+    "definition": "we",
+    "language": "ar",
+    "frequency": 22
+  },
+  {
+    "id": "ar-24",
+    "original": "لا",
+    "romanized": "la",
+    "definition": "not",
+    "language": "ar",
+    "frequency": 2810
+  },
+  {
+    "id": "ar-25",
+    "original": "لكن",
+    "romanized": "lakin",
+    "definition": "but",
+    "language": "ar",
+    "frequency": 1738
+  },
+  {
+    "id": "ar-26",
+    "original": "هم",
+    "romanized": "hum",
+    "definition": "they",
+    "language": "ar",
+    "frequency": 26
+  },
+  {
+    "id": "ar-27",
+    "original": "قل",
+    "romanized": "qul",
+    "definition": "say",
+    "language": "ar",
+    "frequency": 27
+  },
+  {
+    "id": "ar-28",
+    "original": "في",
+    "romanized": "fi",
+    "definition": "at",
+    "language": "ar",
+    "frequency": 28
+  },
+  {
+    "id": "ar-29",
+    "original": "ماذا",
+    "romanized": "madha",
+    "definition": "what",
+    "language": "ar",
+    "frequency": 29
+  },
+  {
+    "id": "ar-30",
+    "original": "له",
+    "romanized": "lah",
+    "definition": "his",
+    "language": "ar",
+    "frequency": 2067
+  },
+  {
+    "id": "ar-31",
+    "original": "من",
+    "romanized": "man",
+    "definition": "from",
+    "language": "ar",
+    "frequency": 31
+  },
+  {
+    "id": "ar-32",
+    "original": "اذهب",
+    "romanized": "adhhab",
+    "definition": "go",
+    "language": "ar",
+    "frequency": 32
+  },
+  {
+    "id": "ar-33",
+    "original": "أو",
+    "romanized": "'aw",
+    "definition": "or",
+    "language": "ar",
+    "frequency": 33
+  },
+  {
+    "id": "ar-34",
+    "original": "بواسطة",
+    "romanized": "biwasita",
+    "definition": "by",
+    "language": "ar",
+    "frequency": 1209
+  },
+  {
+    "id": "ar-35",
+    "original": "احصل على",
+    "romanized": "aihsul ealaa",
+    "definition": "get",
+    "language": "ar",
+    "frequency": 35
+  },
+  {
+    "id": "ar-36",
+    "original": "هي",
+    "romanized": "hi",
+    "definition": "she",
+    "language": "ar",
+    "frequency": 36
+  },
+  {
+    "id": "ar-37",
+    "original": "بلدي",
+    "romanized": "baladi",
+    "definition": "my",
+    "language": "ar",
+    "frequency": 37
+  },
+  {
+    "id": "ar-38",
+    "original": "يمكن",
+    "romanized": "yumkin",
+    "definition": "can",
+    "language": "ar",
+    "frequency": 3251
+  },
+  {
+    "id": "ar-39",
+    "original": "كما",
+    "romanized": "kama",
+    "definition": "as",
+    "language": "ar",
+    "frequency": 146
+  },
+  {
+    "id": "ar-40",
+    "original": "أعرف",
+    "romanized": "'aerif",
+    "definition": "know",
+    "language": "ar",
+    "frequency": 40
+  },
+  {
+    "id": "ar-41",
+    "original": "إذا",
+    "romanized": "'iidhan",
+    "definition": "if",
+    "language": "ar",
+    "frequency": 41
+  },
+  {
+    "id": "ar-42",
+    "original": "أنا",
+    "romanized": "'ana",
+    "definition": "me",
+    "language": "ar",
+    "frequency": 42
+  },
+  {
+    "id": "ar-43",
+    "original": "الخاص بك",
+    "romanized": "alkhasu bik",
+    "definition": "your",
+    "language": "ar",
+    "frequency": 43
+  },
+  {
+    "id": "ar-44",
+    "original": "الكل",
+    "romanized": "alkuli",
+    "definition": "all",
+    "language": "ar",
+    "frequency": 160
+  },
+  {
+    "id": "ar-45",
+    "original": "من",
+    "romanized": "man",
+    "definition": "who",
+    "language": "ar",
+    "frequency": 45
+  },
+  {
+    "id": "ar-46",
+    "original": "حول",
+    "romanized": "hawl",
+    "definition": "about",
+    "language": "ar",
+    "frequency": 205
+  },
+  {
+    "id": "ar-47",
+    "original": "بهم",
+    "romanized": "bihim",
+    "definition": "their",
+    "language": "ar",
+    "frequency": 47
+  },
+  {
+    "id": "ar-48",
+    "original": "سوف",
+    "romanized": "sawf",
+    "definition": "will",
+    "language": "ar",
+    "frequency": 1417
+  },
+  {
+    "id": "ar-49",
+    "original": "هكذا",
+    "romanized": "hakadha",
+    "definition": "so",
+    "language": "ar",
+    "frequency": 181
+  },
+  {
+    "id": "ar-50",
+    "original": "سوف",
+    "romanized": "sawf",
+    "definition": "would",
+    "language": "ar",
+    "frequency": 50
+  },
+  {
+    "id": "ar-51",
+    "original": "جعل",
+    "romanized": "jaeal",
+    "definition": "make",
+    "language": "ar",
+    "frequency": 51
+  },
+  {
+    "id": "ar-52",
+    "original": "فقط",
+    "romanized": "faqat",
+    "definition": "just",
+    "language": "ar",
+    "frequency": 1237
+  },
+  {
+    "id": "ar-53",
+    "original": "فوق",
+    "romanized": "fawq",
+    "definition": "up",
+    "language": "ar",
+    "frequency": 460
+  },
+  {
+    "id": "ar-54",
+    "original": "أعتقد",
+    "romanized": "'aetaqid",
+    "definition": "think",
+    "language": "ar",
+    "frequency": 54
+  },
+  {
+    "id": "ar-55",
+    "original": "الوقت",
+    "romanized": "alwaqt",
+    "definition": "time",
+    "language": "ar",
+    "frequency": 4661
+  },
+  {
+    "id": "ar-56",
+    "original": "هناك",
+    "romanized": "hunak",
+    "definition": "there",
+    "language": "ar",
+    "frequency": 110
+  },
+  {
+    "id": "ar-57",
+    "original": "انظر",
+    "romanized": "anzur",
+    "definition": "see",
+    "language": "ar",
+    "frequency": 57
+  },
+  {
+    "id": "ar-58",
+    "original": "لها",
+    "romanized": "laha",
+    "definition": "her",
+    "language": "ar",
+    "frequency": 107
+  },
+  {
+    "id": "ar-60",
+    "original": "خارج",
+    "romanized": "kharij",
+    "definition": "out",
+    "language": "ar",
+    "frequency": 151
+  },
+  {
+    "id": "ar-61",
+    "original": "واحد",
+    "romanized": "wahid",
+    "definition": "one",
+    "language": "ar",
+    "frequency": 1408
+  },
+  {
+    "id": "ar-62",
+    "original": "تعال",
+    "romanized": "taeal",
+    "definition": "come",
+    "language": "ar",
+    "frequency": 62
+  },
+  {
+    "id": "ar-63",
+    "original": "الناس",
+    "romanized": "alnaas",
+    "definition": "people",
+    "language": "ar",
+    "frequency": 63
+  },
+  {
+    "id": "ar-64",
+    "original": "خذ",
+    "romanized": "khudh",
+    "definition": "take",
+    "language": "ar",
+    "frequency": 64
+  },
+  {
+    "id": "ar-65",
+    "original": "سنة",
+    "romanized": "sana",
+    "definition": "year",
+    "language": "ar",
+    "frequency": 65
+  },
+  {
+    "id": "ar-66",
+    "original": "له",
+    "romanized": "lah",
+    "definition": "him",
+    "language": "ar",
+    "frequency": 66
+  },
+  {
+    "id": "ar-67",
+    "original": "لهم",
+    "romanized": "lahum",
+    "definition": "them",
+    "language": "ar",
+    "frequency": 67
+  },
+  {
+    "id": "ar-68",
+    "original": "بعض",
+    "romanized": "baed",
+    "definition": "some",
+    "language": "ar",
+    "frequency": 68
+  },
+  {
+    "id": "ar-69",
+    "original": "تريد",
+    "romanized": "turid",
+    "definition": "want",
+    "language": "ar",
+    "frequency": 69
+  },
+  {
+    "id": "ar-70",
+    "original": "كيف",
+    "romanized": "kayf",
+    "definition": "how",
+    "language": "ar",
+    "frequency": 70
+  },
+  {
+    "id": "ar-71",
+    "original": "متى",
+    "romanized": "mataa",
+    "definition": "when",
+    "language": "ar",
+    "frequency": 145
+  },
+  {
+    "id": "ar-72",
+    "original": "الذي",
+    "romanized": "aladhi",
+    "definition": "which",
+    "language": "ar",
+    "frequency": 72
+  },
+  {
+    "id": "ar-73",
+    "original": "الآن",
+    "romanized": "alan",
+    "definition": "now",
+    "language": "ar",
+    "frequency": 1788
+  },
+  {
+    "id": "ar-74",
+    "original": "مثل",
+    "romanized": "mithl",
+    "definition": "like",
+    "language": "ar",
+    "frequency": 4769
+  },
+  {
+    "id": "ar-75",
+    "original": "أخرى",
+    "romanized": "'ukhraa",
+    "definition": "other",
+    "language": "ar",
+    "frequency": 2100
+  },
+  {
+    "id": "ar-76",
+    "original": "يمكن",
+    "romanized": "yumkin",
+    "definition": "could",
+    "language": "ar",
+    "frequency": 76
+  },
+  {
+    "id": "ar-77",
+    "original": "لدينا",
+    "romanized": "ladayna",
+    "definition": "our",
+    "language": "ar",
+    "frequency": 77
+  },
+  {
+    "id": "ar-78",
+    "original": "في",
+    "romanized": "fi",
+    "definition": "into",
+    "language": "ar",
+    "frequency": 78
+  },
+  {
+    "id": "ar-79",
+    "original": "هنا",
+    "romanized": "huna",
+    "definition": "here",
+    "language": "ar",
+    "frequency": 79
+  },
+  {
+    "id": "ar-80",
+    "original": "ثم",
+    "romanized": "thuma",
+    "definition": "then",
+    "language": "ar",
+    "frequency": 80
+  },
+  {
+    "id": "ar-81",
+    "original": "من",
+    "romanized": "man",
+    "definition": "than",
+    "language": "ar",
+    "frequency": 732
+  },
+  {
+    "id": "ar-82",
+    "original": "انظر",
+    "romanized": "anzur",
+    "definition": "look",
+    "language": "ar",
+    "frequency": 606
+  },
+  {
+    "id": "ar-83",
+    "original": "الطريق",
+    "romanized": "altariq",
+    "definition": "way",
+    "language": "ar",
+    "frequency": 3625
+  },
+  {
+    "id": "ar-84",
+    "original": "المزيد",
+    "romanized": "almazid",
+    "definition": "more",
+    "language": "ar",
+    "frequency": 100
+  },
+  {
+    "id": "ar-85",
+    "original": "هذه",
+    "romanized": "hadhih",
+    "definition": "these",
+    "language": "ar",
+    "frequency": 85
+  },
+  {
+    "id": "ar-86",
+    "original": "لا",
+    "romanized": "la",
+    "definition": "no",
+    "language": "ar",
+    "frequency": 3459
+  },
+  {
+    "id": "ar-87",
+    "original": "الشيء",
+    "romanized": "alshay'",
+    "definition": "thing",
+    "language": "ar",
+    "frequency": 87
+  },
+  {
+    "id": "ar-88",
+    "original": "حسنا",
+    "romanized": "hasanan",
+    "definition": "well",
+    "language": "ar",
+    "frequency": 2349
+  },
+  {
+    "id": "ar-89",
+    "original": "لان",
+    "romanized": "lan",
+    "definition": "because",
+    "language": "ar",
+    "frequency": 541
+  },
+  {
+    "id": "ar-90",
+    "original": "ايضا",
+    "romanized": "ayidan",
+    "definition": "also",
+    "language": "ar",
+    "frequency": 90
+  },
+  {
+    "id": "ar-91",
+    "original": "اثنان",
+    "romanized": "aithnan",
+    "definition": "two",
+    "language": "ar",
+    "frequency": 91
+  },
+  {
+    "id": "ar-92",
+    "original": "استخدام",
+    "romanized": "aistikhdam",
+    "definition": "use",
+    "language": "ar",
+    "frequency": 442
+  },
+  {
+    "id": "ar-93",
+    "original": "أخبر",
+    "romanized": "'akhbar",
+    "definition": "tell",
+    "language": "ar",
+    "frequency": 93
+  },
+  {
+    "id": "ar-94",
+    "original": "جيد",
+    "romanized": "jyid",
+    "definition": "good",
+    "language": "ar",
+    "frequency": 4452
+  },
+  {
+    "id": "ar-95",
+    "original": "أولا",
+    "romanized": "'awalan",
+    "definition": "first",
+    "language": "ar",
+    "frequency": 2322
+  },
+  {
+    "id": "ar-96",
+    "original": "رجل",
+    "romanized": "rajul",
+    "definition": "man",
+    "language": "ar",
+    "frequency": 96
+  },
+  {
+    "id": "ar-97",
+    "original": "يوم",
+    "romanized": "yawm",
+    "definition": "day",
+    "language": "ar",
+    "frequency": 97
+  },
+  {
+    "id": "ar-98",
+    "original": "تجد",
+    "romanized": "tajid",
+    "definition": "find",
+    "language": "ar",
+    "frequency": 98
+  },
+  {
+    "id": "ar-99",
+    "original": "إعطاء",
+    "romanized": "'iieta'",
+    "definition": "give",
+    "language": "ar",
+    "frequency": 99
+  },
+  {
+    "id": "ar-101",
+    "original": "جديد",
+    "romanized": "jadid",
+    "definition": "new",
+    "language": "ar",
+    "frequency": 101
+  },
+  {
+    "id": "ar-103",
+    "original": "لنا",
+    "romanized": "lana",
+    "definition": "us",
+    "language": "ar",
+    "frequency": 103
+  },
+  {
+    "id": "ar-104",
+    "original": "أي",
+    "romanized": "ay",
+    "definition": "any",
+    "language": "ar",
+    "frequency": 4164
+  },
+  {
+    "id": "ar-105",
+    "original": "هؤلاء",
+    "romanized": "hawula'",
+    "definition": "those",
+    "language": "ar",
+    "frequency": 105
+  },
+  {
+    "id": "ar-106",
+    "original": "جدا",
+    "romanized": "jidana",
+    "definition": "very",
+    "language": "ar",
+    "frequency": 1290
+  },
+  {
+    "id": "ar-108",
+    "original": "حاجة",
+    "romanized": "haja",
+    "definition": "need",
+    "language": "ar",
+    "frequency": 551
+  },
+  {
+    "id": "ar-109",
+    "original": "العودة",
+    "romanized": "aleawda",
+    "definition": "back",
+    "language": "ar",
+    "frequency": 1809
+  },
+  {
+    "id": "ar-111",
+    "original": "ينبغي",
+    "romanized": "yanbaghi",
+    "definition": "should",
+    "language": "ar",
+    "frequency": 111
+  },
+  {
+    "id": "ar-112",
+    "original": "حتى",
+    "romanized": "hataa",
+    "definition": "even",
+    "language": "ar",
+    "frequency": 455
+  },
+  {
+    "id": "ar-113",
+    "original": "فقط",
+    "romanized": "faqat",
+    "definition": "only",
+    "language": "ar",
+    "frequency": 307
+  },
+  {
+    "id": "ar-114",
+    "original": "كثير",
+    "romanized": "kathir",
+    "definition": "many",
+    "language": "ar",
+    "frequency": 114
+  },
+  {
+    "id": "ar-115",
+    "original": "حقا",
+    "romanized": "haqana",
+    "definition": "really",
+    "language": "ar",
+    "frequency": 115
+  },
+  {
+    "id": "ar-116",
+    "original": "العمل",
+    "romanized": "aleamal",
+    "definition": "work",
+    "language": "ar",
+    "frequency": 208
+  },
+  {
+    "id": "ar-117",
+    "original": "الحياة",
+    "romanized": "alhayaa",
+    "definition": "life",
+    "language": "ar",
+    "frequency": 117
+  },
+  {
+    "id": "ar-118",
+    "original": "لماذا",
+    "romanized": "limadha",
+    "definition": "why",
+    "language": "ar",
+    "frequency": 118
+  },
+  {
+    "id": "ar-119",
+    "original": "صحيح",
+    "romanized": "sahih",
+    "definition": "right",
+    "language": "ar",
+    "frequency": 253
+  },
+  {
+    "id": "ar-120",
+    "original": "أسفل",
+    "romanized": "'asfal",
+    "definition": "down",
+    "language": "ar",
+    "frequency": 4087
+  },
+  {
+    "id": "ar-122",
+    "original": "حاول",
+    "romanized": "hawil",
+    "definition": "try",
+    "language": "ar",
+    "frequency": 4992
+  },
+  {
+    "id": "ar-123",
+    "original": "دعونا",
+    "romanized": "daeuna",
+    "definition": "let",
+    "language": "ar",
+    "frequency": 123
+  },
+  {
+    "id": "ar-124",
+    "original": "شيئا",
+    "romanized": "shayyan",
+    "definition": "something",
+    "language": "ar",
+    "frequency": 124
+  },
+  {
+    "id": "ar-125",
+    "original": "أيضا",
+    "romanized": "'aydan",
+    "definition": "too",
+    "language": "ar",
+    "frequency": 125
+  },
+  {
+    "id": "ar-126",
+    "original": "اتصل",
+    "romanized": "aitasil",
+    "definition": "call",
+    "language": "ar",
+    "frequency": 647
+  },
+  {
+    "id": "ar-127",
+    "original": "امرأة",
+    "romanized": "aimra'a",
+    "definition": "woman",
+    "language": "ar",
+    "frequency": 127
+  },
+  {
+    "id": "ar-128",
+    "original": "قد",
+    "romanized": "qad",
+    "definition": "may",
+    "language": "ar",
+    "frequency": 1097
+  },
+  {
+    "id": "ar-129",
+    "original": "لا يزال",
+    "romanized": "la yazal",
+    "definition": "still",
+    "language": "ar",
+    "frequency": 2448
+  },
+  {
+    "id": "ar-130",
+    "original": "من خلال",
+    "romanized": "min khilal",
+    "definition": "through",
+    "language": "ar",
+    "frequency": 1115
+  },
+  {
+    "id": "ar-131",
+    "original": "يعني",
+    "romanized": "yaeni",
+    "definition": "mean",
+    "language": "ar",
+    "frequency": 2136
+  },
+  {
+    "id": "ar-132",
+    "original": "بعد",
+    "romanized": "baed",
+    "definition": "after",
+    "language": "ar",
+    "frequency": 294
+  },
+  {
+    "id": "ar-133",
+    "original": "أبدا",
+    "romanized": "'abadan",
+    "definition": "never",
+    "language": "ar",
+    "frequency": 133
+  },
+  {
+    "id": "ar-135",
+    "original": "العالم",
+    "romanized": "alealam",
+    "definition": "world",
+    "language": "ar",
+    "frequency": 135
+  },
+  {
+    "id": "ar-137",
+    "original": "يشعر",
+    "romanized": "yasheur",
+    "definition": "feel",
+    "language": "ar",
+    "frequency": 3560
+  },
+  {
+    "id": "ar-138",
+    "original": "نعم",
+    "romanized": "naeam",
+    "definition": "yeah",
+    "language": "ar",
+    "frequency": 138
+  },
+  {
+    "id": "ar-139",
+    "original": "عظيم",
+    "romanized": "eazim",
+    "definition": "great",
+    "language": "ar",
+    "frequency": 139
+  },
+  {
+    "id": "ar-140",
+    "original": "الاخير",
+    "romanized": "alakhir",
+    "definition": "last",
+    "language": "ar",
+    "frequency": 4240
+  },
+  {
+    "id": "ar-141",
+    "original": "طفل",
+    "romanized": "tifl",
+    "definition": "child",
+    "language": "ar",
+    "frequency": 141
+  },
+  {
+    "id": "ar-142",
+    "original": "أوه",
+    "romanized": "'awh",
+    "definition": "oh",
+    "language": "ar",
+    "frequency": 142
+  },
+  {
+    "id": "ar-143",
+    "original": "انتهى",
+    "romanized": "antahaa",
+    "definition": "over",
+    "language": "ar",
+    "frequency": 173
+  },
+  {
+    "id": "ar-144",
+    "original": "اسأل",
+    "romanized": "as'al",
+    "definition": "ask",
+    "language": "ar",
+    "frequency": 144
+  },
+  {
+    "id": "ar-147",
+    "original": "المدرسة",
+    "romanized": "almadrasa",
+    "definition": "school",
+    "language": "ar",
+    "frequency": 147
+  },
+  {
+    "id": "ar-148",
+    "original": "الدولة",
+    "romanized": "aldawla",
+    "definition": "state",
+    "language": "ar",
+    "frequency": 779
+  },
+  {
+    "id": "ar-149",
+    "original": "كثيرا",
+    "romanized": "kathiran",
+    "definition": "much",
+    "language": "ar",
+    "frequency": 302
+  },
+  {
+    "id": "ar-150",
+    "original": "تحدث",
+    "romanized": "tahadath",
+    "definition": "talk",
+    "language": "ar",
+    "frequency": 965
+  },
+  {
+    "id": "ar-152",
+    "original": "احتفظ",
+    "romanized": "aihtafaz",
+    "definition": "keep",
+    "language": "ar",
+    "frequency": 152
+  },
+  {
+    "id": "ar-153",
+    "original": "إجازة",
+    "romanized": "'iijaza",
+    "definition": "leave",
+    "language": "ar",
+    "frequency": 4497
+  },
+  {
+    "id": "ar-154",
+    "original": "ضع",
+    "romanized": "dae",
+    "definition": "put",
+    "language": "ar",
+    "frequency": 154
+  },
+  {
+    "id": "ar-156",
+    "original": "مساعدة",
+    "romanized": "musaeida",
+    "definition": "help",
+    "language": "ar",
+    "frequency": 789
+  },
+  {
+    "id": "ar-157",
+    "original": "كبير",
+    "romanized": "kabir",
+    "definition": "big",
+    "language": "ar",
+    "frequency": 157
+  },
+  {
+    "id": "ar-158",
+    "original": "أين",
+    "romanized": "'ayn",
+    "definition": "where",
+    "language": "ar",
+    "frequency": 189
+  },
+  {
+    "id": "ar-159",
+    "original": "نفسه",
+    "romanized": "nafsuh",
+    "definition": "same",
+    "language": "ar",
+    "frequency": 159
+  },
+  {
+    "id": "ar-161",
+    "original": "الخاصة",
+    "romanized": "alkhasa",
+    "definition": "own",
+    "language": "ar",
+    "frequency": 1129
+  },
+  {
+    "id": "ar-162",
+    "original": "بينما",
+    "romanized": "baynama",
+    "definition": "while",
+    "language": "ar",
+    "frequency": 1175
+  },
+  {
+    "id": "ar-163",
+    "original": "ابدأ",
+    "romanized": "abda",
+    "definition": "start",
+    "language": "ar",
+    "frequency": 1476
+  },
+  {
+    "id": "ar-164",
+    "original": "ثلاثة",
+    "romanized": "thalatha",
+    "definition": "three",
+    "language": "ar",
+    "frequency": 164
+  },
+  {
+    "id": "ar-165",
+    "original": "عالية",
+    "romanized": "ealia",
+    "definition": "high",
+    "language": "ar",
+    "frequency": 3507
+  },
+  {
+    "id": "ar-166",
+    "original": "كل",
+    "romanized": "kulu",
+    "definition": "every",
+    "language": "ar",
+    "frequency": 166
+  },
+  {
+    "id": "ar-167",
+    "original": "آخر",
+    "romanized": "akhar",
+    "definition": "another",
+    "language": "ar",
+    "frequency": 2614
+  },
+  {
+    "id": "ar-168",
+    "original": "تصبح",
+    "romanized": "tusbih",
+    "definition": "become",
+    "language": "ar",
+    "frequency": 168
+  },
+  {
+    "id": "ar-169",
+    "original": "معظم",
+    "romanized": "muezam",
+    "definition": "most",
+    "language": "ar",
+    "frequency": 218
+  },
+  {
+    "id": "ar-170",
+    "original": "بين",
+    "romanized": "bayn",
+    "definition": "between",
+    "language": "ar",
+    "frequency": 170
+  },
+  {
+    "id": "ar-171",
+    "original": "يحدث",
+    "romanized": "yahduth",
+    "definition": "happen",
+    "language": "ar",
+    "frequency": 171
+  },
+  {
+    "id": "ar-172",
+    "original": "عائلة",
+    "romanized": "eayila",
+    "definition": "family",
+    "language": "ar",
+    "frequency": 172
+  },
+  {
+    "id": "ar-174",
+    "original": "الرئيس",
+    "romanized": "alrayiys",
+    "definition": "president",
+    "language": "ar",
+    "frequency": 174
+  },
+  {
+    "id": "ar-175",
+    "original": "قديم",
+    "romanized": "qadim",
+    "definition": "old",
+    "language": "ar",
+    "frequency": 175
+  },
+  {
+    "id": "ar-176",
+    "original": "نعم",
+    "romanized": "naeam",
+    "definition": "yes",
+    "language": "ar",
+    "frequency": 176
+  },
+  {
+    "id": "ar-177",
+    "original": "منزل",
+    "romanized": "manzil",
+    "definition": "house",
+    "language": "ar",
+    "frequency": 3038
+  },
+  {
+    "id": "ar-178",
+    "original": "عرض",
+    "romanized": "eird",
+    "definition": "show",
+    "language": "ar",
+    "frequency": 434
+  },
+  {
+    "id": "ar-179",
+    "original": "مرة أخرى",
+    "romanized": "maratan 'ukhraa",
+    "definition": "again",
+    "language": "ar",
+    "frequency": 179
+  },
+  {
+    "id": "ar-180",
+    "original": "طالب",
+    "romanized": "talib",
+    "definition": "student",
+    "language": "ar",
+    "frequency": 180
+  },
+  {
+    "id": "ar-182",
+    "original": "يبدو",
+    "romanized": "yabdu",
+    "definition": "seem",
+    "language": "ar",
+    "frequency": 182
+  },
+  {
+    "id": "ar-183",
+    "original": "قد",
+    "romanized": "qad",
+    "definition": "might",
+    "language": "ar",
+    "frequency": 183
+  },
+  {
+    "id": "ar-184",
+    "original": "جزء",
+    "romanized": "juz'",
+    "definition": "part",
+    "language": "ar",
+    "frequency": 2097
+  },
+  {
+    "id": "ar-185",
+    "original": "اسمع",
+    "romanized": "asmae",
+    "definition": "hear",
+    "language": "ar",
+    "frequency": 185
+  },
+  {
+    "id": "ar-186",
+    "original": "لها",
+    "romanized": "laha",
+    "definition": "its",
+    "language": "ar",
+    "frequency": 186
+  },
+  {
+    "id": "ar-187",
+    "original": "مكان",
+    "romanized": "makan",
+    "definition": "place",
+    "language": "ar",
+    "frequency": 780
+  },
+  {
+    "id": "ar-188",
+    "original": "مشكلة",
+    "romanized": "mushkila",
+    "definition": "problem",
+    "language": "ar",
+    "frequency": 188
+  },
+  {
+    "id": "ar-190",
+    "original": "صدق",
+    "romanized": "sidaq",
+    "definition": "believe",
+    "language": "ar",
+    "frequency": 190
+  },
+  {
+    "id": "ar-191",
+    "original": "بلد",
+    "romanized": "balad",
+    "definition": "country",
+    "language": "ar",
+    "frequency": 191
+  },
+  {
+    "id": "ar-192",
+    "original": "دائما",
+    "romanized": "dayiman",
+    "definition": "always",
+    "language": "ar",
+    "frequency": 192
+  },
+  {
+    "id": "ar-193",
+    "original": "أسبوع",
+    "romanized": "'usbue",
+    "definition": "week",
+    "language": "ar",
+    "frequency": 193
+  },
+  {
+    "id": "ar-194",
+    "original": "نقطة",
+    "romanized": "nuqta",
+    "definition": "point",
+    "language": "ar",
+    "frequency": 675
+  },
+  {
+    "id": "ar-195",
+    "original": "يد",
+    "romanized": "yad",
+    "definition": "hand",
+    "language": "ar",
+    "frequency": 2155
+  },
+  {
+    "id": "ar-196",
+    "original": "خارج",
+    "romanized": "kharij",
+    "definition": "off",
+    "language": "ar",
+    "frequency": 379
+  },
+  {
+    "id": "ar-197",
+    "original": "لعب",
+    "romanized": "laeib",
+    "definition": "play",
+    "language": "ar",
+    "frequency": 935
+  },
+  {
+    "id": "ar-198",
+    "original": "بدوره",
+    "romanized": "bidawrih",
+    "definition": "turn",
+    "language": "ar",
+    "frequency": 1349
+  },
+  {
+    "id": "ar-199",
+    "original": "قليل",
+    "romanized": "qalil",
+    "definition": "few",
+    "language": "ar",
+    "frequency": 199
+  },
+  {
+    "id": "ar-200",
+    "original": "مجموعة",
+    "romanized": "majmuea",
+    "definition": "group",
+    "language": "ar",
+    "frequency": 200
+  },
+  {
+    "id": "ar-201",
+    "original": "مثل",
+    "romanized": "mithl",
+    "definition": "such",
+    "language": "ar",
+    "frequency": 398
+  },
+  {
+    "id": "ar-202",
+    "original": "ضد",
+    "romanized": "dida",
+    "definition": "against",
+    "language": "ar",
+    "frequency": 202
+  },
+  {
+    "id": "ar-203",
+    "original": "تشغيل",
+    "romanized": "tashghil",
+    "definition": "run",
+    "language": "ar",
+    "frequency": 1226
+  },
+  {
+    "id": "ar-204",
+    "original": "غي",
+    "romanized": "ghy",
+    "definition": "guy",
+    "language": "ar",
+    "frequency": 204
+  },
+  {
+    "id": "ar-206",
+    "original": "حالة",
+    "romanized": "hala",
+    "definition": "case",
+    "language": "ar",
+    "frequency": 3543
+  },
+  {
+    "id": "ar-207",
+    "original": "سؤال",
+    "romanized": "sual",
+    "definition": "question",
+    "language": "ar",
+    "frequency": 2035
+  },
+  {
+    "id": "ar-209",
+    "original": "ليلة",
+    "romanized": "layla",
+    "definition": "night",
+    "language": "ar",
+    "frequency": 209
+  },
+  {
+    "id": "ar-210",
+    "original": "يعيش",
+    "romanized": "yaeish",
+    "definition": "live",
+    "language": "ar",
+    "frequency": 1854
+  },
+  {
+    "id": "ar-211",
+    "original": "لعبة",
+    "romanized": "lueba",
+    "definition": "game",
+    "language": "ar",
+    "frequency": 211
+  },
+  {
+    "id": "ar-212",
+    "original": "رقم",
+    "romanized": "raqm",
+    "definition": "number",
+    "language": "ar",
+    "frequency": 212
+  },
+  {
+    "id": "ar-213",
+    "original": "اكتب",
+    "romanized": "auktub",
+    "definition": "write",
+    "language": "ar",
+    "frequency": 213
+  },
+  {
+    "id": "ar-214",
+    "original": "إحضار",
+    "romanized": "'iihdar",
+    "definition": "bring",
+    "language": "ar",
+    "frequency": 214
+  },
+  {
+    "id": "ar-215",
+    "original": "بدون",
+    "romanized": "bidun",
+    "definition": "without",
+    "language": "ar",
+    "frequency": 215
+  },
+  {
+    "id": "ar-216",
+    "original": "المال",
+    "romanized": "almal",
+    "definition": "money",
+    "language": "ar",
+    "frequency": 216
+  },
+  {
+    "id": "ar-217",
+    "original": "الكثير",
+    "romanized": "alkathir",
+    "definition": "lot",
+    "language": "ar",
+    "frequency": 975
+  },
+  {
+    "id": "ar-219",
+    "original": "كتاب",
+    "romanized": "kitab",
+    "definition": "book",
+    "language": "ar",
+    "frequency": 219
+  },
+  {
+    "id": "ar-220",
+    "original": "نظام",
+    "romanized": "nizam",
+    "definition": "system",
+    "language": "ar",
+    "frequency": 220
+  },
+  {
+    "id": "ar-221",
+    "original": "الحكومة",
+    "romanized": "alhukuma",
+    "definition": "government",
+    "language": "ar",
+    "frequency": 221
+  },
+  {
+    "id": "ar-222",
+    "original": "التالي",
+    "romanized": "altaali",
+    "definition": "next",
+    "language": "ar",
+    "frequency": 1688
+  },
+  {
+    "id": "ar-223",
+    "original": "مدينة",
+    "romanized": "madina",
+    "definition": "city",
+    "language": "ar",
+    "frequency": 223
+  },
+  {
+    "id": "ar-224",
+    "original": "شركة",
+    "romanized": "sharika",
+    "definition": "company",
+    "language": "ar",
+    "frequency": 224
+  },
+  {
+    "id": "ar-225",
+    "original": "قصة",
+    "romanized": "qisa",
+    "definition": "story",
+    "language": "ar",
+    "frequency": 225
+  },
+  {
+    "id": "ar-226",
+    "original": "اليوم",
+    "romanized": "alyawm",
+    "definition": "today",
+    "language": "ar",
+    "frequency": 226
+  },
+  {
+    "id": "ar-227",
+    "original": "وظيفة",
+    "romanized": "wazifa",
+    "definition": "job",
+    "language": "ar",
+    "frequency": 227
+  },
+  {
+    "id": "ar-228",
+    "original": "تحرك",
+    "romanized": "taharuk",
+    "definition": "move",
+    "language": "ar",
+    "frequency": 1391
+  },
+  {
+    "id": "ar-229",
+    "original": "يجب",
+    "romanized": "yajib",
+    "definition": "must",
+    "language": "ar",
+    "frequency": 229
+  },
+  {
+    "id": "ar-230",
+    "original": "سيئة",
+    "romanized": "sayiya",
+    "definition": "bad",
+    "language": "ar",
+    "frequency": 4614
+  },
+  {
+    "id": "ar-231",
+    "original": "صديق",
+    "romanized": "sadiq",
+    "definition": "friend",
+    "language": "ar",
+    "frequency": 231
+  },
+  {
+    "id": "ar-232",
+    "original": "خلال",
+    "romanized": "khilal",
+    "definition": "during",
+    "language": "ar",
+    "frequency": 232
+  },
+  {
+    "id": "ar-233",
+    "original": "تبدأ",
+    "romanized": "tabda",
+    "definition": "begin",
+    "language": "ar",
+    "frequency": 233
+  },
+  {
+    "id": "ar-234",
+    "original": "الحب",
+    "romanized": "alhubu",
+    "definition": "love",
+    "language": "ar",
+    "frequency": 467
+  },
+  {
+    "id": "ar-235",
+    "original": "لكل منهما",
+    "romanized": "likulin minhuma",
+    "definition": "each",
+    "language": "ar",
+    "frequency": 742
+  },
+  {
+    "id": "ar-236",
+    "original": "عقد",
+    "romanized": "euqid",
+    "definition": "hold",
+    "language": "ar",
+    "frequency": 3044
+  },
+  {
+    "id": "ar-237",
+    "original": "مختلفة",
+    "romanized": "mukhtalifa",
+    "definition": "different",
+    "language": "ar",
+    "frequency": 237
+  },
+  {
+    "id": "ar-238",
+    "original": "أمريكي",
+    "romanized": "'amrikiun",
+    "definition": "american",
+    "language": "ar",
+    "frequency": 595
+  },
+  {
+    "id": "ar-239",
+    "original": "قليلا",
+    "romanized": "qalilan",
+    "definition": "little",
+    "language": "ar",
+    "frequency": 987
+  },
+  {
+    "id": "ar-240",
+    "original": "من قبل",
+    "romanized": "min qabl",
+    "definition": "before",
+    "language": "ar",
+    "frequency": 679
+  },
+  {
+    "id": "ar-241",
+    "original": "من أي وقت مضى",
+    "romanized": "min 'ayi waqt madaa",
+    "definition": "ever",
+    "language": "ar",
+    "frequency": 241
+  },
+  {
+    "id": "ar-242",
+    "original": "كلمة",
+    "romanized": "kalima",
+    "definition": "word",
+    "language": "ar",
+    "frequency": 242
+  },
+  {
+    "id": "ar-243",
+    "original": "حقيقة",
+    "romanized": "haqiqatan",
+    "definition": "fact",
+    "language": "ar",
+    "frequency": 243
+  },
+  {
+    "id": "ar-245",
+    "original": "قراءة",
+    "romanized": "qira'a",
+    "definition": "read",
+    "language": "ar",
+    "frequency": 245
+  },
+  {
+    "id": "ar-246",
+    "original": "أي شيء",
+    "romanized": "'ayu shay'",
+    "definition": "anything",
+    "language": "ar",
+    "frequency": 246
+  },
+  {
+    "id": "ar-247",
+    "original": "لا شيء",
+    "romanized": "la shay'",
+    "definition": "nothing",
+    "language": "ar",
+    "frequency": 247
+  },
+  {
+    "id": "ar-248",
+    "original": "بالتأكيد",
+    "romanized": "bialtaakid",
+    "definition": "sure",
+    "language": "ar",
+    "frequency": 1350
+  },
+  {
+    "id": "ar-249",
+    "original": "صغير",
+    "romanized": "saghir",
+    "definition": "small",
+    "language": "ar",
+    "frequency": 249
+  },
+  {
+    "id": "ar-250",
+    "original": "شهر",
+    "romanized": "shahr",
+    "definition": "month",
+    "language": "ar",
+    "frequency": 250
+  },
+  {
+    "id": "ar-251",
+    "original": "برنامج",
+    "romanized": "barnamaj",
+    "definition": "program",
+    "language": "ar",
+    "frequency": 4056
+  },
+  {
+    "id": "ar-252",
+    "original": "ربما",
+    "romanized": "rubama",
+    "definition": "maybe",
+    "language": "ar",
+    "frequency": 252
+  },
+  {
+    "id": "ar-254",
+    "original": "تحت",
+    "romanized": "taht",
+    "definition": "under",
+    "language": "ar",
+    "frequency": 1923
+  },
+  {
+    "id": "ar-255",
+    "original": "عمل",
+    "romanized": "eamil",
+    "definition": "business",
+    "language": "ar",
+    "frequency": 255
+  },
+  {
+    "id": "ar-256",
+    "original": "المنزل",
+    "romanized": "almanzil",
+    "definition": "home",
+    "language": "ar",
+    "frequency": 390
+  },
+  {
+    "id": "ar-257",
+    "original": "نوع",
+    "romanized": "nawe",
+    "definition": "kind",
+    "language": "ar",
+    "frequency": 1030
+  },
+  {
+    "id": "ar-258",
+    "original": "توقف",
+    "romanized": "tawaqaf",
+    "definition": "stop",
+    "language": "ar",
+    "frequency": 2329
+  },
+  {
+    "id": "ar-259",
+    "original": "دفع",
+    "romanized": "dafae",
+    "definition": "pay",
+    "language": "ar",
+    "frequency": 2604
+  },
+  {
+    "id": "ar-260",
+    "original": "دراسة",
+    "romanized": "dirasa",
+    "definition": "study",
+    "language": "ar",
+    "frequency": 1056
+  },
+  {
+    "id": "ar-261",
+    "original": "منذ ذلك الحين",
+    "romanized": "mundh dhalik alhin",
+    "definition": "since",
+    "language": "ar",
+    "frequency": 3006
+  },
+  {
+    "id": "ar-262",
+    "original": "قضية",
+    "romanized": "qadia",
+    "definition": "issue",
+    "language": "ar",
+    "frequency": 1827
+  },
+  {
+    "id": "ar-263",
+    "original": "اسم",
+    "romanized": "asm",
+    "definition": "name",
+    "language": "ar",
+    "frequency": 888
+  },
+  {
+    "id": "ar-264",
+    "original": "فكرة",
+    "romanized": "fikra",
+    "definition": "idea",
+    "language": "ar",
+    "frequency": 264
+  },
+  {
+    "id": "ar-265",
+    "original": "غرفة",
+    "romanized": "ghurfa",
+    "definition": "room",
+    "language": "ar",
+    "frequency": 265
+  },
+  {
+    "id": "ar-266",
+    "original": "بالمائة",
+    "romanized": "bialmiaya",
+    "definition": "percent",
+    "language": "ar",
+    "frequency": 266
+  },
+  {
+    "id": "ar-267",
+    "original": "بعيدا",
+    "romanized": "baeidan",
+    "definition": "far",
+    "language": "ar",
+    "frequency": 2115
+  },
+  {
+    "id": "ar-268",
+    "original": "بعيدا",
+    "romanized": "baeidan",
+    "definition": "away",
+    "language": "ar",
+    "frequency": 765
+  },
+  {
+    "id": "ar-269",
+    "original": "القانون",
+    "romanized": "alqanun",
+    "definition": "law",
+    "language": "ar",
+    "frequency": 269
+  },
+  {
+    "id": "ar-270",
+    "original": "في الواقع",
+    "romanized": "fi alwaqie",
+    "definition": "actually",
+    "language": "ar",
+    "frequency": 270
+  },
+  {
+    "id": "ar-271",
+    "original": "كبير",
+    "romanized": "kabir",
+    "definition": "large",
+    "language": "ar",
+    "frequency": 271
+  },
+  {
+    "id": "ar-272",
+    "original": "رغم ذلك",
+    "romanized": "raghm dhalik",
+    "definition": "though",
+    "language": "ar",
+    "frequency": 1852
+  },
+  {
+    "id": "ar-273",
+    "original": "تقديم",
+    "romanized": "taqdim",
+    "definition": "provide",
+    "language": "ar",
+    "frequency": 273
+  },
+  {
+    "id": "ar-274",
+    "original": "يخسر",
+    "romanized": "yakhsar",
+    "definition": "lose",
+    "language": "ar",
+    "frequency": 274
+  },
+  {
+    "id": "ar-275",
+    "original": "القوة",
+    "romanized": "alqua",
+    "definition": "power",
+    "language": "ar",
+    "frequency": 275
+  },
+  {
+    "id": "ar-276",
+    "original": "طفل",
+    "romanized": "tifl",
+    "definition": "kid",
+    "language": "ar",
+    "frequency": 2749
+  },
+  {
+    "id": "ar-277",
+    "original": "حرب",
+    "romanized": "harb",
+    "definition": "war",
+    "language": "ar",
+    "frequency": 277
+  },
+  {
+    "id": "ar-278",
+    "original": "فهم",
+    "romanized": "fahum",
+    "definition": "understand",
+    "language": "ar",
+    "frequency": 278
+  },
+  {
+    "id": "ar-279",
+    "original": "رئيس",
+    "romanized": "rayiys",
+    "definition": "head",
+    "language": "ar",
+    "frequency": 1028
+  },
+  {
+    "id": "ar-280",
+    "original": "الأم",
+    "romanized": "al'umu",
+    "definition": "mother",
+    "language": "ar",
+    "frequency": 280
+  },
+  {
+    "id": "ar-281",
+    "original": "حقيقي",
+    "romanized": "haqiqiun",
+    "definition": "real",
+    "language": "ar",
+    "frequency": 281
+  },
+  {
+    "id": "ar-282",
+    "original": "الأفضل",
+    "romanized": "al'afdal",
+    "definition": "best",
+    "language": "ar",
+    "frequency": 978
+  },
+  {
+    "id": "ar-283",
+    "original": "فريق",
+    "romanized": "fariq",
+    "definition": "team",
+    "language": "ar",
+    "frequency": 283
+  },
+  {
+    "id": "ar-284",
+    "original": "عين",
+    "romanized": "euyin",
+    "definition": "eye",
+    "language": "ar",
+    "frequency": 284
+  },
+  {
+    "id": "ar-285",
+    "original": "طويل",
+    "romanized": "tawil",
+    "definition": "long",
+    "language": "ar",
+    "frequency": 1698
+  },
+  {
+    "id": "ar-287",
+    "original": "الجانب",
+    "romanized": "aljanib",
+    "definition": "side",
+    "language": "ar",
+    "frequency": 287
+  },
+  {
+    "id": "ar-288",
+    "original": "الماء",
+    "romanized": "alma'",
+    "definition": "water",
+    "language": "ar",
+    "frequency": 288
+  },
+  {
+    "id": "ar-289",
+    "original": "شاب",
+    "romanized": "shabun",
+    "definition": "young",
+    "language": "ar",
+    "frequency": 289
+  },
+  {
+    "id": "ar-290",
+    "original": "انتظر",
+    "romanized": "antazir",
+    "definition": "wait",
+    "language": "ar",
+    "frequency": 290
+  },
+  {
+    "id": "ar-291",
+    "original": "حسنا",
+    "romanized": "hasanan",
+    "definition": "okay",
+    "language": "ar",
+    "frequency": 1126
+  },
+  {
+    "id": "ar-292",
+    "original": "على حد سواء",
+    "romanized": "ealaa hadin sawa'",
+    "definition": "both",
+    "language": "ar",
+    "frequency": 397
+  },
+  {
+    "id": "ar-293",
+    "original": "بعد",
+    "romanized": "baed",
+    "definition": "yet",
+    "language": "ar",
+    "frequency": 293
+  },
+  {
+    "id": "ar-295",
+    "original": "يجتمع",
+    "romanized": "yajtamie",
+    "definition": "meet",
+    "language": "ar",
+    "frequency": 295
+  },
+  {
+    "id": "ar-296",
+    "original": "الخدمة",
+    "romanized": "alkhidma",
+    "definition": "service",
+    "language": "ar",
+    "frequency": 296
+  },
+  {
+    "id": "ar-297",
+    "original": "المنطقة",
+    "romanized": "almintaqa",
+    "definition": "area",
+    "language": "ar",
+    "frequency": 297
+  },
+  {
+    "id": "ar-298",
+    "original": "مهم",
+    "romanized": "muhimun",
+    "definition": "important",
+    "language": "ar",
+    "frequency": 298
+  },
+  {
+    "id": "ar-299",
+    "original": "شخص",
+    "romanized": "shakhs",
+    "definition": "person",
+    "language": "ar",
+    "frequency": 299
+  },
+  {
+    "id": "ar-300",
+    "original": "مهلا",
+    "romanized": "mahalan",
+    "definition": "hey",
+    "language": "ar",
+    "frequency": 300
+  },
+  {
+    "id": "ar-301",
+    "original": "شكرا",
+    "romanized": "shukran",
+    "definition": "thank",
+    "language": "ar",
+    "frequency": 301
+  },
+  {
+    "id": "ar-303",
+    "original": "شخص ما",
+    "romanized": "shakhs ma",
+    "definition": "someone",
+    "language": "ar",
+    "frequency": 303
+  },
+  {
+    "id": "ar-304",
+    "original": "نهاية",
+    "romanized": "nihaya",
+    "definition": "end",
+    "language": "ar",
+    "frequency": 453
+  },
+  {
+    "id": "ar-305",
+    "original": "التغيير",
+    "romanized": "altaghyir",
+    "definition": "change",
+    "language": "ar",
+    "frequency": 365
+  },
+  {
+    "id": "ar-306",
+    "original": "ومع ذلك",
+    "romanized": "wamae dhalik",
+    "definition": "however",
+    "language": "ar",
+    "frequency": 306
+  },
+  {
+    "id": "ar-308",
+    "original": "حولها",
+    "romanized": "hawlaha",
+    "definition": "around",
+    "language": "ar",
+    "frequency": 315
+  },
+  {
+    "id": "ar-309",
+    "original": "ساعة",
+    "romanized": "saea",
+    "definition": "hour",
+    "language": "ar",
+    "frequency": 309
+  },
+  {
+    "id": "ar-310",
+    "original": "كل شيء",
+    "romanized": "kulu shay'",
+    "definition": "everything",
+    "language": "ar",
+    "frequency": 310
+  },
+  {
+    "id": "ar-311",
+    "original": "وطني",
+    "romanized": "watani",
+    "definition": "national",
+    "language": "ar",
+    "frequency": 311
+  },
+  {
+    "id": "ar-312",
+    "original": "أربعة",
+    "romanized": "'arbaea",
+    "definition": "four",
+    "language": "ar",
+    "frequency": 312
+  },
+  {
+    "id": "ar-313",
+    "original": "خط",
+    "romanized": "khata",
+    "definition": "line",
+    "language": "ar",
+    "frequency": 2838
+  },
+  {
+    "id": "ar-314",
+    "original": "فتاة",
+    "romanized": "fatatan",
+    "definition": "girl",
+    "language": "ar",
+    "frequency": 314
+  },
+  {
+    "id": "ar-316",
+    "original": "مشاهدة",
+    "romanized": "mushahada",
+    "definition": "watch",
+    "language": "ar",
+    "frequency": 2376
+  },
+  {
+    "id": "ar-317",
+    "original": "حتى",
+    "romanized": "hataa",
+    "definition": "until",
+    "language": "ar",
+    "frequency": 1495
+  },
+  {
+    "id": "ar-318",
+    "original": "الأب",
+    "romanized": "al'ab",
+    "definition": "father",
+    "language": "ar",
+    "frequency": 318
+  },
+  {
+    "id": "ar-319",
+    "original": "اجلس",
+    "romanized": "ajlis",
+    "definition": "sit",
+    "language": "ar",
+    "frequency": 319
+  },
+  {
+    "id": "ar-320",
+    "original": "إنشاء",
+    "romanized": "'iinsha'",
+    "definition": "create",
+    "language": "ar",
+    "frequency": 320
+  },
+  {
+    "id": "ar-321",
+    "original": "معلومات",
+    "romanized": "maelumat",
+    "definition": "information",
+    "language": "ar",
+    "frequency": 321
+  },
+  {
+    "id": "ar-322",
+    "original": "سيارة",
+    "romanized": "sayaara",
+    "definition": "car",
+    "language": "ar",
+    "frequency": 322
+  },
+  {
+    "id": "ar-323",
+    "original": "تعلم",
+    "romanized": "taealam",
+    "definition": "learn",
+    "language": "ar",
+    "frequency": 323
+  },
+  {
+    "id": "ar-324",
+    "original": "الأقل",
+    "romanized": "al'aqalu",
+    "definition": "least",
+    "language": "ar",
+    "frequency": 324
+  },
+  {
+    "id": "ar-325",
+    "original": "بالفعل",
+    "romanized": "bialfiel",
+    "definition": "already",
+    "language": "ar",
+    "frequency": 325
+  },
+  {
+    "id": "ar-326",
+    "original": "اقتل",
+    "romanized": "auqtul",
+    "definition": "kill",
+    "language": "ar",
+    "frequency": 326
+  },
+  {
+    "id": "ar-327",
+    "original": "دقيقة",
+    "romanized": "daqiqatan",
+    "definition": "minute",
+    "language": "ar",
+    "frequency": 327
+  },
+  {
+    "id": "ar-328",
+    "original": "حزب",
+    "romanized": "hizb",
+    "definition": "party",
+    "language": "ar",
+    "frequency": 328
+  },
+  {
+    "id": "ar-329",
+    "original": "تشمل",
+    "romanized": "tashmal",
+    "definition": "include",
+    "language": "ar",
+    "frequency": 329
+  },
+  {
+    "id": "ar-330",
+    "original": "الوقوف",
+    "romanized": "alwuquf",
+    "definition": "stand",
+    "language": "ar",
+    "frequency": 2210
+  },
+  {
+    "id": "ar-331",
+    "original": "معًا",
+    "romanized": "mean",
+    "definition": "together",
+    "language": "ar",
+    "frequency": 331
+  },
+  {
+    "id": "ar-333",
+    "original": "اتبع",
+    "romanized": "aitabie",
+    "definition": "follow",
+    "language": "ar",
+    "frequency": 333
+  },
+  {
+    "id": "ar-334",
+    "original": "الصحة",
+    "romanized": "alsiha",
+    "definition": "health",
+    "language": "ar",
+    "frequency": 334
+  },
+  {
+    "id": "ar-335",
+    "original": "تذكر",
+    "romanized": "tadhakar",
+    "definition": "remember",
+    "language": "ar",
+    "frequency": 335
+  },
+  {
+    "id": "ar-336",
+    "original": "في كثير من الأحيان",
+    "romanized": "fi kathir min al'ahyan",
+    "definition": "often",
+    "language": "ar",
+    "frequency": 336
+  },
+  {
+    "id": "ar-337",
+    "original": "السبب",
+    "romanized": "alsabab",
+    "definition": "reason",
+    "language": "ar",
+    "frequency": 337
+  },
+  {
+    "id": "ar-338",
+    "original": "تحدث",
+    "romanized": "tahadath",
+    "definition": "speak",
+    "language": "ar",
+    "frequency": 338
+  },
+  {
+    "id": "ar-339",
+    "original": "منذ",
+    "romanized": "mundh",
+    "definition": "ago",
+    "language": "ar",
+    "frequency": 339
+  },
+  {
+    "id": "ar-340",
+    "original": "مجموعة",
+    "romanized": "majmuea",
+    "definition": "set",
+    "language": "ar",
+    "frequency": 902
+  },
+  {
+    "id": "ar-341",
+    "original": "أسود",
+    "romanized": "'aswad",
+    "definition": "black",
+    "language": "ar",
+    "frequency": 2516
+  },
+  {
+    "id": "ar-342",
+    "original": "عضو",
+    "romanized": "eudw",
+    "definition": "member",
+    "language": "ar",
+    "frequency": 342
+  },
+  {
+    "id": "ar-343",
+    "original": "المجتمع",
+    "romanized": "almujtamae",
+    "definition": "community",
+    "language": "ar",
+    "frequency": 343
+  },
+  {
+    "id": "ar-344",
+    "original": "مرة واحدة",
+    "romanized": "maratan wahidatan",
+    "definition": "once",
+    "language": "ar",
+    "frequency": 1154
+  },
+  {
+    "id": "ar-345",
+    "original": "اجتماعي",
+    "romanized": "ajtimaeiun",
+    "definition": "social",
+    "language": "ar",
+    "frequency": 345
+  },
+  {
+    "id": "ar-346",
+    "original": "أخبار",
+    "romanized": "'akhbar",
+    "definition": "news",
+    "language": "ar",
+    "frequency": 346
+  },
+  {
+    "id": "ar-347",
+    "original": "السماح",
+    "romanized": "alsamah",
+    "definition": "allow",
+    "language": "ar",
+    "frequency": 347
+  },
+  {
+    "id": "ar-348",
+    "original": "فوز",
+    "romanized": "fawz",
+    "definition": "win",
+    "language": "ar",
+    "frequency": 2398
+  },
+  {
+    "id": "ar-349",
+    "original": "الجسم",
+    "romanized": "aljism",
+    "definition": "body",
+    "language": "ar",
+    "frequency": 349
+  },
+  {
+    "id": "ar-350",
+    "original": "الرصاص",
+    "romanized": "alrasas",
+    "definition": "lead",
+    "language": "ar",
+    "frequency": 1576
+  },
+  {
+    "id": "ar-351",
+    "original": "استمر",
+    "romanized": "aistamarr",
+    "definition": "continue",
+    "language": "ar",
+    "frequency": 351
+  },
+  {
+    "id": "ar-352",
+    "original": "سواء",
+    "romanized": "sawa'",
+    "definition": "whether",
+    "language": "ar",
+    "frequency": 352
+  },
+  {
+    "id": "ar-353",
+    "original": "بما فيه الكفاية",
+    "romanized": "bima fih alkifaya",
+    "definition": "enough",
+    "language": "ar",
+    "frequency": 839
+  },
+  {
+    "id": "ar-354",
+    "original": "انفق",
+    "romanized": "ainfaq",
+    "definition": "spend",
+    "language": "ar",
+    "frequency": 354
+  },
+  {
+    "id": "ar-355",
+    "original": "المستوى",
+    "romanized": "almustawaa",
+    "definition": "level",
+    "language": "ar",
+    "frequency": 4611
+  },
+  {
+    "id": "ar-356",
+    "original": "قادر",
+    "romanized": "qadir",
+    "definition": "able",
+    "language": "ar",
+    "frequency": 356
+  },
+  {
+    "id": "ar-357",
+    "original": "سياسي",
+    "romanized": "siasiun",
+    "definition": "political",
+    "language": "ar",
+    "frequency": 357
+  },
+  {
+    "id": "ar-358",
+    "original": "تقريبا",
+    "romanized": "taqriban",
+    "definition": "almost",
+    "language": "ar",
+    "frequency": 358
+  },
+  {
+    "id": "ar-359",
+    "original": "صبي",
+    "romanized": "sabiun",
+    "definition": "boy",
+    "language": "ar",
+    "frequency": 359
+  },
+  {
+    "id": "ar-360",
+    "original": "الجامعة",
+    "romanized": "aljamiea",
+    "definition": "university",
+    "language": "ar",
+    "frequency": 360
+  },
+  {
+    "id": "ar-362",
+    "original": "البقاء",
+    "romanized": "albaqa'",
+    "definition": "stay",
+    "language": "ar",
+    "frequency": 4597
+  },
+  {
+    "id": "ar-363",
+    "original": "إضافة",
+    "romanized": "'iidafatan",
+    "definition": "add",
+    "language": "ar",
+    "frequency": 363
+  },
+  {
+    "id": "ar-364",
+    "original": "في وقت لاحق",
+    "romanized": "fi waqt lahiq",
+    "definition": "later",
+    "language": "ar",
+    "frequency": 364
+  },
+  {
+    "id": "ar-366",
+    "original": "خمسة",
+    "romanized": "khamsa",
+    "definition": "five",
+    "language": "ar",
+    "frequency": 366
+  },
+  {
+    "id": "ar-367",
+    "original": "ربما",
+    "romanized": "rubama",
+    "definition": "probably",
+    "language": "ar",
+    "frequency": 367
+  },
+  {
+    "id": "ar-368",
+    "original": "مركز",
+    "romanized": "markaz",
+    "definition": "center",
+    "language": "ar",
+    "frequency": 368
+  },
+  {
+    "id": "ar-369",
+    "original": "بين",
+    "romanized": "bayn",
+    "definition": "among",
+    "language": "ar",
+    "frequency": 369
+  },
+  {
+    "id": "ar-370",
+    "original": "وجه",
+    "romanized": "wajah",
+    "definition": "face",
+    "language": "ar",
+    "frequency": 622
+  },
+  {
+    "id": "ar-371",
+    "original": "عام",
+    "romanized": "eam",
+    "definition": "public",
+    "language": "ar",
+    "frequency": 4892
+  },
+  {
+    "id": "ar-372",
+    "original": "يموت",
+    "romanized": "yamut",
+    "definition": "die",
+    "language": "ar",
+    "frequency": 372
+  },
+  {
+    "id": "ar-373",
+    "original": "طعام",
+    "romanized": "taeam",
+    "definition": "food",
+    "language": "ar",
+    "frequency": 373
+  },
+  {
+    "id": "ar-374",
+    "original": "آخر",
+    "romanized": "akhar",
+    "definition": "else",
+    "language": "ar",
+    "frequency": 374
+  },
+  {
+    "id": "ar-375",
+    "original": "التاريخ",
+    "romanized": "altaarikh",
+    "definition": "history",
+    "language": "ar",
+    "frequency": 375
+  },
+  {
+    "id": "ar-376",
+    "original": "شراء",
+    "romanized": "shira'",
+    "definition": "buy",
+    "language": "ar",
+    "frequency": 376
+  },
+  {
+    "id": "ar-377",
+    "original": "نتيجة",
+    "romanized": "natijatan",
+    "definition": "result",
+    "language": "ar",
+    "frequency": 1359
+  },
+  {
+    "id": "ar-378",
+    "original": "صباح",
+    "romanized": "sabah",
+    "definition": "morning",
+    "language": "ar",
+    "frequency": 378
+  },
+  {
+    "id": "ar-380",
+    "original": "الوالدين",
+    "romanized": "alwalidayn",
+    "definition": "parent",
+    "language": "ar",
+    "frequency": 380
+  },
+  {
+    "id": "ar-381",
+    "original": "مكتب",
+    "romanized": "maktab",
+    "definition": "office",
+    "language": "ar",
+    "frequency": 381
+  },
+  {
+    "id": "ar-382",
+    "original": "بالطبع",
+    "romanized": "bialtabe",
+    "definition": "course",
+    "language": "ar",
+    "frequency": 737
+  },
+  {
+    "id": "ar-383",
+    "original": "إرسال",
+    "romanized": "'iirsal",
+    "definition": "send",
+    "language": "ar",
+    "frequency": 383
+  },
+  {
+    "id": "ar-384",
+    "original": "بحث",
+    "romanized": "bahth",
+    "definition": "research",
+    "language": "ar",
+    "frequency": 3449
+  },
+  {
+    "id": "ar-385",
+    "original": "المشي",
+    "romanized": "almashy",
+    "definition": "walk",
+    "language": "ar",
+    "frequency": 2270
+  },
+  {
+    "id": "ar-386",
+    "original": "باب",
+    "romanized": "bab",
+    "definition": "door",
+    "language": "ar",
+    "frequency": 386
+  },
+  {
+    "id": "ar-387",
+    "original": "أبيض",
+    "romanized": "'abyad",
+    "definition": "white",
+    "language": "ar",
+    "frequency": 3168
+  },
+  {
+    "id": "ar-388",
+    "original": "عدة",
+    "romanized": "eida",
+    "definition": "several",
+    "language": "ar",
+    "frequency": 388
+  },
+  {
+    "id": "ar-389",
+    "original": "محكمة",
+    "romanized": "mahkama",
+    "definition": "court",
+    "language": "ar",
+    "frequency": 389
+  },
+  {
+    "id": "ar-391",
+    "original": "تنمو",
+    "romanized": "tanmu",
+    "definition": "grow",
+    "language": "ar",
+    "frequency": 391
+  },
+  {
+    "id": "ar-392",
+    "original": "أفضل",
+    "romanized": "'afdil",
+    "definition": "better",
+    "language": "ar",
+    "frequency": 405
+  },
+  {
+    "id": "ar-393",
+    "original": "مفتوح",
+    "romanized": "maftuh",
+    "definition": "open",
+    "language": "ar",
+    "frequency": 591
+  },
+  {
+    "id": "ar-394",
+    "original": "لحظة",
+    "romanized": "lahza",
+    "definition": "moment",
+    "language": "ar",
+    "frequency": 394
+  },
+  {
+    "id": "ar-395",
+    "original": "بما في ذلك",
+    "romanized": "bima fi dhalik",
+    "definition": "including",
+    "language": "ar",
+    "frequency": 395
+  },
+  {
+    "id": "ar-396",
+    "original": "اعتبر",
+    "romanized": "aietubir",
+    "definition": "consider",
+    "language": "ar",
+    "frequency": 396
+  },
+  {
+    "id": "ar-400",
+    "original": "داخل",
+    "romanized": "dakhil",
+    "definition": "within",
+    "language": "ar",
+    "frequency": 400
+  },
+  {
+    "id": "ar-401",
+    "original": "ثانيا",
+    "romanized": "thanian",
+    "definition": "second",
+    "language": "ar",
+    "frequency": 660
+  },
+  {
+    "id": "ar-402",
+    "original": "متأخرا",
+    "romanized": "muta'akhiran",
+    "definition": "late",
+    "language": "ar",
+    "frequency": 1891
+  },
+  {
+    "id": "ar-403",
+    "original": "شارع",
+    "romanized": "sharie",
+    "definition": "street",
+    "language": "ar",
+    "frequency": 403
+  },
+  {
+    "id": "ar-404",
+    "original": "مجانا",
+    "romanized": "majaanan",
+    "definition": "free",
+    "language": "ar",
+    "frequency": 2926
+  },
+  {
+    "id": "ar-406",
+    "original": "الجميع",
+    "romanized": "aljamie",
+    "definition": "everyone",
+    "language": "ar",
+    "frequency": 406
+  },
+  {
+    "id": "ar-407",
+    "original": "سياسة",
+    "romanized": "siasa",
+    "definition": "policy",
+    "language": "ar",
+    "frequency": 407
+  },
+  {
+    "id": "ar-408",
+    "original": "الجدول",
+    "romanized": "aljadwal",
+    "definition": "table",
+    "language": "ar",
+    "frequency": 408
+  },
+  {
+    "id": "ar-409",
+    "original": "آسف",
+    "romanized": "asf",
+    "definition": "sorry",
+    "language": "ar",
+    "frequency": 409
+  },
+  {
+    "id": "ar-410",
+    "original": "رعاية",
+    "romanized": "rieaya",
+    "definition": "care",
+    "language": "ar",
+    "frequency": 638
+  },
+  {
+    "id": "ar-411",
+    "original": "منخفض",
+    "romanized": "munkhafid",
+    "definition": "low",
+    "language": "ar",
+    "frequency": 411
+  },
+  {
+    "id": "ar-412",
+    "original": "إنسان",
+    "romanized": "'iinsan",
+    "definition": "human",
+    "language": "ar",
+    "frequency": 1415
+  },
+  {
+    "id": "ar-413",
+    "original": "من فضلك",
+    "romanized": "min fadlik",
+    "definition": "please",
+    "language": "ar",
+    "frequency": 3940
+  },
+  {
+    "id": "ar-414",
+    "original": "أمل",
+    "romanized": "'amal",
+    "definition": "hope",
+    "language": "ar",
+    "frequency": 1180
+  },
+  {
+    "id": "ar-415",
+    "original": "براودا",
+    "romanized": "brawda",
+    "definition": "PRAWDA",
+    "language": "ar",
+    "frequency": 415
+  },
+  {
+    "id": "ar-416",
+    "original": "عملية",
+    "romanized": "eamalia",
+    "definition": "process",
+    "language": "ar",
+    "frequency": 2747
+  },
+  {
+    "id": "ar-417",
+    "original": "المعلم",
+    "romanized": "almuealim",
+    "definition": "teacher",
+    "language": "ar",
+    "frequency": 417
+  },
+  {
+    "id": "ar-419",
+    "original": "عرض",
+    "romanized": "eird",
+    "definition": "offer",
+    "language": "ar",
+    "frequency": 2063
+  },
+  {
+    "id": "ar-420",
+    "original": "الموت",
+    "romanized": "almawt",
+    "definition": "death",
+    "language": "ar",
+    "frequency": 420
+  },
+  {
+    "id": "ar-421",
+    "original": "كله",
+    "romanized": "kuluh",
+    "definition": "whole",
+    "language": "ar",
+    "frequency": 2266
+  },
+  {
+    "id": "ar-422",
+    "original": "تجربة",
+    "romanized": "tajriba",
+    "definition": "experience",
+    "language": "ar",
+    "frequency": 1171
+  },
+  {
+    "id": "ar-423",
+    "original": "خطة",
+    "romanized": "khuta",
+    "definition": "plan",
+    "language": "ar",
+    "frequency": 723
+  },
+  {
+    "id": "ar-424",
+    "original": "سهل",
+    "romanized": "sahl",
+    "definition": "easy",
+    "language": "ar",
+    "frequency": 424
+  },
+  {
+    "id": "ar-425",
+    "original": "التعليم",
+    "romanized": "altaelim",
+    "definition": "education",
+    "language": "ar",
+    "frequency": 425
+  },
+  {
+    "id": "ar-426",
+    "original": "بناء",
+    "romanized": "bina'",
+    "definition": "build",
+    "language": "ar",
+    "frequency": 426
+  },
+  {
+    "id": "ar-427",
+    "original": "نتوقع",
+    "romanized": "natawaqae",
+    "definition": "expect",
+    "language": "ar",
+    "frequency": 427
+  },
+  {
+    "id": "ar-428",
+    "original": "سقوط",
+    "romanized": "suqut",
+    "definition": "fall",
+    "language": "ar",
+    "frequency": 1197
+  },
+  {
+    "id": "ar-429",
+    "original": "نفسه",
+    "romanized": "nafsuh",
+    "definition": "himself",
+    "language": "ar",
+    "frequency": 429
+  },
+  {
+    "id": "ar-430",
+    "original": "العمر",
+    "romanized": "aleumr",
+    "definition": "age",
+    "language": "ar",
+    "frequency": 4122
+  },
+  {
+    "id": "ar-431",
+    "original": "صعب",
+    "romanized": "saeb",
+    "definition": "hard",
+    "language": "ar",
+    "frequency": 748
+  },
+  {
+    "id": "ar-432",
+    "original": "إحساس",
+    "romanized": "'iihsas",
+    "definition": "sense",
+    "language": "ar",
+    "frequency": 3672
+  },
+  {
+    "id": "ar-433",
+    "original": "عبر",
+    "romanized": "eabr",
+    "definition": "across",
+    "language": "ar",
+    "frequency": 3527
+  },
+  {
+    "id": "ar-435",
+    "original": "في وقت مبكر",
+    "romanized": "fi waqt mubakir",
+    "definition": "early",
+    "language": "ar",
+    "frequency": 569
+  },
+  {
+    "id": "ar-436",
+    "original": "كلية",
+    "romanized": "kuliya",
+    "definition": "college",
+    "language": "ar",
+    "frequency": 436
+  },
+  {
+    "id": "ar-437",
+    "original": "موسيقى",
+    "romanized": "musiqaa",
+    "definition": "music",
+    "language": "ar",
+    "frequency": 437
+  },
+  {
+    "id": "ar-438",
+    "original": "تظهر",
+    "romanized": "tazhar",
+    "definition": "appear",
+    "language": "ar",
+    "frequency": 438
+  },
+  {
+    "id": "ar-439",
+    "original": "العقل",
+    "romanized": "aleaql",
+    "definition": "mind",
+    "language": "ar",
+    "frequency": 1518
+  },
+  {
+    "id": "ar-440",
+    "original": "فئة",
+    "romanized": "fia",
+    "definition": "class",
+    "language": "ar",
+    "frequency": 440
+  },
+  {
+    "id": "ar-441",
+    "original": "الشرطة",
+    "romanized": "alshurta",
+    "definition": "police",
+    "language": "ar",
+    "frequency": 441
+  },
+  {
+    "id": "ar-443",
+    "original": "تأثير",
+    "romanized": "tathir",
+    "definition": "effect",
+    "language": "ar",
+    "frequency": 443
+  },
+  {
+    "id": "ar-444",
+    "original": "الموسم",
+    "romanized": "almawsim",
+    "definition": "season",
+    "language": "ar",
+    "frequency": 444
+  },
+  {
+    "id": "ar-445",
+    "original": "ضريبة",
+    "romanized": "dariba",
+    "definition": "tax",
+    "language": "ar",
+    "frequency": 4921
+  },
+  {
+    "id": "ar-446",
+    "original": "قلب",
+    "romanized": "qalb",
+    "definition": "heart",
+    "language": "ar",
+    "frequency": 446
+  },
+  {
+    "id": "ar-447",
+    "original": "ابن",
+    "romanized": "abn",
+    "definition": "son",
+    "language": "ar",
+    "frequency": 447
+  },
+  {
+    "id": "ar-448",
+    "original": "فن",
+    "romanized": "fann",
+    "definition": "art",
+    "language": "ar",
+    "frequency": 448
+  },
+  {
+    "id": "ar-449",
+    "original": "ممكن",
+    "romanized": "mumkin",
+    "definition": "possible",
+    "language": "ar",
+    "frequency": 449
+  },
+  {
+    "id": "ar-450",
+    "original": "يخدم",
+    "romanized": "yakhdam",
+    "definition": "serve",
+    "language": "ar",
+    "frequency": 450
+  },
+  {
+    "id": "ar-451",
+    "original": "استراحة",
+    "romanized": "aistiraha",
+    "definition": "break",
+    "language": "ar",
+    "frequency": 1190
+  },
+  {
+    "id": "ar-452",
+    "original": "بالرغم من ذلك",
+    "romanized": "bialraghm min dhalik",
+    "definition": "although",
+    "language": "ar",
+    "frequency": 452
+  },
+  {
+    "id": "ar-454",
+    "original": "السوق",
+    "romanized": "alsuwq",
+    "definition": "market",
+    "language": "ar",
+    "frequency": 3063
+  },
+  {
+    "id": "ar-456",
+    "original": "الهواء",
+    "romanized": "alhawa'",
+    "definition": "air",
+    "language": "ar",
+    "frequency": 456
+  },
+  {
+    "id": "ar-457",
+    "original": "القوة",
+    "romanized": "alqua",
+    "definition": "force",
+    "language": "ar",
+    "frequency": 894
+  },
+  {
+    "id": "ar-458",
+    "original": "تتطلب",
+    "romanized": "tatatalab",
+    "definition": "require",
+    "language": "ar",
+    "frequency": 458
+  },
+  {
+    "id": "ar-459",
+    "original": "قدم",
+    "romanized": "qudim",
+    "definition": "foot",
+    "language": "ar",
+    "frequency": 459
+  },
+  {
+    "id": "ar-461",
+    "original": "استمع",
+    "romanized": "aistamae",
+    "definition": "listen",
+    "language": "ar",
+    "frequency": 461
+  },
+  {
+    "id": "ar-462",
+    "original": "أوافق",
+    "romanized": "'uwafiq",
+    "definition": "agree",
+    "language": "ar",
+    "frequency": 462
+  },
+  {
+    "id": "ar-463",
+    "original": "وفقا",
+    "romanized": "wifqan",
+    "definition": "according",
+    "language": "ar",
+    "frequency": 463
+  },
+  {
+    "id": "ar-464",
+    "original": "أي شخص",
+    "romanized": "'ayu shakhs",
+    "definition": "anyone",
+    "language": "ar",
+    "frequency": 464
+  },
+  {
+    "id": "ar-465",
+    "original": "طفل",
+    "romanized": "tifl",
+    "definition": "baby",
+    "language": "ar",
+    "frequency": 465
+  },
+  {
+    "id": "ar-466",
+    "original": "خطأ",
+    "romanized": "khata",
+    "definition": "wrong",
+    "language": "ar",
+    "frequency": 3255
+  },
+  {
+    "id": "ar-468",
+    "original": "قطع",
+    "romanized": "qatae",
+    "definition": "cut",
+    "language": "ar",
+    "frequency": 1590
+  },
+  {
+    "id": "ar-469",
+    "original": "تقرر",
+    "romanized": "taqarar",
+    "definition": "decide",
+    "language": "ar",
+    "frequency": 469
+  },
+  {
+    "id": "ar-470",
+    "original": "جمهوري",
+    "romanized": "jumhuri",
+    "definition": "republican",
+    "language": "ar",
+    "frequency": 4075
+  },
+  {
+    "id": "ar-471",
+    "original": "كامل",
+    "romanized": "kamil",
+    "definition": "full",
+    "language": "ar",
+    "frequency": 471
+  },
+  {
+    "id": "ar-472",
+    "original": "خلف",
+    "romanized": "khalf",
+    "definition": "behind",
+    "language": "ar",
+    "frequency": 2182
+  },
+  {
+    "id": "ar-473",
+    "original": "تمرير",
+    "romanized": "tamrir",
+    "definition": "pass",
+    "language": "ar",
+    "frequency": 2139
+  },
+  {
+    "id": "ar-474",
+    "original": "الفائدة",
+    "romanized": "alfayida",
+    "definition": "interest",
+    "language": "ar",
+    "frequency": 474
+  },
+  {
+    "id": "ar-475",
+    "original": "في بعض الأحيان",
+    "romanized": "fi baed al'ahyan",
+    "definition": "sometimes",
+    "language": "ar",
+    "frequency": 475
+  },
+  {
+    "id": "ar-476",
+    "original": "الأمن",
+    "romanized": "al'amn",
+    "definition": "security",
+    "language": "ar",
+    "frequency": 476
+  },
+  {
+    "id": "ar-477",
+    "original": "أكل",
+    "romanized": "'akal",
+    "definition": "eat",
+    "language": "ar",
+    "frequency": 477
+  },
+  {
+    "id": "ar-478",
+    "original": "تقرير",
+    "romanized": "taqrir",
+    "definition": "report",
+    "language": "ar",
+    "frequency": 483
+  },
+  {
+    "id": "ar-479",
+    "original": "السيطيرة",
+    "romanized": "alsaytara",
+    "definition": "control",
+    "language": "ar",
+    "frequency": 479
+  },
+  {
+    "id": "ar-480",
+    "original": "معدل",
+    "romanized": "mueadal",
+    "definition": "rate",
+    "language": "ar",
+    "frequency": 3642
+  },
+  {
+    "id": "ar-481",
+    "original": "محلي",
+    "romanized": "mahaliy",
+    "definition": "local",
+    "language": "ar",
+    "frequency": 4347
+  },
+  {
+    "id": "ar-482",
+    "original": "أقترح",
+    "romanized": "'aqtarih",
+    "definition": "suggest",
+    "language": "ar",
+    "frequency": 482
+  },
+  {
+    "id": "ar-484",
+    "original": "الأمة",
+    "romanized": "al'uma",
+    "definition": "nation",
+    "language": "ar",
+    "frequency": 484
+  },
+  {
+    "id": "ar-485",
+    "original": "بيع",
+    "romanized": "baye",
+    "definition": "sell",
+    "language": "ar",
+    "frequency": 485
+  },
+  {
+    "id": "ar-486",
+    "original": "عمل",
+    "romanized": "eamil",
+    "definition": "action",
+    "language": "ar",
+    "frequency": 486
+  }
+]

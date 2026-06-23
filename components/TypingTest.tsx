@@ -7,9 +7,10 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import {
     Volume2, Loader2, Volume1, ChevronLeft, ChevronRight,
-    Repeat, Eraser, Settings, Check, BookOpen, X, Undo2, Redo2, History, Trash2, RefreshCcw, Search
+    Repeat, Eraser, X, Undo2, Redo2, Trash2, RefreshCcw, Search
 } from "lucide-react";
-import DrawingCanvas from "./DrawingCanvas";
+import DrawingCanvas, { DrawingCanvasRef } from "./DrawingCanvas";
+import DictionaryCard from "./DictionaryCard";
 
 const TTS_LANG_MAP: Record<string, string> = {
     ar: "ar-SA",
@@ -46,8 +47,7 @@ interface TypingTestProps {
     allWords?: Word[];
     onSearchSelect?: (word: Word) => void;
     onToggleLoop?: () => void;
-    onOpenSettings?: () => void;
-    onOpenHistory?: () => void;
+    onMismatch: (wordId: string) => void;
     arabicFontClass?: string;
     arabicFont?: string;
     handedness: 'left' | 'right';
@@ -59,7 +59,7 @@ export default function TypingTest({
     word, onComplete, onBack, onMismatch, onSpeak, onStop,
     onUnlockAudio, isSpeaking, isPending, isIOS, isPhone,
     isAudioRepeat, onToggleAudioRepeat, penThickness, penColor, isLooping, onToggleLoop,
-    onOpenSettings, onOpenHistory, arabicFontClass = "", arabicFont, handedness, mobileInputMode = 'touch',
+    arabicFontClass = "", arabicFont, handedness, mobileInputMode = 'touch',
     allWords, onSearchSelect
 } : TypingTestProps) {
     const [userInput, setUserInput] = useState("");
@@ -69,11 +69,7 @@ export default function TypingTest({
     const [isShaking, setIsShaking] = useState(false);
     const [audioMode, setAudioMode] = useState<"en" | "original">("en");
     const [loopCounter, setLoopCounter] = useState(0);
-    const [clearTrigger, setClearTrigger] = useState(0);
-    const [undoTrigger, setUndoTrigger] = useState(0);
-    const [redoTrigger, setRedoTrigger] = useState(0);
-    const [checkTrigger, setCheckTrigger] = useState(0);
-    const [isExplainerOpen, setIsExplainerOpen] = useState(false);
+    const canvasRef = useRef<DrawingCanvasRef>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const searchRef = useRef<HTMLDivElement>(null);
@@ -175,9 +171,9 @@ export default function TypingTest({
             if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
                 e.preventDefault();
                 if (e.shiftKey) {
-                    setRedoTrigger(p => p + 1);
+                    canvasRef.current?.redo();
                 } else {
-                    setUndoTrigger(p => p + 1);
+                    canvasRef.current?.undo();
                 }
             }
         };
@@ -185,10 +181,10 @@ export default function TypingTest({
         const handleBeforeInput = (e: InputEvent) => {
             if (e.inputType === 'historyUndo') {
                 e.preventDefault();
-                setUndoTrigger(p => p + 1);
+                canvasRef.current?.undo();
             } else if (e.inputType === 'historyRedo') {
                 e.preventDefault();
-                setRedoTrigger(p => p + 1);
+                canvasRef.current?.redo();
             }
         };
 
@@ -289,6 +285,7 @@ export default function TypingTest({
                     <div className="flex-1 flex flex-col relative h-full bg-white/50">
                     <div className="absolute inset-0 z-10 pointer-events-auto">
                         <DrawingCanvas
+                            ref={canvasRef}
                             key={`${word.id}-${loopCounter}`}
                             word={word}
                             onComplete={() => {
@@ -310,10 +307,6 @@ export default function TypingTest({
                             penThickness={penThickness}
                             penColor={isErasing ? "erase" : penColor}
                             isIOS={isIOS}
-                            clearTrigger={clearTrigger}
-                            undoTrigger={undoTrigger}
-                            redoTrigger={redoTrigger}
-                            checkTrigger={checkTrigger}
                             targetFontClass={targetFontClass}
                             arabicFont={arabicFont}
                         />
@@ -356,14 +349,14 @@ export default function TypingTest({
                     <div className="absolute bottom-8 left-0 right-0 z-30 pointer-events-auto flex justify-center">
                         <div className="flex items-center gap-2 p-2.5 bg-white rounded-[2rem] border border-neutral-100 shadow-[0_16px_40px_rgba(0,0,0,0.06)]">
                             <button
-                                onClick={() => setUndoTrigger(p => p + 1)}
+                                onClick={() => canvasRef.current?.undo()}
                                 className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
                                 aria-label="Undo stroke"
                             >
                                 <Undo2 size={22} strokeWidth={2} />
                             </button>
                             <button
-                                onClick={() => setRedoTrigger(p => p + 1)}
+                                onClick={() => canvasRef.current?.redo()}
                                 className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
                                 aria-label="Redo stroke"
                             >
@@ -384,7 +377,7 @@ export default function TypingTest({
                             <div className="w-px h-8 bg-neutral-200 mx-1" />
                             <button
                                 onClick={() => {
-                                    setClearTrigger(p => p + 1);
+                                    canvasRef.current?.clear();
                                     setIsErasing(false);
                                 }}
                                 className="px-6 h-14 flex items-center gap-2 rounded-[1.25rem] bg-white text-neutral-400 hover:text-rose-500 hover:bg-rose-50 font-medium transition-all active:scale-95 active:bg-rose-500 active:text-white active:border-rose-500 shadow-sm border border-neutral-100"
@@ -523,69 +516,11 @@ export default function TypingTest({
                         </div>
 
                             <div className="flex flex-col h-full space-y-4 relative">
-
-                                {/* Dictionary Notes */}
-                                <div className="p-6 bg-neutral-50/80 rounded-3xl space-y-5 border border-neutral-100/60 flex-1 relative overflow-hidden">
-                                    <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-2">
-                                        <BookOpen size={16} /> Dictionary
-                                    </h3>
-                                    
-                                    {dictionary[word.original] ? (
-                                        <div className="space-y-4 animate-in fade-in duration-300">
-                                            {/* English Definition */}
-                                            {dictionary[word.original].definition && (
-                                                <div className="space-y-1">
-                                                    <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Definition</div>
-                                                    <div className="text-[15px] text-neutral-700 leading-relaxed font-medium">
-                                                        {dictionary[word.original].definition}
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {/* Middle Row: Grammar Tag & Pronunciation */}
-                                            <div className="flex flex-col gap-4 pt-2">
-                                                {dictionary[word.original].grammar_tag && (
-                                                    <div className="space-y-1 min-w-0">
-                                                        <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Grammar</div>
-                                                        <div className="text-[15px] text-neutral-700 leading-relaxed font-medium">
-                                                            {dictionary[word.original].grammar_tag}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                {dictionary[word.original].syllables && (
-                                                    <div className="space-y-1 min-w-0">
-                                                        <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Syllables</div>
-                                                        <div className="text-[15px] text-neutral-700 leading-relaxed font-medium">
-                                                            {dictionary[word.original].syllables}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            {/* Word Origin */}
-                                            {dictionary[word.original].root_letters && (
-                                                <div className="pt-4 mt-4 border-t border-neutral-200/50 space-y-2">
-                                                    <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Root Letters</div>
-                                                    <div className={cn("text-lg font-bold text-accent text-left", arabicFontClass)} dir="rtl">
-                                                        {dictionary[word.original].root_letters}
-                                                    </div>
-                                                </div>
-                                            )}
-                                            {dictionary[word.original].root_meaning && (
-                                                <div className="pt-4 mt-4 border-t border-neutral-200/50 space-y-1">
-                                                    <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Root Meaning</div>
-                                                    <div className="text-[15px] text-neutral-700 leading-relaxed font-medium">
-                                                        {dictionary[word.original].root_meaning}
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <p className="text-base text-neutral-500 leading-relaxed">
-                                            {word.notes || "No detailed dictionary notes found for this word."}
-                                        </p>
-                                    )}
-                                </div>
+                                <DictionaryCard 
+                                    word={word} 
+                                    entry={dictionary[word.original]} 
+                                    arabicFontClass={arabicFontClass} 
+                                />
                             </div>
                         </div>
                     </div>
