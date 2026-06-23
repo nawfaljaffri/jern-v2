@@ -9,14 +9,12 @@ function cn(...inputs: ClassValue[]) {
 }
 
 export type ToolbarPosition =
-    | "top-left"
     | "top-center"
-    | "top-right"
-    | "left-center"
-    | "right-center"
-    | "bottom-left"
     | "bottom-center"
-    | "bottom-right";
+    | "left-top"
+    | "left-bottom"
+    | "right-top"
+    | "right-bottom";
 
 interface CanvasToolbarProps {
     onUndo: () => void;
@@ -27,14 +25,12 @@ interface CanvasToolbarProps {
 }
 
 const ZONES: { id: ToolbarPosition; boxClass: string }[] = [
-    { id: "top-left", boxClass: "top-4 left-4 w-24 h-24" },
-    { id: "top-center", boxClass: "top-4 left-1/3 right-1/3 h-16" },
-    { id: "top-right", boxClass: "top-4 right-4 w-24 h-24" },
-    { id: "left-center", boxClass: "top-1/3 bottom-1/3 left-4 w-16" },
-    { id: "right-center", boxClass: "top-1/3 bottom-1/3 right-4 w-16" },
-    { id: "bottom-left", boxClass: "bottom-4 left-4 w-24 h-24" },
-    { id: "bottom-center", boxClass: "bottom-4 left-1/3 right-1/3 h-16" },
-    { id: "bottom-right", boxClass: "bottom-4 right-4 w-24 h-24" },
+    { id: "top-center", boxClass: "top-20 left-1/3 right-1/3 h-14" },
+    { id: "bottom-center", boxClass: "bottom-8 left-1/3 right-1/3 h-14" },
+    { id: "left-top", boxClass: "top-24 bottom-1/2 left-8 w-14 mb-10" },
+    { id: "left-bottom", boxClass: "bottom-8 top-1/2 left-8 w-14 mt-10" },
+    { id: "right-top", boxClass: "top-24 bottom-1/2 right-8 w-14 mb-10" },
+    { id: "right-bottom", boxClass: "bottom-8 top-1/2 right-8 w-14 mt-10" },
 ];
 
 export function CanvasToolbar({
@@ -55,14 +51,21 @@ export function CanvasToolbar({
     // Persistence
     useEffect(() => {
         const saved = localStorage.getItem("jern-toolbar-pos");
-        if (saved) setPosition(saved as ToolbarPosition);
+        if (saved) {
+            // Validate if it's one of the 6 new zones
+            if (["top-center", "bottom-center", "left-top", "left-bottom", "right-top", "right-bottom"].includes(saved)) {
+                setPosition(saved as ToolbarPosition);
+            } else {
+                setPosition("bottom-center");
+            }
+        }
     }, []);
 
     useEffect(() => {
         if (position) localStorage.setItem("jern-toolbar-pos", position);
     }, [position]);
 
-    const isVertical = position === "left-center" || position === "right-center";
+    const isVertical = position.includes("left") || position.includes("right");
 
     const calculateZone = (clientX: number, clientY: number): ToolbarPosition | null => {
         if (!containerRef.current) return null;
@@ -75,31 +78,30 @@ export function CanvasToolbar({
         const h = rect.height;
 
         const col = cx < w / 3 ? "left" : cx > (2 * w) / 3 ? "right" : "center";
-        const row = cy < h / 3 ? "top" : cy > (2 * h) / 3 ? "bottom" : "center";
+        const row = cy < h / 2 ? "top" : "bottom";
 
-        if (row === "center" && col === "center") return position; // default to current if middle
-        if (row === "center") return `${col}-center` as ToolbarPosition;
-        if (col === "center") return `${row}-center` as ToolbarPosition;
-        return `${row}-${col}` as ToolbarPosition;
+        if (col === "center") {
+            return row === "top" ? "top-center" : "bottom-center";
+        }
+        
+        return `${col}-${row}` as ToolbarPosition;
     };
 
     const getPositionClasses = (pos: ToolbarPosition) => {
         switch (pos) {
-            case "top-left": return "top-8 left-8";
-            case "top-center": return "top-8 left-1/2 -translate-x-1/2";
-            case "top-right": return "top-8 right-8";
-            case "left-center": return "top-1/2 -translate-y-1/2 left-8";
-            case "right-center": return "top-1/2 -translate-y-1/2 right-8";
-            case "bottom-left": return "bottom-8 left-8";
+            case "top-center": return "top-20 left-1/2 -translate-x-1/2";
             case "bottom-center": return "bottom-8 left-1/2 -translate-x-1/2";
-            case "bottom-right": return "bottom-8 right-8";
+            case "left-top": return "top-24 left-8";
+            case "left-bottom": return "bottom-8 left-8";
+            case "right-top": return "top-24 right-8";
+            case "right-bottom": return "bottom-8 right-8";
             default: return "bottom-8 left-1/2 -translate-x-1/2";
         }
     };
 
     const grabberClass = position.includes("right") 
         ? (isVertical ? "w-full h-6 order-first mb-1 border-b border-neutral-100" : "w-6 h-full order-first mr-1 border-r border-neutral-100") 
-        : (isVertical ? "w-full h-6 order-last mt-1 border-t border-neutral-100" : "w-6 h-full order-last ml-1 border-l border-neutral-100");
+        : (isVertical ? "w-full h-6 order-first mb-1 border-b border-neutral-100" : "w-6 h-full order-last ml-1 border-l border-neutral-100");
 
     return (
         <div className="absolute inset-0 pointer-events-none z-40" ref={containerRef}>
@@ -131,6 +133,8 @@ export function CanvasToolbar({
             <motion.div
                 layout
                 drag
+                dragConstraints={containerRef}
+                dragElastic={0.1}
                 style={{ x, y }}
                 dragControls={dragControls}
                 dragListener={false}
@@ -171,14 +175,14 @@ export function CanvasToolbar({
                 <div className={cn("flex gap-2", isVertical ? "flex-col" : "flex-row")}>
                     <button
                         onClick={onUndo}
-                        className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
+                        className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100 shrink-0"
                         aria-label="Undo stroke"
                     >
                         <Undo2 size={22} strokeWidth={2} />
                     </button>
                     <button
                         onClick={onRedo}
-                        className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
+                        className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100 shrink-0"
                         aria-label="Redo stroke"
                     >
                         <Redo2 size={22} strokeWidth={2} />
@@ -186,7 +190,7 @@ export function CanvasToolbar({
                     <button
                         onClick={onToggleEraser}
                         className={cn(
-                            "w-14 h-14 flex items-center justify-center rounded-[1.25rem] transition-all shadow-sm border",
+                            "w-14 h-14 flex items-center justify-center rounded-[1.25rem] transition-all shadow-sm border shrink-0",
                             isErasing 
                                 ? "bg-rose-50 text-rose-500 border-rose-100" 
                                 : "bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 border-neutral-100 active:bg-emerald-600 active:text-white"
@@ -196,12 +200,12 @@ export function CanvasToolbar({
                         <Eraser size={22} strokeWidth={2} />
                     </button>
                     
-                    <div className={cn("bg-neutral-200", isVertical ? "w-8 h-px my-1 mx-auto" : "w-px h-8 mx-1")} />
+                    <div className={cn("bg-neutral-200 shrink-0", isVertical ? "w-8 h-px my-1 mx-auto" : "w-px h-8 mx-1")} />
                     
                     <button
                         onClick={onClear}
                         className={cn(
-                            "flex items-center justify-center gap-2 rounded-[1.25rem] bg-white text-neutral-400 hover:text-rose-500 hover:bg-rose-50 font-medium transition-all active:scale-95 active:bg-rose-500 active:text-white active:border-rose-500 shadow-sm border border-neutral-100",
+                            "flex items-center justify-center gap-2 rounded-[1.25rem] bg-white text-neutral-400 hover:text-rose-500 hover:bg-rose-50 font-medium transition-all active:scale-95 active:bg-rose-500 active:text-white active:border-rose-500 shadow-sm border border-neutral-100 shrink-0",
                             isVertical ? "w-14 h-14" : "px-6 h-14"
                         )}
                         aria-label="Clear Canvas"
