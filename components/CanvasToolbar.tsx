@@ -25,12 +25,12 @@ interface CanvasToolbarProps {
 }
 
 const ZONES: { id: ToolbarPosition; boxClass: string }[] = [
-    { id: "top-center", boxClass: "top-20 left-1/3 right-1/3 h-14" },
-    { id: "bottom-center", boxClass: "bottom-8 left-1/3 right-1/3 h-14" },
-    { id: "left-top", boxClass: "top-24 bottom-1/2 left-8 w-14 mb-10" },
-    { id: "left-bottom", boxClass: "bottom-8 top-1/2 left-8 w-14 mt-10" },
-    { id: "right-top", boxClass: "top-24 bottom-1/2 right-8 w-14 mb-10" },
-    { id: "right-bottom", boxClass: "bottom-8 top-1/2 right-8 w-14 mt-10" },
+    { id: "top-center", boxClass: "top-12 left-1/2 -translate-x-1/2 w-64 h-20" },
+    { id: "bottom-center", boxClass: "bottom-8 left-1/2 -translate-x-1/2 w-64 h-20" },
+    { id: "left-top", boxClass: "top-32 left-8 w-20 h-64" },
+    { id: "left-bottom", boxClass: "bottom-32 left-8 w-20 h-64" },
+    { id: "right-top", boxClass: "top-32 right-8 w-20 h-64" },
+    { id: "right-bottom", boxClass: "bottom-32 right-8 w-20 h-64" },
 ];
 
 export function CanvasToolbar({
@@ -40,6 +40,7 @@ export function CanvasToolbar({
     isErasing,
     onToggleEraser
 }: CanvasToolbarProps) {
+    // Removed persistence, default to bottom-center
     const [position, setPosition] = useState<ToolbarPosition>("bottom-center");
     const [isDragging, setIsDragging] = useState(false);
     const [activeZone, setActiveZone] = useState<ToolbarPosition | null>(null);
@@ -47,23 +48,6 @@ export function CanvasToolbar({
     const dragControls = useDragControls();
     const x = useMotionValue(0);
     const y = useMotionValue(0);
-
-    // Persistence
-    useEffect(() => {
-        const saved = localStorage.getItem("jern-toolbar-pos");
-        if (saved) {
-            // Validate if it's one of the 6 new zones
-            if (["top-center", "bottom-center", "left-top", "left-bottom", "right-top", "right-bottom"].includes(saved)) {
-                setPosition(saved as ToolbarPosition);
-            } else {
-                setPosition("bottom-center");
-            }
-        }
-    }, []);
-
-    useEffect(() => {
-        if (position) localStorage.setItem("jern-toolbar-pos", position);
-    }, [position]);
 
     const isVertical = position.includes("left") || position.includes("right");
 
@@ -77,31 +61,45 @@ export function CanvasToolbar({
         const w = rect.width;
         const h = rect.height;
 
-        const col = cx < w / 3 ? "left" : cx > (2 * w) / 3 ? "right" : "center";
-        const row = cy < h / 2 ? "top" : "bottom";
+        const targetPoints = [
+            { id: "top-center", x: w / 2, y: 0 },
+            { id: "bottom-center", x: w / 2, y: h },
+            { id: "left-top", x: 0, y: h * 0.25 },
+            { id: "left-bottom", x: 0, y: h * 0.75 },
+            { id: "right-top", x: w, y: h * 0.25 },
+            { id: "right-bottom", x: w, y: h * 0.75 },
+        ];
 
-        if (col === "center") {
-            return row === "top" ? "top-center" : "bottom-center";
+        let closestZone: ToolbarPosition = "bottom-center";
+        let minDist = Infinity;
+
+        for (const pt of targetPoints) {
+            const dist = Math.pow(pt.x - cx, 2) + Math.pow(pt.y - cy, 2);
+            if (dist < minDist) {
+                minDist = dist;
+                closestZone = pt.id as ToolbarPosition;
+            }
         }
         
-        return `${col}-${row}` as ToolbarPosition;
+        return closestZone;
     };
 
     const getPositionClasses = (pos: ToolbarPosition) => {
         switch (pos) {
-            case "top-center": return "top-20 left-1/2 -translate-x-1/2";
+            case "top-center": return "top-12 left-1/2 -translate-x-1/2";
             case "bottom-center": return "bottom-8 left-1/2 -translate-x-1/2";
-            case "left-top": return "top-24 left-8";
-            case "left-bottom": return "bottom-8 left-8";
-            case "right-top": return "top-24 right-8";
-            case "right-bottom": return "bottom-8 right-8";
+            case "left-top": return "top-32 left-8";
+            case "left-bottom": return "bottom-32 left-8";
+            case "right-top": return "top-32 right-8";
+            case "right-bottom": return "bottom-32 right-8";
             default: return "bottom-8 left-1/2 -translate-x-1/2";
         }
     };
 
+    // Grabber styling - much larger touch target and visual indicator
     const grabberClass = position.includes("right") 
-        ? (isVertical ? "w-full h-6 order-first mb-1 border-b border-neutral-100" : "w-6 h-full order-first mr-1 border-r border-neutral-100") 
-        : (isVertical ? "w-full h-6 order-first mb-1 border-b border-neutral-100" : "w-6 h-full order-last ml-1 border-l border-neutral-100");
+        ? (isVertical ? "w-full h-12 order-first mb-1 border-b border-neutral-100" : "w-12 h-full order-first mr-1 border-r border-neutral-100") 
+        : (isVertical ? "w-full h-12 order-first mb-1 border-b border-neutral-100" : "w-12 h-full order-last ml-1 border-l border-neutral-100");
 
     return (
         <div className="absolute inset-0 pointer-events-none z-40" ref={containerRef}>
@@ -118,7 +116,7 @@ export function CanvasToolbar({
                             <div
                                 key={zone.id}
                                 className={cn(
-                                    "absolute border-2 border-dashed rounded-2xl transition-all duration-200",
+                                    "absolute border-2 border-dashed rounded-[2rem] transition-all duration-200",
                                     zone.boxClass,
                                     activeZone === zone.id 
                                         ? "border-emerald-400 bg-emerald-400/20 scale-105" 
@@ -131,7 +129,7 @@ export function CanvasToolbar({
             </AnimatePresence>
 
             <motion.div
-                layout
+                layout="position"
                 drag
                 dragConstraints={containerRef}
                 dragElastic={0.1}
@@ -154,7 +152,7 @@ export function CanvasToolbar({
                     y.set(0);
                 }}
                 className={cn(
-                    "absolute pointer-events-auto flex gap-2 p-2.5 bg-white/90 backdrop-blur-md rounded-[2rem] border border-neutral-200 shadow-[0_16px_40px_rgba(0,0,0,0.08)] transition-shadow",
+                    "absolute pointer-events-auto flex gap-2 p-2.5 bg-white/90 backdrop-blur-md rounded-[2.5rem] border border-neutral-200 shadow-[0_16px_40px_rgba(0,0,0,0.08)] transition-shadow",
                     getPositionClasses(position),
                     isVertical ? "flex-col items-center" : "flex-row items-center",
                     isDragging ? "cursor-grabbing scale-105 shadow-2xl z-50" : "cursor-grab"
@@ -165,24 +163,24 @@ export function CanvasToolbar({
                     onPointerDown={(e) => dragControls.start(e)}
                     style={{ touchAction: "none" }}
                     className={cn(
-                        "flex items-center justify-center text-neutral-300 hover:text-neutral-500",
+                        "flex items-center justify-center text-neutral-300 hover:text-neutral-500 hover:bg-neutral-100 rounded-2xl active:bg-neutral-200 transition-colors",
                         grabberClass
                     )}
                 >
-                    {isVertical ? <GripHorizontal size={18} /> : <GripVertical size={18} />}
+                    {isVertical ? <GripHorizontal size={24} /> : <GripVertical size={24} />}
                 </div>
 
                 <div className={cn("flex gap-2", isVertical ? "flex-col" : "flex-row")}>
                     <button
                         onClick={onUndo}
-                        className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100 shrink-0"
+                        className="w-14 h-14 flex items-center justify-center rounded-2xl bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100 shrink-0"
                         aria-label="Undo stroke"
                     >
                         <Undo2 size={22} strokeWidth={2} />
                     </button>
                     <button
                         onClick={onRedo}
-                        className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100 shrink-0"
+                        className="w-14 h-14 flex items-center justify-center rounded-2xl bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100 shrink-0"
                         aria-label="Redo stroke"
                     >
                         <Redo2 size={22} strokeWidth={2} />
@@ -190,7 +188,7 @@ export function CanvasToolbar({
                     <button
                         onClick={onToggleEraser}
                         className={cn(
-                            "w-14 h-14 flex items-center justify-center rounded-[1.25rem] transition-all shadow-sm border shrink-0",
+                            "w-14 h-14 flex items-center justify-center rounded-2xl transition-all shadow-sm border shrink-0",
                             isErasing 
                                 ? "bg-rose-50 text-rose-500 border-rose-100" 
                                 : "bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 border-neutral-100 active:bg-emerald-600 active:text-white"
@@ -205,7 +203,7 @@ export function CanvasToolbar({
                     <button
                         onClick={onClear}
                         className={cn(
-                            "flex items-center justify-center gap-2 rounded-[1.25rem] bg-white text-neutral-400 hover:text-rose-500 hover:bg-rose-50 font-medium transition-all active:scale-95 active:bg-rose-500 active:text-white active:border-rose-500 shadow-sm border border-neutral-100 shrink-0",
+                            "flex items-center justify-center gap-2 rounded-2xl bg-white text-neutral-400 hover:text-rose-500 hover:bg-rose-50 font-medium transition-all active:scale-95 active:bg-rose-500 active:text-white active:border-rose-500 shadow-sm border border-neutral-100 shrink-0",
                             isVertical ? "w-14 h-14" : "px-6 h-14"
                         )}
                         aria-label="Clear Canvas"
