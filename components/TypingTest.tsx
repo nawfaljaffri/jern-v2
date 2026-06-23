@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import DrawingCanvas, { DrawingCanvasRef } from "./DrawingCanvas";
 import DictionaryCard from "./DictionaryCard";
+import { useTypingInput } from "@/hooks/useTypingInput";
 
 const TTS_LANG_MAP: Record<string, string> = {
     ar: "ar-SA",
@@ -47,7 +48,6 @@ interface TypingTestProps {
     allWords?: Word[];
     onSearchSelect?: (word: Word) => void;
     onToggleLoop?: () => void;
-    onMismatch: (wordId: string) => void;
     arabicFontClass?: string;
     arabicFont?: string;
     handedness: 'left' | 'right';
@@ -62,13 +62,10 @@ export default function TypingTest({
     arabicFontClass = "", arabicFont, handedness, mobileInputMode = 'touch',
     allWords, onSearchSelect
 } : TypingTestProps) {
-    const [userInput, setUserInput] = useState("");
     const [isErasing, setIsErasing] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
-    const [isFocused, setIsFocused] = useState(true);
-    const [isShaking, setIsShaking] = useState(false);
     const [audioMode, setAudioMode] = useState<"en" | "original">("en");
-    const [loopCounter, setLoopCounter] = useState(0);
+
     const canvasRef = useRef<DrawingCanvasRef>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -77,6 +74,32 @@ export default function TypingTest({
     const initialMount = useRef(true);
     const hasUnlockedRef = useRef(false);
     const isCompletingRef = useRef(false);
+
+    const {
+        userInput,
+        setUserInput,
+        isShaking,
+        triggerError,
+        normalizedRomanized,
+        loopCounter,
+        setLoopCounter,
+        isFocused,
+        setIsFocused,
+        handleInputChange
+    } = useTypingInput({
+        word,
+        isLooping,
+        audioMode,
+        isAudioRepeat,
+        onSpeak,
+        onComplete,
+        onUnlockAudio,
+        isIOS,
+        onBack,
+        onMismatch,
+        hasUnlockedRef
+    });
+
 
     // ── Audio auto-play ───────────────────────────────────────────────────
     useEffect(() => {
@@ -143,120 +166,7 @@ export default function TypingTest({
     useEffect(() => {
         isCompletingRef.current = false;
         if (!isIOS) inputRef.current?.focus();
-        setUserInput("");
-        setIsShaking(false);
     }, [word, isIOS]);
-
-    // ── Error shake ────────────────────────────────────────────────────────
-    const triggerError = useCallback(() => {
-        setIsShaking(true);
-        onMismatch?.();
-        setTimeout(() => setIsShaking(false), 500);
-    }, [onMismatch]);
-
-
-    // ── Normalized target (strip diacritics, keep only [a-z0-9]) ─────────
-    const normalizedRomanized = React.useMemo(() => {
-        return word.romanized
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .replace(/[^a-z0-9 ]/gi, "")
-            .toLowerCase()
-            .trim();
-    }, [word.romanized]);
-
-    // ── Global Undo/Redo listeners (for Apple Pencil native palette) ───────
-    useEffect(() => {
-        const handleGlobalUndoRedo = (e: KeyboardEvent) => {
-            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
-                e.preventDefault();
-                if (e.shiftKey) {
-                    canvasRef.current?.redo();
-                } else {
-                    canvasRef.current?.undo();
-                }
-            }
-        };
-        
-        const handleBeforeInput = (e: InputEvent) => {
-            if (e.inputType === 'historyUndo') {
-                e.preventDefault();
-                canvasRef.current?.undo();
-            } else if (e.inputType === 'historyRedo') {
-                e.preventDefault();
-                canvasRef.current?.redo();
-            }
-        };
-
-        window.addEventListener("keydown", handleGlobalUndoRedo);
-        window.addEventListener("beforeinput", handleBeforeInput as EventListener);
-        return () => {
-            window.removeEventListener("keydown", handleGlobalUndoRedo);
-            window.removeEventListener("beforeinput", handleBeforeInput as EventListener);
-        };
-    }, []);
-
-    // ── Keyboard shortcuts (laptop) ────────────────────────────────────────
-    useEffect(() => {
-        if (isIOS) return;
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "ArrowLeft") {
-                e.preventDefault();
-                onBack?.();
-                setUserInput("");
-                return;
-            }
-            if (e.key === "Tab" || e.key === "Escape" || e.key === "ArrowRight") {
-                e.preventDefault();
-                triggerError();
-                setTimeout(() => {
-                    onComplete();
-                    setUserInput("");
-                }, 300);
-            }
-        };
-        window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [onComplete, onBack, triggerError, isIOS]);
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const raw = e.target.value.toLowerCase();
-
-        if (!hasUnlockedRef.current) {
-            onUnlockAudio?.();
-            hasUnlockedRef.current = true;
-        }
-
-        if (raw.length > normalizedRomanized.length) {
-            triggerError();
-            return;
-        }
-
-        for (let i = 0; i < raw.length; i++) {
-            if (raw[i] !== normalizedRomanized[i]) {
-                triggerError();
-                if (raw.length >= userInput.length) return;
-                break;
-            }
-        }
-
-        setUserInput(raw);
-
-        if (raw === normalizedRomanized) {
-            setTimeout(() => {
-                if (isLooping) {
-                    setUserInput("");
-                    setLoopCounter(prev => prev + 1);
-                    const text = audioMode === "en" ? word.definition : word.original;
-                    const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
-                    onSpeak(text, lang || "en-US", !!isAudioRepeat);
-                } else {
-                    onComplete();
-                    setUserInput("");
-                }
-            }, 150);
-        }
-    };
 
     const isArabicScript = word.language === "ar" || word.language === "ur";
     const targetFontClass = isArabicScript ? arabicFontClass || "font-arabic" : "font-sans";
