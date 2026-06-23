@@ -134,6 +134,37 @@ export default function TypingTest({
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    // ── Global Undo/Redo listeners (for Apple Pencil native palette) ───────
+    useEffect(() => {
+        const handleGlobalUndoRedo = (e: KeyboardEvent) => {
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
+                e.preventDefault();
+                if (e.shiftKey) {
+                    canvasRef.current?.redo();
+                } else {
+                    canvasRef.current?.undo();
+                }
+            }
+        };
+        
+        const handleBeforeInput = (e: InputEvent) => {
+            if (e.inputType === 'historyUndo') {
+                e.preventDefault();
+                canvasRef.current?.undo();
+            } else if (e.inputType === 'historyRedo') {
+                e.preventDefault();
+                canvasRef.current?.redo();
+            }
+        };
+
+        window.addEventListener("keydown", handleGlobalUndoRedo);
+        window.addEventListener("beforeinput", handleBeforeInput as EventListener);
+        return () => {
+            window.removeEventListener("keydown", handleGlobalUndoRedo);
+            window.removeEventListener("beforeinput", handleBeforeInput as EventListener);
+        };
+    }, []);
+
     // Memoize search results
     const searchResults = React.useMemo(() => {
         if (!searchQuery.trim() || !allWords) return [];
