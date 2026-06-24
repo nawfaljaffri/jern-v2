@@ -6,6 +6,7 @@ import { FREQUENCY_TIERS } from "@/lib/constants";
 
 export function useJernSession(settings: SessionSettings) {
     const [dataPack, setDataPack] = useState<Word[]>([]);
+    const [dictionary, setDictionary] = useState<Record<string, import("@/lib/types").DictionaryEntry>>({});
     const [upcomingWords, setUpcomingWords] = useState<Word[]>([]);
     const [history, setHistory] = useState<Word[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -19,13 +20,22 @@ export function useJernSession(settings: SessionSettings) {
         } catch { /* ignore */ }
     }, []);
 
-    // Load Data Pack
+    // Load Data Pack & Dictionary
     const loadDataPack = useCallback(async (lang: Language) => {
         setIsLoading(true);
         try {
             const filePath = lang === "ar" ? "/data/ar_cleaned.json" : `/data/${lang}.json`;
-            const res = await fetch(filePath + "?v=3");
+            const [res, dictRes] = await Promise.all([
+                fetch(filePath + "?v=3"),
+                lang === "ar" ? fetch("/data/ar_dictionary.json?v=3") : Promise.resolve(null)
+            ]);
             const data = await res.json();
+            if (dictRes) {
+                const dictData = await dictRes.json();
+                setDictionary(dictData);
+            } else {
+                setDictionary({});
+            }
             setDataPack(data);
             setUpcomingWords([]);
         } catch (err) {
@@ -124,6 +134,7 @@ export function useJernSession(settings: SessionSettings) {
 
     return {
         dataPack,
+        dictionary,
         upcomingWords,
         setUpcomingWords,
         history,

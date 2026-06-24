@@ -50,6 +50,7 @@ export default function Home() {
     const { isIOS, isPhone, isIPad } = useDeviceDetection();
     const { 
         dataPack, 
+        dictionary,
         upcomingWords, 
         setUpcomingWords, 
         history, 
@@ -235,6 +236,7 @@ export default function Home() {
                             arabicFontClass={arabicFontClass}
                             arabicFont={settings.arabicFont ?? DEFAULT_ARABIC_FONT}
                             handedness={settings.handedness || 'right'}
+                            dictionary={dictionary}
                         />
                     ) : (
                         <div className="flex items-center justify-center gap-1.5 min-h-[400px]">

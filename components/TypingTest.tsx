@@ -53,6 +53,7 @@ interface TypingTestProps {
     handedness: 'left' | 'right';
     mobileInputMode?: 'touch' | 'keyboard';
     onToggleAudioRepeat?: () => void;
+    dictionary?: Record<string, import("@/lib/types").DictionaryEntry>;
 }
 
 export default function TypingTest({
@@ -60,7 +61,7 @@ export default function TypingTest({
     onUnlockAudio, isSpeaking, isPending, isIOS, isPhone,
     isAudioRepeat, onToggleAudioRepeat, penThickness, penColor, isLooping, onToggleLoop,
     arabicFontClass = "", arabicFont, handedness, mobileInputMode = 'touch',
-    allWords, onSearchSelect
+    allWords, onSearchSelect, dictionary = {}
 } : TypingTestProps) {
     const [isErasing, setIsErasing] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -184,14 +185,7 @@ export default function TypingTest({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [word, audioMode, isAudioRepeat]);
 
-    const [dictionary, setDictionary] = useState<Record<string, import("@/lib/types").DictionaryEntry>>({});
-    
-    useEffect(() => {
-        fetch("/data/ar_dictionary.json?v=3")
-            .then(res => res.json())
-            .then(data => setDictionary(data))
-            .catch(() => {});
-    }, []);
+    // Dictionary is now passed via props from useJernSession to ensure instant zero-delay loading
 
     // ── Focus & reset on word change ─────────────────────────────────────
     useEffect(() => {
@@ -265,10 +259,10 @@ export default function TypingTest({
                                 setUserInput(""); 
                             }}
                             aria-label="Previous word"
-                            className="w-16 h-32 flex items-center justify-center group pointer-events-auto rounded-2xl active:bg-emerald-600 active:text-white transition-colors"
+                            className="w-16 h-32 flex items-center justify-center group pointer-events-auto rounded-2xl transition-colors"
                         >
-                            <span className="w-12 h-12 flex items-center justify-center rounded-full bg-white/50 backdrop-blur-sm border border-black/5 shadow-sm group-hover:bg-white group-active:bg-transparent transition-all">
-                                <ChevronLeft className="w-8 h-8 text-neutral-400 group-hover:text-emerald-600 transition-colors" strokeWidth={2} />
+                            <span className="w-12 h-12 flex items-center justify-center rounded-full bg-white/50 backdrop-blur-sm border border-black/5 shadow-sm group-hover:bg-white group-active:bg-emerald-600 group-active:text-white transition-all">
+                                <ChevronLeft className="w-8 h-8 text-neutral-400 group-hover:text-emerald-600 group-active:text-white transition-colors" strokeWidth={2} />
                             </span>
                         </button>
                         <button
@@ -279,10 +273,10 @@ export default function TypingTest({
                                 setUserInput(""); 
                             }}
                             aria-label="Skip word"
-                            className="w-16 h-32 flex items-center justify-center group pointer-events-auto rounded-2xl active:bg-emerald-600 active:text-white transition-colors"
+                            className="w-16 h-32 flex items-center justify-center group pointer-events-auto rounded-2xl transition-colors"
                         >
-                            <span className="w-12 h-12 flex items-center justify-center rounded-full bg-white/50 backdrop-blur-sm border border-black/5 shadow-sm group-hover:bg-white group-active:bg-transparent transition-all">
-                                <ChevronRight className="w-8 h-8 text-neutral-400 group-hover:text-emerald-600 transition-colors" strokeWidth={2} />
+                            <span className="w-12 h-12 flex items-center justify-center rounded-full bg-white/50 backdrop-blur-sm border border-black/5 shadow-sm group-hover:bg-white group-active:bg-emerald-600 group-active:text-white transition-all">
+                                <ChevronRight className="w-8 h-8 text-neutral-400 group-hover:text-emerald-600 group-active:text-white transition-colors" strokeWidth={2} />
                             </span>
                         </button>
                     </div>
