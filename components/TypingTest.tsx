@@ -459,7 +459,7 @@ export default function TypingTest({
                             <div className="flex flex-col h-full space-y-4 relative">
                                 <DictionaryCard 
                                     word={word} 
-                                    entry={dictionary[word.original]} 
+                                    entry={dictionary[word.original.trim()]} 
                                     arabicFontClass={arabicFontClass} 
                                 />
                             </div>

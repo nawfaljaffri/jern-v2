@@ -23,7 +23,8 @@ export function useJernSession(settings: SessionSettings) {
     const loadDataPack = useCallback(async (lang: Language) => {
         setIsLoading(true);
         try {
-            const res = await fetch(`/data/${lang}.json`);
+            const filePath = lang === "ar" ? "/data/ar_cleaned.json" : `/data/${lang}.json`;
+            const res = await fetch(filePath);
             const data = await res.json();
             setDataPack(data);
             setUpcomingWords([]);
