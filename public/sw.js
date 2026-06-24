@@ -1,5 +1,5 @@
-const CACHE_NAME = 'jern-v2';
-const DATA_CACHE = 'jern-data-v2';
+const CACHE_NAME = 'jern-v3';
+const DATA_CACHE = 'jern-data-v3';
 
 // App shell to cache on install
 const APP_SHELL = [
@@ -25,22 +25,22 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch — cache-first for data JSONs, network-first for everything else
+// Fetch — network-first for everything including data JSONs to ensure fresh dictionary data
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Data JSON files: cache-first (they rarely change)
+  // Data JSON files: network-first with cache fallback
   if (url.pathname.startsWith('/data/') && url.pathname.endsWith('.json')) {
     event.respondWith(
-      caches.open(DATA_CACHE).then((cache) =>
-        cache.match(event.request).then((cached) => {
-          if (cached) return cached;
-          return fetch(event.request).then((response) => {
-            if (response.ok) cache.put(event.request, response.clone());
-            return response;
-          });
+      fetch(event.request)
+        .then((response) => {
+          if (response.ok && event.request.method === 'GET') {
+            const clone = response.clone();
+            caches.open(DATA_CACHE).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
         })
-      )
+        .catch(() => caches.open(DATA_CACHE).then((cache) => cache.match(event.request)))
     );
     return;
   }

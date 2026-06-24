@@ -24,7 +24,7 @@ export function useJernSession(settings: SessionSettings) {
         setIsLoading(true);
         try {
             const filePath = lang === "ar" ? "/data/ar_cleaned.json" : `/data/${lang}.json`;
-            const res = await fetch(filePath);
+            const res = await fetch(filePath + "?v=3");
             const data = await res.json();
             setDataPack(data);
             setUpcomingWords([]);

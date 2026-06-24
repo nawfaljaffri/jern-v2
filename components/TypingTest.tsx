@@ -187,7 +187,7 @@ export default function TypingTest({
     const [dictionary, setDictionary] = useState<Record<string, import("@/lib/types").DictionaryEntry>>({});
     
     useEffect(() => {
-        fetch("/data/ar_dictionary.json")
+        fetch("/data/ar_dictionary.json?v=3")
             .then(res => res.json())
             .then(data => setDictionary(data))
             .catch(() => {});
