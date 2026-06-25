@@ -53,21 +53,25 @@ export default function DictionaryCard({ word, entry, arabicFontClass = "" }: Di
                         )}
                     </div>
 
-                    {/* Word Origin */}
-                    {entry.root_letters && (
-                        <div className="pt-4 mt-4 border-t border-neutral-200/50 space-y-2">
-                            <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Root Letters</div>
-                            <div className={cn("text-lg font-bold text-accent text-left", arabicFontClass)} dir="rtl">
-                                {entry.root_letters}
-                            </div>
-                        </div>
-                    )}
-                    {entry.root_meaning && (
-                        <div className="pt-4 mt-4 border-t border-neutral-200/50 space-y-1">
-                            <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Root Meaning</div>
-                            <div className="text-[15px] text-neutral-700 leading-relaxed font-medium">
-                                {entry.root_meaning}
-                            </div>
+                    {/* Word Origin (Root Letters & Meaning grouped together) */}
+                    {(entry.root_letters || entry.root_meaning) && (
+                        <div className="pt-4 mt-4 border-t border-neutral-200/50 space-y-4">
+                            {entry.root_letters && (
+                                <div className="space-y-2">
+                                    <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Root Letters</div>
+                                    <div className={cn("text-lg font-bold text-accent text-left", arabicFontClass)} dir="rtl">
+                                        {entry.root_letters}
+                                    </div>
+                                </div>
+                            )}
+                            {entry.root_meaning && (
+                                <div className="space-y-1">
+                                    <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Root Meaning</div>
+                                    <div className="text-[15px] text-neutral-700 leading-relaxed font-medium">
+                                        {entry.root_meaning}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
