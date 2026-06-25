@@ -281,44 +281,58 @@ export default function TypingTest({
                         </button>
                     </div>
 
-                    <div className="absolute bottom-8 left-0 right-0 z-30 pointer-events-auto flex justify-center">
-                        <div className="flex items-center gap-2 p-2.5 bg-white rounded-[2rem] border border-neutral-100 shadow-[0_16px_40px_rgba(0,0,0,0.06)]">
+                    <div className={cn("absolute left-0 right-0 z-30 pointer-events-auto flex justify-center", isPhone ? "bottom-3" : "bottom-8")}>
+                        <div className={cn(
+                            "flex items-center bg-white border border-neutral-100 shadow-[0_16px_40px_rgba(0,0,0,0.06)]",
+                            isPhone ? "gap-1.5 p-1.5 rounded-3xl" : "gap-2 p-2.5 rounded-[2rem]"
+                        )}>
                             <button
                                 onClick={() => canvasRef.current?.undo()}
-                                className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
+                                className={cn(
+                                    "flex items-center justify-center bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100",
+                                    isPhone ? "w-11 h-11 rounded-2xl" : "w-14 h-14 rounded-[1.25rem]"
+                                )}
                                 aria-label="Undo stroke"
                             >
-                                <Undo2 size={22} strokeWidth={2} />
+                                <Undo2 size={isPhone ? 18 : 22} strokeWidth={2} />
                             </button>
                             <button
                                 onClick={() => canvasRef.current?.redo()}
-                                className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
+                                className={cn(
+                                    "flex items-center justify-center bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100",
+                                    isPhone ? "w-11 h-11 rounded-2xl" : "w-14 h-14 rounded-[1.25rem]"
+                                )}
                                 aria-label="Redo stroke"
                             >
-                                <Redo2 size={22} strokeWidth={2} />
+                                <Redo2 size={isPhone ? 18 : 22} strokeWidth={2} />
                             </button>
                             <button
                                 onClick={() => setIsErasing(p => !p)}
                                 className={cn(
-                                    "w-14 h-14 flex items-center justify-center rounded-[1.25rem] transition-all shadow-sm border",
+                                    "flex items-center justify-center transition-all shadow-sm border",
+                                    isPhone ? "w-11 h-11 rounded-2xl" : "w-14 h-14 rounded-[1.25rem]",
                                     isErasing 
                                         ? "bg-rose-50 text-rose-500 border-rose-100" 
                                         : "bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 border-neutral-100 active:bg-emerald-600 active:text-white"
                                 )}
                                 aria-label="Toggle Eraser"
                             >
-                                <Eraser size={22} strokeWidth={2} />
+                                <Eraser size={isPhone ? 18 : 22} strokeWidth={2} />
                             </button>
-                            <div className="w-px h-8 bg-neutral-200 mx-1" />
+                            <div className={cn("w-px bg-neutral-200 mx-1", isPhone ? "h-6" : "h-8")} />
                             <button
                                 onClick={() => {
                                     canvasRef.current?.clear();
                                     setIsErasing(false);
                                 }}
-                                className="px-6 h-14 flex items-center gap-2 rounded-[1.25rem] bg-white text-neutral-400 hover:text-rose-500 hover:bg-rose-50 font-medium transition-all active:scale-95 active:bg-rose-500 active:text-white active:border-rose-500 shadow-sm border border-neutral-100"
+                                className={cn(
+                                    "flex items-center bg-white text-neutral-400 hover:text-rose-500 hover:bg-rose-50 font-medium transition-all active:scale-95 active:bg-rose-500 active:text-white active:border-rose-500 shadow-sm border border-neutral-100",
+                                    isPhone ? "w-11 h-11 justify-center rounded-2xl" : "px-6 h-14 gap-2 rounded-[1.25rem]"
+                                )}
+                                aria-label="Clear canvas"
                             >
-                                <Trash2 size={20} strokeWidth={2} />
-                                <span className="text-[17px]">Clear</span>
+                                <Trash2 size={isPhone ? 18 : 20} strokeWidth={2} />
+                                {!isPhone && <span className="text-[17px]">Clear</span>}
                             </button>
                         </div>
                     </div>
@@ -327,15 +341,15 @@ export default function TypingTest({
                 {/* ── Right Pane: Permanent Explainer (30%) ── */}
                 <div className="w-full lg:w-[420px] h-[44%] lg:h-full shrink-0 bg-white lg:border-b-0 lg:border-l border-neutral-100 flex flex-col z-40 relative shadow-sm lg:shadow-none">
                     <div 
-                        className="flex-1 overflow-y-auto px-10 pt-6 lg:pt-[--nav-padding] custom-scrollbar"
+                        className={cn("flex-1 overflow-y-auto lg:pt-[--nav-padding] custom-scrollbar", isPhone ? "px-5 pt-4" : "px-10 pt-6")}
                         style={{ '--nav-padding': 'calc(max(env(safe-area-inset-top), 32px) + 12px)' } as React.CSSProperties}
                     >
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-10 lg:gap-0 lg:block min-h-full pb-10 lg:pb-0">
                             
                             <div className="flex flex-col">
-                                <div className="space-y-4 mb-10">
+                                <div className={cn("space-y-4", isPhone ? "mb-6" : "mb-10")}>
                                 {/* Search Bar */}
-                                <div className="relative z-50 mb-6" ref={searchRef}>
+                                <div className={cn("relative z-50", isPhone ? "mb-4" : "mb-6")} ref={searchRef}>
                                     <div className="flex items-center px-4 py-3 bg-neutral-50/80 rounded-2xl border border-neutral-100/60 focus-within:ring-2 focus-within:ring-accent/20 transition-all">
                                         <Search size={18} className="text-neutral-400 mr-3" />
                                         <input
@@ -382,73 +396,136 @@ export default function TypingTest({
                                     )}
                                 </div>
                             
-                                <div className="px-6">
-                                    <div className={cn("text-4xl font-medium text-foreground py-2 text-left", arabicFontClass)} dir="rtl">
-                                        {word.original}
-                                    </div>
-                                    
-                                    <div className="text-3xl text-accent font-medium text-left">{word.romanized}</div>
-                                    
-                                    <div className="text-xl text-neutral-600 leading-relaxed mt-4 text-left">{word.definition}</div>
-                                </div>
-                                </div>
+                                {isPhone ? (
+                                    <div className="flex items-start justify-between px-2 gap-4 mb-2">
+                                        {/* Left Side: Word Info (Scaled down font sizes for phone harmony) */}
+                                        <div className="flex-1 min-w-0">
+                                            <div className={cn("text-2xl font-medium text-foreground py-1 text-left truncate", arabicFontClass)} dir="rtl">
+                                                {word.original}
+                                            </div>
+                                            <div className="text-xl text-accent font-medium text-left truncate">{word.romanized}</div>
+                                            <div className="text-base text-neutral-600 leading-relaxed mt-2 text-left line-clamp-2">{word.definition}</div>
+                                        </div>
 
-                                <div className="mt-auto flex items-center justify-between p-2 bg-neutral-50 rounded-2xl border border-neutral-100 lg:mb-10">
-                            <div className="flex items-center gap-1">
-                                <button
-                                    onClick={() => setAudioMode("en")}
-                                    className={cn(
-                                        "px-5 py-3 rounded-xl text-sm font-bold transition-all duration-200 active:bg-emerald-600 active:text-white",
-                                        audioMode === "en"
-                                            ? "bg-white text-foreground shadow-sm"
-                                            : "text-neutral-400 hover:text-neutral-600 hover:bg-neutral-50 active:bg-emerald-600 active:text-white"
-                                    )}
-                                >
-                                    EN
-                                </button>
-                                <button
-                                    onClick={() => setAudioMode("original")}
-                                    className={cn(
-                                        "px-5 py-3 rounded-xl text-sm font-bold transition-all duration-200 active:bg-emerald-600 active:text-white",
-                                        audioMode === "original"
-                                            ? "bg-white text-foreground shadow-sm"
-                                            : "text-neutral-400 hover:text-neutral-600"
-                                    )}
-                                >
-                                    {(word.language || "EN").toUpperCase()}
-                                </button>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    onClick={onToggleAudioRepeat}
-                                    className={cn(
-                                        "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 active:scale-95",
-                                        isAudioRepeat ? "text-accent bg-accent/10" : "text-neutral-300 hover:bg-neutral-100 hover:text-neutral-500"
-                                    )}
-                                    title={isAudioRepeat ? "Continuous Audio On" : "Continuous Audio Off"}
-                                >
-                                    <Repeat size={18} />
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        onUnlockAudio?.();
-                                        const text = audioMode === "en" ? word.definition : word.original;
-                                        const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
-                                        onSpeak(text, lang || "en-US", !!isAudioRepeat);
-                                    }}
-                                    disabled={isPending}
-                                    className={cn(
-                                        "flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 active:scale-95",
-                                        isSpeaking
-                                            ? "bg-accent text-white shadow-md"
-                                            : "bg-white text-accent hover:bg-accent hover:text-white shadow-sm border border-neutral-100"
-                                    )}
-                                >
-                                    {isPending ? <Loader2 size={24} className="animate-spin" /> : isSpeaking ? <Volume1 size={24} className="animate-pulse" /> : <Volume2 size={24} />}
-                                </button>
+                                        {/* Right Side: Compact Audio & Lang controls fitting perfectly in the empty right space */}
+                                        <div className="flex flex-col items-end gap-2 shrink-0 bg-neutral-50 p-2.5 rounded-2xl border border-neutral-100">
+                                            <div className="flex items-center gap-1">
+                                                <button
+                                                    onClick={() => setAudioMode("en")}
+                                                    className={cn(
+                                                        "px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 active:bg-emerald-600 active:text-white",
+                                                        audioMode === "en" ? "bg-white text-foreground shadow-sm" : "text-neutral-400 hover:text-neutral-600"
+                                                    )}
+                                                >
+                                                    EN
+                                                </button>
+                                                <button
+                                                    onClick={() => setAudioMode("original")}
+                                                    className={cn(
+                                                        "px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 active:bg-emerald-600 active:text-white",
+                                                        audioMode === "original" ? "bg-white text-foreground shadow-sm" : "text-neutral-400 hover:text-neutral-600"
+                                                    )}
+                                                >
+                                                    {(word.language || "EN").toUpperCase()}
+                                                </button>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 mt-1">
+                                                <button
+                                                    onClick={onToggleAudioRepeat}
+                                                    className={cn(
+                                                        "flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 active:scale-95",
+                                                        isAudioRepeat ? "text-accent bg-accent/10" : "text-neutral-300 hover:bg-neutral-100 hover:text-neutral-500"
+                                                    )}
+                                                    title={isAudioRepeat ? "Continuous Audio On" : "Continuous Audio Off"}
+                                                >
+                                                    <Repeat size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        onUnlockAudio?.();
+                                                        const text = audioMode === "en" ? word.definition : word.original;
+                                                        const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
+                                                        onSpeak(text, lang || "en-US", !!isAudioRepeat);
+                                                    }}
+                                                    disabled={isPending}
+                                                    className={cn(
+                                                        "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 active:scale-95",
+                                                        isSpeaking ? "bg-accent text-white shadow-md" : "bg-white text-accent hover:bg-accent hover:text-white shadow-sm border border-neutral-100"
+                                                    )}
+                                                >
+                                                    {isPending ? <Loader2 size={18} className="animate-spin" /> : isSpeaking ? <Volume1 size={18} className="animate-pulse" /> : <Volume2 size={18} />}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="px-6">
+                                            <div className={cn("text-4xl font-medium text-foreground py-2 text-left", arabicFontClass)} dir="rtl">
+                                                {word.original}
+                                            </div>
+                                            <div className="text-3xl text-accent font-medium text-left">{word.romanized}</div>
+                                            <div className="text-xl text-neutral-600 leading-relaxed mt-4 text-left">{word.definition}</div>
+                                        </div>
+
+                                        <div className="mt-auto flex items-center justify-between p-2 bg-neutral-50 rounded-2xl border border-neutral-100 lg:mb-10">
+                                            <div className="flex items-center gap-1">
+                                                <button
+                                                    onClick={() => setAudioMode("en")}
+                                                    className={cn(
+                                                        "px-5 py-3 rounded-xl text-sm font-bold transition-all duration-200 active:bg-emerald-600 active:text-white",
+                                                        audioMode === "en"
+                                                            ? "bg-white text-foreground shadow-sm"
+                                                            : "text-neutral-400 hover:text-neutral-600 hover:bg-neutral-50 active:bg-emerald-600 active:text-white"
+                                                    )}
+                                                >
+                                                    EN
+                                                </button>
+                                                <button
+                                                    onClick={() => setAudioMode("original")}
+                                                    className={cn(
+                                                        "px-5 py-3 rounded-xl text-sm font-bold transition-all duration-200 active:bg-emerald-600 active:text-white",
+                                                        audioMode === "original"
+                                                            ? "bg-white text-foreground shadow-sm"
+                                                            : "text-neutral-400 hover:text-neutral-600"
+                                                    )}
+                                                >
+                                                    {(word.language || "EN").toUpperCase()}
+                                                </button>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={onToggleAudioRepeat}
+                                                    className={cn(
+                                                        "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 active:scale-95",
+                                                        isAudioRepeat ? "text-accent bg-accent/10" : "text-neutral-300 hover:bg-neutral-100 hover:text-neutral-500"
+                                                    )}
+                                                    title={isAudioRepeat ? "Continuous Audio On" : "Continuous Audio Off"}
+                                                >
+                                                    <Repeat size={18} />
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        onUnlockAudio?.();
+                                                        const text = audioMode === "en" ? word.definition : word.original;
+                                                        const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
+                                                        onSpeak(text, lang || "en-US", !!isAudioRepeat);
+                                                    }}
+                                                    disabled={isPending}
+                                                    className={cn(
+                                                        "flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 active:scale-95",
+                                                        isSpeaking
+                                                            ? "bg-accent text-white shadow-md"
+                                                            : "bg-white text-accent hover:bg-accent hover:text-white shadow-sm border border-neutral-100"
+                                                    )}
+                                                >
+                                                    {isPending ? <Loader2 size={24} className="animate-spin" /> : isSpeaking ? <Volume1 size={24} className="animate-pulse" /> : <Volume2 size={24} />}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                                 </div>
-                            </div>
-                        </div>
 
                             <div className="flex flex-col h-full space-y-4 relative">
                                 <DictionaryCard 
