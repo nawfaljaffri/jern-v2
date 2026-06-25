@@ -1,5 +1,5 @@
-const CACHE_NAME = 'jern-v3';
-const DATA_CACHE = 'jern-data-v3';
+const CACHE_NAME = 'jern-v5';
+const DATA_CACHE = 'jern-data-v5';
 
 // App shell to cache on install
 const APP_SHELL = [
