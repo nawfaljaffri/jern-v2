@@ -214,7 +214,7 @@ export default function TypingTest({
             <div className="fixed inset-0 overflow-hidden bg-extra-muted/20">
                 <div className={cn(
                     "flex h-full w-full",
-                    isIOS && !isPhone ? (isRightHanded ? "flex-col lg:flex-row-reverse" : "flex-col lg:flex-row") : "flex-col md:flex-row"
+                    isIOS && !isPhone ? (isRightHanded ? "flex-col lg:flex-row-reverse" : "flex-col lg:flex-row") : "flex-col md:flex-row landscape:flex-row"
                 )}>
                     {/* ── Left Pane: Massive Tracing Canvas (70%) ── */}
                     <div className="flex-1 flex flex-col relative h-full bg-white/50">
@@ -398,15 +398,15 @@ export default function TypingTest({
                 </div>
 
                 {/* ── Right Pane: Permanent Explainer (30%) ── */}
-                <div className="w-full lg:w-[420px] h-[44%] lg:h-full shrink-0 bg-white lg:border-b-0 lg:border-l border-neutral-100 flex flex-col z-40 relative shadow-sm lg:shadow-none">
+                <div className="w-full md:w-[340px] lg:w-[420px] landscape:w-[340px] landscape:lg:w-[420px] h-[44%] md:h-full landscape:h-full shrink-0 bg-white md:border-b-0 md:border-l landscape:border-b-0 landscape:border-l border-neutral-100 flex flex-col z-40 relative shadow-sm md:shadow-none landscape:shadow-none">
                     <div 
                         className={cn("flex-1 overflow-y-auto lg:pt-[--nav-padding] custom-scrollbar", isPhone ? "px-5 pt-4" : "px-10 pt-6")}
                         style={{ '--nav-padding': 'calc(max(env(safe-area-inset-top), 32px) + 12px)' } as React.CSSProperties}
                     >
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-10 lg:gap-0 lg:block min-h-full pb-10 lg:pb-0">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4 md:gap-10 lg:gap-0 lg:block min-h-full pb-10 lg:pb-0">
                             
                             <div className="flex flex-col">
-                                <div className={cn("space-y-4", isPhone ? "mb-6" : "mb-10")}>
+                                <div className={cn("space-y-4", isPhone ? "mb-2" : "mb-10")}>
                                 {/* Search Bar */}
                                 <div className={cn("relative z-50", isPhone ? "mb-4" : "mb-6")} ref={searchRef}>
                                     <div className="flex items-center px-4 py-3 bg-neutral-50/80 rounded-2xl border border-neutral-100/60 focus-within:ring-2 focus-within:ring-accent/20 transition-all">
@@ -490,16 +490,6 @@ export default function TypingTest({
                                             </div>
                                             <div className="flex items-center gap-1.5 mt-1">
                                                 <button
-                                                    onClick={onToggleAudioRepeat}
-                                                    className={cn(
-                                                        "flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 active:scale-95",
-                                                        isAudioRepeat ? "text-accent bg-accent/10" : "text-neutral-300 hover:bg-neutral-100 hover:text-neutral-500"
-                                                    )}
-                                                    title={isAudioRepeat ? "Continuous Audio On" : "Continuous Audio Off"}
-                                                >
-                                                    <Repeat size={16} />
-                                                </button>
-                                                <button
                                                     onClick={() => {
                                                         onUnlockAudio?.();
                                                         const text = audioMode === "en" ? word.definition : word.original;
@@ -513,6 +503,16 @@ export default function TypingTest({
                                                     )}
                                                 >
                                                     {isPending ? <Loader2 size={18} className="animate-spin" /> : isSpeaking ? <Volume1 size={18} className="animate-pulse" /> : <Volume2 size={18} />}
+                                                </button>
+                                                <button
+                                                    onClick={onToggleAudioRepeat}
+                                                    className={cn(
+                                                        "flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 active:scale-95",
+                                                        isAudioRepeat ? "text-accent bg-accent/10" : "text-neutral-300 hover:bg-neutral-100 hover:text-neutral-500"
+                                                    )}
+                                                    title={isAudioRepeat ? "Continuous Audio On" : "Continuous Audio Off"}
+                                                >
+                                                    <Repeat size={16} />
                                                 </button>
                                             </div>
                                         </div>
