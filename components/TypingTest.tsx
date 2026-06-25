@@ -585,6 +585,7 @@ export default function TypingTest({
                                     </>
                                 )}
                                 </div>
+                            </div>
 
                             <div className="flex flex-col h-full space-y-4 relative">
                                 <DictionaryCard 
