@@ -325,7 +325,7 @@ export default function TypingTest({
                 </div>
 
                 {/* ── Right Pane: Permanent Explainer (30%) ── */}
-                <div className="w-full lg:w-[420px] h-[35%] lg:h-full shrink-0 bg-white lg:border-b-0 lg:border-l border-neutral-100 flex flex-col z-40 relative shadow-sm lg:shadow-none">
+                <div className="w-full lg:w-[420px] h-[44%] lg:h-full shrink-0 bg-white lg:border-b-0 lg:border-l border-neutral-100 flex flex-col z-40 relative shadow-sm lg:shadow-none">
                     <div 
                         className="flex-1 overflow-y-auto px-10 pt-6 lg:pt-[--nav-padding] custom-scrollbar"
                         style={{ '--nav-padding': 'calc(max(env(safe-area-inset-top), 32px) + 12px)' } as React.CSSProperties}
