@@ -26,20 +26,39 @@ export function useJernSession(settings: SessionSettings) {
         try {
             const filePath = (lang === "ar" || lang === "fr") ? `/data/${lang}_cleaned.json` : `/data/${lang}.json`;
             const [res, dictRes] = await Promise.all([
-                fetch(filePath + "?v=4"),
-                (lang === "ar" || lang === "fr") ? fetch(`/data/${lang}_dictionary.json?v=4`) : Promise.resolve(null)
+                fetch(filePath + "?v=4").catch(() => null),
+                (lang === "ar" || lang === "fr") ? fetch(`/data/${lang}_dictionary.json?v=4`).catch(() => null) : Promise.resolve(null)
             ]);
+            
+            if (!res || !res.ok) {
+                console.error("Failed to fetch data pack:", res?.statusText);
+                setDataPack([]);
+                setDictionary({});
+                return;
+            }
+            
             const data = await res.json();
-            if (dictRes) {
-                const dictData = await dictRes.json();
-                setDictionary(dictData);
+            
+            if (dictRes && dictRes.ok) {
+                try {
+                    const dictData = await dictRes.json();
+                    setDictionary(dictData);
+                } catch {
+                    setDictionary({});
+                }
             } else {
                 setDictionary({});
             }
-            setDataPack(data);
+            
+            if (Array.isArray(data)) {
+                setDataPack(data);
+            } else {
+                setDataPack([]);
+            }
             setUpcomingWords([]);
         } catch (err) {
             console.error("Failed to load data pack:", err);
+            setDataPack([]);
         } finally {
             setIsLoading(false);
         }
@@ -58,35 +77,35 @@ export function useJernSession(settings: SessionSettings) {
             if (needed <= 0) return prev;
 
             const newWords: Word[] = [];
-            const excludeIds = [...prev.map(w => w.id)];
+            const excludeIds = new Set(prev.map(w => w.id));
             const langHistory = currentHistory.filter(w => w.language === settings.language);
             const historyExclusionLimit = dataPack.length < 50 ? 5 : langHistory.length;
             const historyToExclude = langHistory.slice(0, historyExclusionLimit).map(w => w.id);
-            const fullExclude = [...excludeIds, ...historyToExclude];
+            const fullExclude = new Set([...excludeIds, ...historyToExclude]);
 
             for (let i = 0; i < needed; i++) {
                 if (settings.activeRecall && langHistory.length > 0 && wordsSinceRecallRef.current >= 5) {
                     const recallWord = langHistory[Math.floor(Math.random() * langHistory.length)];
                     newWords.push(recallWord);
-                    fullExclude.push(recallWord.id);
-                    excludeIds.push(recallWord.id);
+                    fullExclude.add(recallWord.id);
+                    excludeIds.add(recallWord.id);
                     wordsSinceRecallRef.current = 0;
                 } else {
                     const tier = FREQUENCY_TIERS[settings.difficulty];
                     let pool = dataPack.filter(w =>
                         (w.frequency || 0) >= tier.min &&
                         (w.frequency || 0) <= tier.max &&
-                        !fullExclude.includes(w.id)
+                        !fullExclude.has(w.id)
                     );
 
                     if (pool.length === 0) {
                         pool = dataPack.filter(w =>
                             (w.frequency || 0) >= tier.min &&
                             (w.frequency || 0) <= tier.max &&
-                            !excludeIds.includes(w.id)
+                            !excludeIds.has(w.id)
                         );
                     }
-                    if (pool.length === 0) pool = dataPack.filter(w => !excludeIds.includes(w.id));
+                    if (pool.length === 0) pool = dataPack.filter(w => !excludeIds.has(w.id));
                     if (pool.length === 0) pool = dataPack;
 
                     if (pool.length > 0) {
@@ -95,8 +114,8 @@ export function useJernSession(settings: SessionSettings) {
                             ...nextWord,
                             romanized: nextWord.romanized || transliterate(nextWord.original, settings.language),
                         });
-                        fullExclude.push(nextWord.id);
-                        excludeIds.push(nextWord.id);
+                        fullExclude.add(nextWord.id);
+                        excludeIds.add(nextWord.id);
                         wordsSinceRecallRef.current += 1;
                     }
                 }
