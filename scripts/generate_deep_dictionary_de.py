@@ -17,14 +17,14 @@ if not api_keys:
     sys.exit(1)
 
 current_key_idx = 0
-client = genai.Client(api_key=api_keys[current_key_idx])
+client = genai.Client(api_key=api_keys[current_key_idx], http_options={'timeout': 60.0})
 print(f"🔑 Loaded {len(api_keys)} API keys. Starting with Key #{current_key_idx + 1}...")
 
 def get_next_client():
     global current_key_idx, client
     current_key_idx = (current_key_idx + 1) % len(api_keys)
     print(f"🔄 Switching to API Key #{current_key_idx + 1}...")
-    client = genai.Client(api_key=api_keys[current_key_idx])
+    client = genai.Client(api_key=api_keys[current_key_idx], http_options={'timeout': 60.0})
     return client
 
 def process_batch(batch: list) -> dict:
@@ -34,7 +34,7 @@ def process_batch(batch: list) -> dict:
     expected_words = set(batch_dict.keys())
     
     # Format prompt using lightweight pipe format
-    prompt = "Please generate deep dictionary profiles for the following French words. Output ONLY raw pipe-delimited lines in the format original|definition|grammar_tag|syllables|root_letters|root_meaning.\n\n"
+    prompt = "Please generate deep dictionary profiles for the following German words. Output ONLY raw pipe-delimited lines in the format original|definition|grammar_tag|syllables|root_letters|root_meaning.\n\n"
     for w in batch:
         prompt += f"{w['original'].strip()}|{w['romanized'].strip()}|{w['definition'].strip()}\n"
     
@@ -46,15 +46,15 @@ def process_batch(batch: list) -> dict:
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     system_instruction=(
-                        "You are an expert French linguist and master dictionary editor for a premium language learning application. "
-                        "Your task is to take a raw list of French words with their short translation (original|romanized|translation) "
+                        "You are an expert German linguist and master dictionary editor for a premium language learning application. "
+                        "Your task is to take a raw list of German words with their short translation (original|romanized|translation) "
                         "and output a deep, elegant, highly concise dictionary profile for each word.\n\n"
                         "Rules for each field:\n"
                         "1. definition: A crisp, professional 1-to-2 sentence encyclopedic definition of the word in English (maximum 20-25 words). Zero fluff.\n"
                         "2. grammar_tag: Strictly the capitalized core part of speech (e.g., Noun, Verb, Adjective, Preposition, Pronoun, Adverb, Conjunction).\n"
-                        "3. syllables: A clean, hyphenated phonetic syllable breakdown or IPA guide of the word (e.g., bon - jour, par - ler, é - tu - diant).\n"
-                        "4. root_letters: The Latin root word or base etymological origin (e.g., Latin: videre, Latin: stare). If not applicable, output N/A or the base root.\n"
-                        "5. root_meaning: A punchy 3-to-5 word summary of the root's original meaning (e.g., to see or perceive, to stand). If root_letters is N/A, output N/A.\n\n"
+                        "3. syllables: A clean, hyphenated phonetic syllable breakdown (e.g., spre - chen, ar - bei - ten).\n"
+                        "4. root_letters: The Proto-Germanic, Old High German, or base etymological root word (e.g., P.Gmc: *sprekan, OHG: wizzan). If not applicable, output N/A or the base root.\n"
+                        "5. root_meaning: A punchy 3-to-5 word summary of the root's original meaning (e.g., to speak, to know). If root_letters is N/A, output N/A.\n\n"
                         "CRITICAL OUTPUT FORMAT:\n"
                         "Output ONLY raw pipe-delimited lines formatted exactly as: original|definition|grammar_tag|syllables|root_letters|root_meaning\n"
                         "Do NOT include markdown formatting (no ```). Do not include any intro or outro text. Every single line must be a valid pipe-delimited entry matching the exact 'original' word passed in."
@@ -110,7 +110,7 @@ def process_batch(batch: list) -> dict:
             error_str = str(e)
             print(f"⚠️ Attempt {attempt+1} failed with Key #{current_key_idx + 1}: {error_str}")
             if attempt < retries - 1:
-                if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or "503" in error_str:
+                if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or "503" in error_str or "timed out" in error_str.lower():
                     print("Rate limit or service unavailable. Sleeping for 60 seconds before switching keys...")
                     time.sleep(60)
                 else:
@@ -121,8 +121,8 @@ def process_batch(batch: list) -> dict:
                 sys.exit(1)
 
 def main():
-    input_file = "public/data/fr_cleaned.json"
-    output_file = "public/data/fr_dictionary.json"
+    input_file = "public/data/de_cleaned.json"
+    output_file = "public/data/de_dictionary.json"
 
     if not os.path.exists(input_file):
         print(f"Error: {input_file} does not exist. Please run Level 1 first.")

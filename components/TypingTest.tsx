@@ -446,7 +446,7 @@ export default function TypingTest({
                                                         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
                                                             <div className="text-[15px] font-medium text-neutral-700 truncate">{res.definition}</div>
                                                             <div className="text-[13px] text-neutral-400 truncate px-2 text-center">{res.romanized}</div>
-                                                            <div className={cn("text-lg text-accent text-right truncate", arabicFontClass)} dir="rtl">{res.original}</div>
+                                                            <div className={cn("text-lg text-accent text-right truncate", arabicFontClass)} dir={res.language === 'ar' || res.language === 'ur' ? "rtl" : "ltr"}>{res.original}</div>
                                                         </div>
                                                     </button>
                                                 ))}
@@ -459,10 +459,12 @@ export default function TypingTest({
                                     <div className="flex items-start justify-between px-2 gap-4 mb-2">
                                         {/* Left Side: Word Info (Scaled down font sizes for phone harmony) */}
                                         <div className="flex-1 min-w-0">
-                                            <div className={cn("text-2xl font-medium text-foreground py-1 text-left truncate", arabicFontClass)} dir="rtl">
+                                            <div className={cn("text-2xl font-medium text-foreground py-1 text-left truncate", arabicFontClass)} dir={isArabicScript ? "rtl" : "ltr"}>
                                                 {word.original}
                                             </div>
-                                            <div className="text-xl text-accent font-medium text-left truncate">{word.romanized}</div>
+                                            {!['fr', 'es', 'de'].includes(word.language) && (
+                                                <div className="text-xl text-accent font-medium text-left truncate">{word.romanized}</div>
+                                            )}
                                             <div className="text-base text-neutral-600 leading-relaxed mt-2 text-left line-clamp-2">{word.definition}</div>
                                         </div>
 
@@ -520,10 +522,12 @@ export default function TypingTest({
                                 ) : (
                                     <>
                                         <div className="px-6">
-                                            <div className={cn("text-4xl font-medium text-foreground py-2 text-left", arabicFontClass)} dir="rtl">
+                                            <div className={cn("text-4xl font-medium text-foreground py-2 text-left", arabicFontClass)} dir={isArabicScript ? "rtl" : "ltr"}>
                                                 {word.original}
                                             </div>
-                                            <div className="text-3xl text-accent font-medium text-left">{word.romanized}</div>
+                                            {!['fr', 'es', 'de'].includes(word.language) && (
+                                                <div className="text-3xl text-accent font-medium text-left">{word.romanized}</div>
+                                            )}
                                             <div className="text-xl text-neutral-600 leading-relaxed mt-4 text-left">{word.definition}</div>
                                         </div>
 

@@ -33,7 +33,7 @@ def process_batch(batch: list) -> list:
     expected_ids = set(batch_dict.keys())
     
     # Format prompt using lightweight pipe format
-    prompt = "Please clean the following dictionary entries according to the system instructions. Output ONLY raw pipe-delimited lines in the format id|original|romanized|definition.\n\n"
+    prompt = "Please clean and process the following batch of German vocabulary words. Ensure all orthography and definitions are pristine. Output ONLY raw pipe-delimited lines in the format id|original|romanized|definition.\n\n"
     for w in batch:
         prompt += f"{w['id']}|{w['original']}|{w['romanized']}|{w['definition']}\n"
     
@@ -45,11 +45,11 @@ def process_batch(batch: list) -> list:
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     system_instruction=(
-                        "You are an expert French linguist and dictionary editor. "
-                        "Your task is to take a raw list of pipe-delimited French dictionary entries (id|original|romanized|definition) and clean them. "
-                        "Rules:\n"
-                        "1. Simplify Phrases: If 'original' is a sentence or phrase, reduce it to the single core French word that matches 'definition'.\n"
-                        "2. Fix Orthography: Ensure 'original' and 'romanized' have correct standard French spelling and accents (e.g., 'être', 'écho'). For French, 'romanized' should match 'original' exactly.\n"
+                        "You are an expert German linguist and dictionary editor. "
+                        "Your task is to take a raw, potentially noisy list of German words and output a perfectly clean, deduped, "
+                        "and accurate dictionary list.\n\n"
+                        "1. Simplify Phrases: If 'original' is a sentence or phrase, reduce it to the single core German word that matches 'definition'.\n"
+                        "2. Ensure all German nouns are correctly capitalized.\n"
                         "3. Align Definitions: Ensure 'definition' is a clean, single primary English meaning.\n"
                         "4. DO NOT change the 'id' field. It must match the input exactly.\n"
                         "5. Output ONLY raw text lines formatted exactly as: id|original|romanized|definition\n"
@@ -99,7 +99,7 @@ def process_batch(batch: list) -> list:
                     "original": orig_item.get("original", ""),
                     "romanized": orig_item.get("romanized", ""),
                     "definition": orig_item.get("definition", ""),
-                    "language": orig_item.get("language", "fr"),
+                    "language": orig_item.get("language", "de"),
                     "frequency": orig_item.get("frequency", 0)
                 })
                 
@@ -120,8 +120,8 @@ def process_batch(batch: list) -> list:
                 sys.exit(1)
 
 def main():
-    input_file = "public/data/fr.json"
-    output_file = "public/data/fr_cleaned.json"
+    input_file = "public/data/de.json"
+    output_file = "public/data/de_cleaned.json"
 
     if not os.path.exists(input_file):
         print(f"Error: {input_file} does not exist.")

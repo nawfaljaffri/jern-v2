@@ -156,11 +156,15 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(({
         if (!bgCtx || !hCtx) return;
 
         const isAr = word.language === 'ar' || word.language === 'ur';
+        const isLatin = ['fr', 'es', 'de'].includes(word.language);
+        const showOriginalAtBottom = !isLatin;
         const baseRomFont = `800 ${Math.max(70, Math.min(160, rect.width * 0.18))}px sans-serif`;
         const baseArFont = `500 ${Math.max(55, Math.min(100, rect.width * 0.11))}px ${getArabicFontString()}`;
+        const baseOrigFont = isAr ? baseArFont : `600 ${Math.max(55, Math.min(100, rect.width * 0.11))}px sans-serif`;
+        const baseDefFont = `600 ${Math.max(24, Math.min(45, rect.width * 0.05))}px sans-serif`;
 
-        const fontsToLoad = [document.fonts.load(baseRomFont)];
-        if (isAr) fontsToLoad.push(document.fonts.load(baseArFont));
+        const fontsToLoad = [document.fonts.load(baseRomFont), document.fonts.load(baseDefFont)];
+        if (showOriginalAtBottom) fontsToLoad.push(document.fonts.load(baseOrigFont));
 
         Promise.all(fontsToLoad).then(() => {
             if (!bgCanvasRef.current || !drawCanvasRef.current) return;
@@ -179,21 +183,30 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(({
                 romFontSize = Math.max(35, romFontSize * ((rect.width * maxTextRatio) / textWidth));
             }
 
-            let arabicFontSize = Math.max(55, Math.min(100, rect.width * (window.innerWidth < 768 ? 0.16 : 0.11)));
-            if (isAr) {
-                bgCtx.font = `500 ${arabicFontSize}px ${getArabicFontString()}`;
-                const arTextWidth = bgCtx.measureText(word.original).width;
-                if (arTextWidth > rect.width * maxTextRatio) {
-                    arabicFontSize = Math.max(28, arabicFontSize * ((rect.width * maxTextRatio) / arTextWidth));
+            let originalFontSize = Math.max(55, Math.min(100, rect.width * (window.innerWidth < 768 ? 0.16 : 0.11)));
+            if (showOriginalAtBottom) {
+                bgCtx.font = isAr ? `500 ${originalFontSize}px ${getArabicFontString()}` : `600 ${originalFontSize}px sans-serif`;
+                const origTextWidth = bgCtx.measureText(word.original).width;
+                if (origTextWidth > rect.width * maxTextRatio) {
+                    originalFontSize = Math.max(28, originalFontSize * ((rect.width * maxTextRatio) / origTextWidth));
                 }
             }
             
-            const arFont = `500 ${arabicFontSize}px ${getArabicFontString()}`;
+            let defFontSize = Math.max(24, Math.min(45, rect.width * (window.innerWidth < 768 ? 0.08 : 0.05)));
+            bgCtx.font = `600 ${defFontSize}px sans-serif`;
+            const defWidth = bgCtx.measureText(word.definition).width;
+            if (defWidth > rect.width * 0.9) {
+                defFontSize = Math.max(16, defFontSize * ((rect.width * 0.9) / defWidth));
+            }
+
+            const origFont = isAr ? `500 ${originalFontSize}px ${getArabicFontString()}` : `600 ${originalFontSize}px sans-serif`;
             const romFont = `800 ${romFontSize}px sans-serif`;
+            const defFont = `600 ${defFontSize}px sans-serif`;
             const romFontHidden = `800 ${romFontSize * dpr}px sans-serif`;
 
+            const transY = rect.height / 2 - (rect.height * 0.28);
             const topY = rect.height / 2 - (rect.height * 0.05);
-            const bottomY = rect.height / 2 + (rect.height * 0.17);
+            const bottomY = rect.height / 2 + (rect.height * 0.20);
             const hTopY = h / 2 - (h * 0.05);
 
             bgCtx.textAlign = "center";
@@ -204,14 +217,20 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(({
             // Neutral gray (slightly darker)
             const traceColor = "#ebebeb";
             
-            // Top text (Romanized)
-            bgCtx.font = romFont;
+            // Translation (Top)
+            bgCtx.font = defFont;
             bgCtx.fillStyle = traceColor;
+            bgCtx.fillText(word.definition, x, transY);
+
+            // Romanized (Middle)
+            bgCtx.font = romFont;
             bgCtx.fillText(word.romanized, x, topY);
 
-            // Bottom text (Arabic)
-            bgCtx.font = arFont;
-            bgCtx.fillText(isAr ? word.original : "", x, bottomY);
+            // Original (Bottom, if non-Latin)
+            if (showOriginalAtBottom) {
+                bgCtx.font = origFont;
+                bgCtx.fillText(word.original, x, bottomY);
+            }
 
             // Hidden Mask (for validation against Romanized)
             hCtx.textAlign = "center";
