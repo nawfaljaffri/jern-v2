@@ -462,7 +462,7 @@ export default function TypingTest({
                                             <div className={cn("text-2xl font-medium text-foreground py-1 text-left truncate", arabicFontClass)} dir={isArabicScript ? "rtl" : "ltr"}>
                                                 {word.original}
                                             </div>
-                                            {!['fr', 'es', 'de'].includes(word.language) && (
+                                            {!['fr', 'es', 'de'].includes(word.language || '') && (
                                                 <div className="text-xl text-accent font-medium text-left truncate">{word.romanized}</div>
                                             )}
                                             <div className="text-base text-neutral-600 leading-relaxed mt-2 text-left line-clamp-2">{word.definition}</div>
@@ -525,7 +525,7 @@ export default function TypingTest({
                                             <div className={cn("text-4xl font-medium text-foreground py-2 text-left", arabicFontClass)} dir={isArabicScript ? "rtl" : "ltr"}>
                                                 {word.original}
                                             </div>
-                                            {!['fr', 'es', 'de'].includes(word.language) && (
+                                            {!['fr', 'es', 'de'].includes(word.language || '') && (
                                                 <div className="text-3xl text-accent font-medium text-left">{word.romanized}</div>
                                             )}
                                             <div className="text-xl text-neutral-600 leading-relaxed mt-4 text-left">{word.definition}</div>

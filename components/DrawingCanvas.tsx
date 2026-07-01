@@ -156,7 +156,7 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(({
         if (!bgCtx || !hCtx) return;
 
         const isAr = word.language === 'ar' || word.language === 'ur';
-        const isLatin = ['fr', 'es', 'de'].includes(word.language);
+        const isLatin = ['fr', 'es', 'de'].includes(word.language || '');
         const showOriginalAtBottom = !isLatin;
         const baseRomFont = `800 ${Math.max(70, Math.min(160, rect.width * 0.18))}px sans-serif`;
         const baseArFont = `500 ${Math.max(55, Math.min(100, rect.width * 0.11))}px ${getArabicFontString()}`;
