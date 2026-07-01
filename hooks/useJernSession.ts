@@ -24,10 +24,10 @@ export function useJernSession(settings: SessionSettings) {
     const loadDataPack = useCallback(async (lang: Language) => {
         setIsLoading(true);
         try {
-            const filePath = lang === "ar" ? "/data/ar_cleaned.json" : `/data/${lang}.json`;
+            const filePath = (lang === "ar" || lang === "fr") ? `/data/${lang}_cleaned.json` : `/data/${lang}.json`;
             const [res, dictRes] = await Promise.all([
-                fetch(filePath + "?v=3"),
-                lang === "ar" ? fetch("/data/ar_dictionary.json?v=3") : Promise.resolve(null)
+                fetch(filePath + "?v=4"),
+                (lang === "ar" || lang === "fr") ? fetch(`/data/${lang}_dictionary.json?v=4`) : Promise.resolve(null)
             ]);
             const data = await res.json();
             if (dictRes) {

@@ -58,8 +58,10 @@ export default function DictionaryCard({ word, entry, arabicFontClass = "" }: Di
                         <div className="pt-4 mt-4 border-t border-neutral-200/50 space-y-4">
                             {entry.root_letters && (
                                 <div className="space-y-2">
-                                    <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Root Letters</div>
-                                    <div className={cn("text-lg font-bold text-accent text-left", arabicFontClass)} dir="rtl">
+                                    <div className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">
+                                        {(word.language === "ar" || word.language === "ur") ? "Root Letters" : "Root Word"}
+                                    </div>
+                                    <div className={cn("text-lg font-bold text-accent text-left", arabicFontClass)} dir={(word.language === "ar" || word.language === "ur") ? "rtl" : "ltr"}>
                                         {entry.root_letters}
                                     </div>
                                 </div>
