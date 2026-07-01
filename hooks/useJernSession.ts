@@ -11,32 +11,47 @@ const pendingFetches: Record<string, Promise<any>> = {};
 
 const ALL_LANGUAGES = ["ar", "ur", "fr", "es", "de", "ja", "ko", "ru", "pt"];
 
-function preloadAllLanguages() {
+async function preloadAllLanguages() {
     if (typeof window === "undefined") return;
-    ALL_LANGUAGES.forEach(lang => {
+    // Load sequentially with slight delays to avoid clogging the network queue
+    for (const lang of ALL_LANGUAGES) {
         const dataPath = (lang === "ar" || lang === "fr" || lang === "de") ? `/data/${lang}_cleaned.json` : `/data/${lang}.json`;
         const dictPath = (lang === "ar" || lang === "fr" || lang === "de") ? `/data/${lang}_dictionary.json?v=4` : null;
         
-        if (!dataPackCache[lang] && !pendingFetches[dataPath]) {
-            pendingFetches[dataPath] = fetch(dataPath + "?v=4").then(r => r.json()).then(data => {
-                if (Array.isArray(data)) dataPackCache[lang] = data;
-            }).catch(console.error);
+        try {
+            if (!dataPackCache[lang] && !pendingFetches[dataPath]) {
+                const req = fetch(dataPath + "?v=4").then(r => r.json()).then(data => {
+                    if (Array.isArray(data)) dataPackCache[lang] = data;
+                    return data;
+                });
+                pendingFetches[dataPath] = req;
+                await req;
+            }
+            
+            if (dictPath && !dictionaryCache[lang] && !pendingFetches[dictPath]) {
+                const req = fetch(dictPath).then(r => r.json()).then(data => {
+                    dictionaryCache[lang] = data;
+                    return data;
+                });
+                pendingFetches[dictPath] = req;
+                await req;
+            }
+        } catch (e) {
+            console.error("Failed to preload", lang, e);
         }
         
-        if (dictPath && !dictionaryCache[lang] && !pendingFetches[dictPath]) {
-            pendingFetches[dictPath] = fetch(dictPath).then(r => r.json()).then(data => {
-                dictionaryCache[lang] = data;
-            }).catch(console.error);
-        }
-    });
+        // Small pause between languages to let the browser breathe
+        await new Promise(r => setTimeout(r, 500));
+    }
 }
 
 if (typeof window !== "undefined") {
-    // Wait 1.5 seconds after app loads so it doesn't block the initial render, then eagerly load everything
-    setTimeout(preloadAllLanguages, 1500);
+    // Wait 3 seconds after app loads so it doesn't block the initial render, then eagerly load sequentially
+    setTimeout(preloadAllLanguages, 3000);
 }
 
 export function useJernSession(settings: SessionSettings) {
+    const currentLangRef = useRef<Language>(settings.language);
     const [dataPack, setDataPack] = useState<Word[]>([]);
     const [dictionary, setDictionary] = useState<Record<string, import("@/lib/types").DictionaryEntry>>({});
     const [upcomingWords, setUpcomingWords] = useState<Word[]>([]);
@@ -54,6 +69,8 @@ export function useJernSession(settings: SessionSettings) {
 
     // Load Data Pack & Dictionary
     const loadDataPack = useCallback(async (lang: Language) => {
+        currentLangRef.current = lang;
+        
         // If it's already in memory cache, load instantly with zero lag
         if (dataPackCache[lang] && (dictionaryCache[lang] || !(lang === "ar" || lang === "fr" || lang === "de"))) {
             setDataPack(dataPackCache[lang]);
@@ -66,44 +83,47 @@ export function useJernSession(settings: SessionSettings) {
         setIsLoading(true);
         try {
             const filePath = (lang === "ar" || lang === "fr" || lang === "de") ? `/data/${lang}_cleaned.json` : `/data/${lang}.json`;
-            const [res, dictRes] = await Promise.all([
-                fetch(filePath + "?v=4").catch(() => null),
-                (lang === "ar" || lang === "fr" || lang === "de") ? fetch(`/data/${lang}_dictionary.json?v=4`).catch(() => null) : Promise.resolve(null)
+            const dictPath = (lang === "ar" || lang === "fr" || lang === "de") ? `/data/${lang}_dictionary.json?v=4` : null;
+            
+            if (!pendingFetches[filePath]) {
+                pendingFetches[filePath] = fetch(filePath + "?v=4").then(r => {
+                    if (!r.ok) throw new Error("Failed to fetch data pack");
+                    return r.json();
+                });
+            }
+            
+            if (dictPath && !pendingFetches[dictPath]) {
+                pendingFetches[dictPath] = fetch(dictPath).then(r => r.ok ? r.json() : {});
+            }
+            
+            const [data, finalDict] = await Promise.all([
+                pendingFetches[filePath].catch(() => null),
+                dictPath ? pendingFetches[dictPath].catch(() => ({})) : Promise.resolve({})
             ]);
             
-            if (!res || !res.ok) {
-                console.error("Failed to fetch data pack:", res?.statusText);
+            // Prevent race condition: if user switched languages during fetch
+            if (currentLangRef.current !== lang) return;
+            
+            if (!data || !Array.isArray(data)) {
                 setDataPack([]);
                 setDictionary({});
                 return;
             }
             
-            const data = await res.json();
-            
-            let finalDict = {};
-            if (dictRes && dictRes.ok) {
-                try {
-                    finalDict = await dictRes.json();
-                } catch {
-                    finalDict = {};
-                }
-            }
-            
-            if (Array.isArray(data)) {
-                dataPackCache[lang] = data;
-                setDataPack(data);
-            } else {
-                setDataPack([]);
-            }
+            dataPackCache[lang] = data;
+            setDataPack(data);
             
             dictionaryCache[lang] = finalDict;
             setDictionary(finalDict);
             setUpcomingWords([]);
         } catch (err) {
             console.error("Failed to load data pack:", err);
-            setDataPack([]);
+            if (currentLangRef.current === lang) {
+                setDataPack([]);
+                setDictionary({});
+            }
         } finally {
-            setIsLoading(false);
+            if (currentLangRef.current === lang) setIsLoading(false);
         }
     }, []);
 
