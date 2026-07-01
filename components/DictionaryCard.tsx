@@ -62,7 +62,7 @@ export default function DictionaryCard({ word, entry, arabicFontClass = "" }: Di
                                         {(word.language === "ar" || word.language === "ur") ? "Root Letters" : "Root Word"}
                                     </div>
                                     <div className={cn("text-lg font-bold text-accent text-left", arabicFontClass)} dir={(word.language === "ar" || word.language === "ur") ? "rtl" : "ltr"}>
-                                        {entry.root_letters}
+                                        {entry.root_letters.replace(/^[^:]+:\s*/i, '').replace(/\*/g, '')}
                                     </div>
                                 </div>
                             )}

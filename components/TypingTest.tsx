@@ -194,6 +194,7 @@ export default function TypingTest({
     }, [word, isIOS]);
 
     const isArabicScript = word.language === "ar" || word.language === "ur";
+    const isLatin = ['fr', 'es', 'de'].includes(word.language || '');
     const targetFontClass = isArabicScript ? arabicFontClass || "font-arabic" : "font-sans";
 
     const chars = normalizedRomanized.split("");
@@ -459,10 +460,10 @@ export default function TypingTest({
                                     <div className="flex items-start justify-between px-2 gap-4 mb-2">
                                         {/* Left Side: Word Info (Scaled down font sizes for phone harmony) */}
                                         <div className="flex-1 min-w-0">
-                                            <div className={cn("text-2xl font-medium text-foreground py-1 text-left truncate", arabicFontClass)} dir={isArabicScript ? "rtl" : "ltr"}>
+                                            <div className={cn("text-2xl font-medium py-1 text-left truncate", isLatin ? "text-accent" : "text-foreground", arabicFontClass)} dir={isArabicScript ? "rtl" : "ltr"}>
                                                 {word.original}
                                             </div>
-                                            {!['fr', 'es', 'de'].includes(word.language || '') && (
+                                            {!isLatin && (
                                                 <div className="text-xl text-accent font-medium text-left truncate">{word.romanized}</div>
                                             )}
                                             <div className="text-base text-neutral-600 leading-relaxed mt-2 text-left line-clamp-2">{word.definition}</div>
@@ -522,10 +523,10 @@ export default function TypingTest({
                                 ) : (
                                     <>
                                         <div className="px-6">
-                                            <div className={cn("text-4xl font-medium text-foreground py-2 text-left", arabicFontClass)} dir={isArabicScript ? "rtl" : "ltr"}>
+                                            <div className={cn("text-4xl font-medium py-2 text-left", isLatin ? "text-accent" : "text-foreground", arabicFontClass)} dir={isArabicScript ? "rtl" : "ltr"}>
                                                 {word.original}
                                             </div>
-                                            {!['fr', 'es', 'de'].includes(word.language || '') && (
+                                            {!isLatin && (
                                                 <div className="text-3xl text-accent font-medium text-left">{word.romanized}</div>
                                             )}
                                             <div className="text-xl text-neutral-600 leading-relaxed mt-4 text-left">{word.definition}</div>
