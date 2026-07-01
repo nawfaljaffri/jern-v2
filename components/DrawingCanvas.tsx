@@ -183,20 +183,20 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(({
                 romFontSize = Math.max(35, romFontSize * ((rect.width * maxTextRatio) / textWidth));
             }
 
-            let originalFontSize = Math.max(55, Math.min(100, rect.width * (window.innerWidth < 768 ? 0.16 : 0.11)));
+            let originalFontSize = Math.max(70, Math.min(140, rect.width * (window.innerWidth < 768 ? 0.22 : 0.16)));
             if (showOriginalAtBottom) {
                 bgCtx.font = isAr ? `500 ${originalFontSize}px ${getArabicFontString()}` : `600 ${originalFontSize}px sans-serif`;
                 const origTextWidth = bgCtx.measureText(word.original).width;
                 if (origTextWidth > rect.width * maxTextRatio) {
-                    originalFontSize = Math.max(28, originalFontSize * ((rect.width * maxTextRatio) / origTextWidth));
+                    originalFontSize = Math.max(35, originalFontSize * ((rect.width * maxTextRatio) / origTextWidth));
                 }
             }
             
-            let defFontSize = Math.max(24, Math.min(45, rect.width * (window.innerWidth < 768 ? 0.08 : 0.05)));
+            let defFontSize = Math.max(35, Math.min(75, rect.width * (window.innerWidth < 768 ? 0.12 : 0.08)));
             bgCtx.font = `600 ${defFontSize}px sans-serif`;
             const defWidth = bgCtx.measureText(word.definition).width;
             if (defWidth > rect.width * 0.9) {
-                defFontSize = Math.max(16, defFontSize * ((rect.width * 0.9) / defWidth));
+                defFontSize = Math.max(20, defFontSize * ((rect.width * 0.9) / defWidth));
             }
 
             const origFont = isAr ? `500 ${originalFontSize}px ${getArabicFontString()}` : `600 ${originalFontSize}px sans-serif`;

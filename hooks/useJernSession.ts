@@ -4,6 +4,38 @@ import { Word, Language, SessionSettings } from "@/lib/types";
 import { transliterate } from "@/lib/transliterate";
 import { FREQUENCY_TIERS } from "@/lib/constants";
 
+// Global in-memory cache for instant zero-lag language switching
+const dataPackCache: Record<string, Word[]> = {};
+const dictionaryCache: Record<string, Record<string, import("@/lib/types").DictionaryEntry>> = {};
+const pendingFetches: Record<string, Promise<any>> = {};
+
+const ALL_LANGUAGES = ["ar", "ur", "fr", "es", "de", "ja", "ko", "ru", "pt"];
+
+function preloadAllLanguages() {
+    if (typeof window === "undefined") return;
+    ALL_LANGUAGES.forEach(lang => {
+        const dataPath = (lang === "ar" || lang === "fr" || lang === "de") ? `/data/${lang}_cleaned.json` : `/data/${lang}.json`;
+        const dictPath = (lang === "ar" || lang === "fr" || lang === "de") ? `/data/${lang}_dictionary.json?v=4` : null;
+        
+        if (!dataPackCache[lang] && !pendingFetches[dataPath]) {
+            pendingFetches[dataPath] = fetch(dataPath + "?v=4").then(r => r.json()).then(data => {
+                if (Array.isArray(data)) dataPackCache[lang] = data;
+            }).catch(console.error);
+        }
+        
+        if (dictPath && !dictionaryCache[lang] && !pendingFetches[dictPath]) {
+            pendingFetches[dictPath] = fetch(dictPath).then(r => r.json()).then(data => {
+                dictionaryCache[lang] = data;
+            }).catch(console.error);
+        }
+    });
+}
+
+if (typeof window !== "undefined") {
+    // Wait 1.5 seconds after app loads so it doesn't block the initial render, then eagerly load everything
+    setTimeout(preloadAllLanguages, 1500);
+}
+
 export function useJernSession(settings: SessionSettings) {
     const [dataPack, setDataPack] = useState<Word[]>([]);
     const [dictionary, setDictionary] = useState<Record<string, import("@/lib/types").DictionaryEntry>>({});
@@ -22,6 +54,15 @@ export function useJernSession(settings: SessionSettings) {
 
     // Load Data Pack & Dictionary
     const loadDataPack = useCallback(async (lang: Language) => {
+        // If it's already in memory cache, load instantly with zero lag
+        if (dataPackCache[lang] && (dictionaryCache[lang] || !(lang === "ar" || lang === "fr" || lang === "de"))) {
+            setDataPack(dataPackCache[lang]);
+            setDictionary(dictionaryCache[lang] || {});
+            setUpcomingWords([]);
+            setIsLoading(false);
+            return;
+        }
+
         setIsLoading(true);
         try {
             const filePath = (lang === "ar" || lang === "fr" || lang === "de") ? `/data/${lang}_cleaned.json` : `/data/${lang}.json`;
@@ -39,22 +80,24 @@ export function useJernSession(settings: SessionSettings) {
             
             const data = await res.json();
             
+            let finalDict = {};
             if (dictRes && dictRes.ok) {
                 try {
-                    const dictData = await dictRes.json();
-                    setDictionary(dictData);
+                    finalDict = await dictRes.json();
                 } catch {
-                    setDictionary({});
+                    finalDict = {};
                 }
-            } else {
-                setDictionary({});
             }
             
             if (Array.isArray(data)) {
+                dataPackCache[lang] = data;
                 setDataPack(data);
             } else {
                 setDataPack([]);
             }
+            
+            dictionaryCache[lang] = finalDict;
+            setDictionary(finalDict);
             setUpcomingWords([]);
         } catch (err) {
             console.error("Failed to load data pack:", err);
