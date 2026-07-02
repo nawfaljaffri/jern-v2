@@ -4,51 +4,9 @@ import { Word, Language, SessionSettings } from "@/lib/types";
 import { transliterate } from "@/lib/transliterate";
 import { FREQUENCY_TIERS } from "@/lib/constants";
 
-// Global in-memory cache for instant zero-lag language switching
+// Global in-memory cache for instant switching for already loaded languages
 const dataPackCache: Record<string, Word[]> = {};
 const dictionaryCache: Record<string, Record<string, import("@/lib/types").DictionaryEntry>> = {};
-const pendingFetches: Record<string, Promise<any>> = {};
-
-const ALL_LANGUAGES = ["ar", "ur", "fr", "es", "de", "ja", "ko", "ru", "pt"];
-
-async function preloadAllLanguages() {
-    if (typeof window === "undefined") return;
-    // Load sequentially with slight delays to avoid clogging the network queue
-    for (const lang of ALL_LANGUAGES) {
-        const dataPath = (lang === "ar" || lang === "fr" || lang === "de") ? `/data/${lang}_cleaned.json` : `/data/${lang}.json`;
-        const dictPath = (lang === "ar" || lang === "fr" || lang === "de") ? `/data/${lang}_dictionary.json?v=4` : null;
-        
-        try {
-            if (!dataPackCache[lang] && !pendingFetches[dataPath]) {
-                const req = fetch(dataPath + "?v=4").then(r => r.json()).then(data => {
-                    if (Array.isArray(data)) dataPackCache[lang] = data;
-                    return data;
-                });
-                pendingFetches[dataPath] = req;
-                await req;
-            }
-            
-            if (dictPath && !dictionaryCache[lang] && !pendingFetches[dictPath]) {
-                const req = fetch(dictPath).then(r => r.json()).then(data => {
-                    dictionaryCache[lang] = data;
-                    return data;
-                });
-                pendingFetches[dictPath] = req;
-                await req;
-            }
-        } catch (e) {
-            console.error("Failed to preload", lang, e);
-        }
-        
-        // Small pause between languages to let the browser breathe
-        await new Promise(r => setTimeout(r, 500));
-    }
-}
-
-if (typeof window !== "undefined") {
-    // Wait 3 seconds after app loads so it doesn't block the initial render, then eagerly load sequentially
-    setTimeout(preloadAllLanguages, 3000);
-}
 
 export function useJernSession(settings: SessionSettings) {
     const currentLangRef = useRef<Language>(settings.language);
@@ -85,33 +43,41 @@ export function useJernSession(settings: SessionSettings) {
             const filePath = (lang === "ar" || lang === "fr" || lang === "de") ? `/data/${lang}_cleaned.json` : `/data/${lang}.json`;
             const dictPath = (lang === "ar" || lang === "fr" || lang === "de") ? `/data/${lang}_dictionary.json?v=4` : null;
             
-            if (!pendingFetches[filePath]) {
-                pendingFetches[filePath] = fetch(filePath + "?v=4").then(r => {
-                    if (!r.ok) throw new Error("Failed to fetch data pack");
-                    return r.json();
-                });
-            }
-            
-            if (dictPath && !pendingFetches[dictPath]) {
-                pendingFetches[dictPath] = fetch(dictPath).then(r => r.ok ? r.json() : {});
-            }
-            
-            const [data, finalDict] = await Promise.all([
-                pendingFetches[filePath].catch(() => null),
-                dictPath ? pendingFetches[dictPath].catch(() => ({})) : Promise.resolve({})
+            const [res, dictRes] = await Promise.all([
+                fetch(filePath + "?v=4").catch(() => null),
+                dictPath ? fetch(dictPath).catch(() => null) : Promise.resolve(null)
             ]);
             
             // Prevent race condition: if user switched languages during fetch
             if (currentLangRef.current !== lang) return;
             
-            if (!data || !Array.isArray(data)) {
+            if (!res || !res.ok) {
+                console.error("Failed to fetch data pack:", res?.statusText);
                 setDataPack([]);
                 setDictionary({});
                 return;
             }
             
-            dataPackCache[lang] = data;
-            setDataPack(data);
+            const data = await res.json();
+            
+            let finalDict = {};
+            if (dictRes && dictRes.ok) {
+                try {
+                    finalDict = await dictRes.json();
+                } catch {
+                    finalDict = {};
+                }
+            }
+            
+            // Re-check after json parse
+            if (currentLangRef.current !== lang) return;
+            
+            if (Array.isArray(data)) {
+                dataPackCache[lang] = data;
+                setDataPack(data);
+            } else {
+                setDataPack([]);
+            }
             
             dictionaryCache[lang] = finalDict;
             setDictionary(finalDict);

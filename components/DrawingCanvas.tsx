@@ -183,20 +183,20 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(({
                 romFontSize = Math.max(35, romFontSize * ((rect.width * maxTextRatio) / textWidth));
             }
 
-            let originalFontSize = Math.max(70, Math.min(140, rect.width * (window.innerWidth < 768 ? 0.22 : 0.16)));
+            let originalFontSize = Math.max(50, Math.min(110, rect.width * (window.innerWidth < 768 ? 0.18 : 0.13)));
             if (showOriginalAtBottom) {
                 bgCtx.font = isAr ? `500 ${originalFontSize}px ${getArabicFontString()}` : `600 ${originalFontSize}px sans-serif`;
                 const origTextWidth = bgCtx.measureText(word.original).width;
                 if (origTextWidth > rect.width * maxTextRatio) {
-                    originalFontSize = Math.max(35, originalFontSize * ((rect.width * maxTextRatio) / origTextWidth));
+                    originalFontSize = Math.max(25, originalFontSize * ((rect.width * maxTextRatio) / origTextWidth));
                 }
             }
             
-            let defFontSize = Math.max(35, Math.min(75, rect.width * (window.innerWidth < 768 ? 0.12 : 0.08)));
+            let defFontSize = Math.max(40, Math.min(90, rect.width * (window.innerWidth < 768 ? 0.14 : 0.10)));
             bgCtx.font = `600 ${defFontSize}px sans-serif`;
             const defWidth = bgCtx.measureText(word.definition).width;
             if (defWidth > rect.width * 0.9) {
-                defFontSize = Math.max(20, defFontSize * ((rect.width * 0.9) / defWidth));
+                defFontSize = Math.max(24, defFontSize * ((rect.width * 0.9) / defWidth));
             }
 
             const origFont = isAr ? `500 ${originalFontSize}px ${getArabicFontString()}` : `600 ${originalFontSize}px sans-serif`;
@@ -214,17 +214,16 @@ const DrawingCanvas = forwardRef<DrawingCanvasRef, DrawingCanvasProps>(({
             bgCtx.lineJoin = "round";
             bgCtx.lineCap = "round";
 
-            // Neutral gray (slightly darker)
             const traceColor = "#ebebeb";
-            
-            // Translation (Top)
-            bgCtx.font = defFont;
             bgCtx.fillStyle = traceColor;
-            bgCtx.fillText(word.definition, x, transY);
 
             // Romanized (Middle)
             bgCtx.font = romFont;
             bgCtx.fillText(word.romanized, x, topY);
+
+            // Translation (English)
+            bgCtx.font = defFont;
+            bgCtx.fillText(word.definition, x, isLatin ? bottomY : transY);
 
             // Original (Bottom, if non-Latin)
             if (showOriginalAtBottom) {
