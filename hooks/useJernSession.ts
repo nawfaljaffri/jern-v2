@@ -40,11 +40,11 @@ export function useJernSession(settings: SessionSettings) {
 
         setIsLoading(true);
         try {
-            const filePath = (lang === "ar" || lang === "fr" || lang === "de") ? `/data/${lang}_cleaned.json` : `/data/${lang}.json`;
-            const dictPath = (lang === "ar" || lang === "fr" || lang === "de") ? `/data/${lang}_dictionary.json?v=4` : null;
+            const filePath = (lang === "ar" || lang === "fr" || lang === "de") ? `/data/${lang}_cleaned.json?v=5` : `/data/${lang}.json?v=5`;
+            const dictPath = (lang === "ar" || lang === "fr" || lang === "de") ? `/data/${lang}_dictionary.json?v=5` : null;
             
             const [res, dictRes] = await Promise.all([
-                fetch(filePath + "?v=4").catch(() => null),
+                fetch(filePath).catch(() => null),
                 dictPath ? fetch(dictPath).catch(() => null) : Promise.resolve(null)
             ]);
             
@@ -76,7 +76,7 @@ export function useJernSession(settings: SessionSettings) {
                 dataPackCache[lang] = data;
                 setDataPack(data);
             } else {
-                setDataPack([]);
+                setDataPack([{ id: "error", original: "Error Loading", romanized: "Error", translation: "Refresh page", language: lang, definition: "Could not load language data." }]);
             }
             
             dictionaryCache[lang] = finalDict;
@@ -85,7 +85,7 @@ export function useJernSession(settings: SessionSettings) {
         } catch (err) {
             console.error("Failed to load data pack:", err);
             if (currentLangRef.current === lang) {
-                setDataPack([]);
+                setDataPack([{ id: "error", original: "Network Error", romanized: "Error", translation: "Check connection", language: lang, definition: "Failed to load." }]);
                 setDictionary({});
             }
         } finally {

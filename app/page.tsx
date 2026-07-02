@@ -10,7 +10,7 @@ import { SessionSettings, ArabicFont } from "@/lib/types";
 import { useTTS } from "@/hooks/useTTS";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 import { useJernSession } from "@/hooks/useJernSession";
-import { Settings, History, Info } from "lucide-react";
+import { Settings, History, Info, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -59,6 +59,59 @@ export default function Home() {
         handleComplete, 
         handleBack 
     } = useJernSession(settings);
+
+    const [pullProgress, setPullProgress] = useState(0);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    React.useEffect(() => {
+        let startY = 0;
+        let isAtTop = false;
+
+        const handleTouchStart = (e: TouchEvent) => {
+            if (window.scrollY === 0) {
+                isAtTop = true;
+                startY = e.touches[0].clientY;
+            } else {
+                isAtTop = false;
+            }
+        };
+
+        const handleTouchMove = (e: TouchEvent) => {
+            if (!isAtTop) return;
+            const y = e.touches[0].clientY;
+            const diff = y - startY;
+            if (diff > 0) {
+                // Prevent default scrolling when pulling down at the top
+                if (e.cancelable) e.preventDefault();
+                setPullProgress(Math.min(diff / 150, 1)); // Normalize to 0-1
+            }
+        };
+
+        const handleTouchEnd = (e: TouchEvent) => {
+            if (!isAtTop) return;
+            const y = e.changedTouches[0].clientY;
+            const diff = y - startY;
+            
+            if (diff > 120) {
+                setIsRefreshing(true);
+                setPullProgress(1);
+                setTimeout(() => window.location.reload(), 300);
+            } else {
+                setPullProgress(0);
+            }
+            isAtTop = false;
+        };
+
+        document.addEventListener('touchstart', handleTouchStart, { passive: true });
+        document.addEventListener('touchmove', handleTouchMove, { passive: false });
+        document.addEventListener('touchend', handleTouchEnd);
+
+        return () => {
+            document.removeEventListener('touchstart', handleTouchStart);
+            document.removeEventListener('touchmove', handleTouchMove);
+            document.removeEventListener('touchend', handleTouchEnd);
+        };
+    }, []);
 
     React.useEffect(() => {
         if (isIPad) setSettings(prev => ({ ...prev, audioRepeat: true }));
@@ -111,6 +164,28 @@ export default function Home() {
             "min-h-screen bg-background text-foreground flex flex-col font-sans",
             isIOS ? "overflow-hidden" : "overflow-hidden"
         )}>
+            {/* Pull to Refresh Indicator */}
+            <AnimatePresence>
+                {(pullProgress > 0 || isRefreshing) && (
+                    <motion.div 
+                        initial={{ y: -50, opacity: 0 }}
+                        animate={{ 
+                            y: isRefreshing ? 20 : pullProgress * 30 - 20, 
+                            opacity: isRefreshing ? 1 : pullProgress 
+                        }}
+                        exit={{ y: -50, opacity: 0 }}
+                        className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none"
+                    >
+                        <div className="bg-white/80 backdrop-blur-md shadow-sm border border-black/5 rounded-full p-2 flex items-center justify-center">
+                            <RefreshCw 
+                                className={cn("w-5 h-5 text-neutral-500", isRefreshing && "animate-spin text-accent")} 
+                                style={{ transform: !isRefreshing ? `rotate(${pullProgress * 180}deg)` : undefined }}
+                            />
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {!isIOS && (
                 <header className="px-6 md:px-8 py-5 flex justify-between items-center z-20 shrink-0">
                     <div className="flex items-center cursor-pointer group" onClick={() => window.location.reload()}>
