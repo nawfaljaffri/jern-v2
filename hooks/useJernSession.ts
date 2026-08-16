@@ -27,10 +27,13 @@ export function useJernSession(settings: SessionSettings) {
 
     // Load Data Pack & Dictionary
     const loadDataPack = useCallback(async (lang: Language) => {
+        let aborted = false;
         currentLangRef.current = lang;
         
+        const isDeepDict = lang === "ar" || lang === "fr" || lang === "de" || lang === "zh";
+
         // If it's already in memory cache, load instantly with zero lag
-        if (dataPackCache[lang] && (dictionaryCache[lang] || !(lang === "ar" || lang === "fr" || lang === "de"))) {
+        if (dataPackCache[lang] && (dictionaryCache[lang] || !isDeepDict)) {
             setDataPack(dataPackCache[lang]);
             setDictionary(dictionaryCache[lang] || {});
             setUpcomingWords([]);
@@ -40,8 +43,8 @@ export function useJernSession(settings: SessionSettings) {
 
         setIsLoading(true);
         try {
-            const filePath = (lang === "ar" || lang === "fr" || lang === "de") ? `/data/${lang}_cleaned.json?v=5` : `/data/${lang}.json?v=5`;
-            const dictPath = (lang === "ar" || lang === "fr" || lang === "de") ? `/data/${lang}_dictionary.json?v=5` : null;
+            const filePath = isDeepDict ? `/data/${lang}_cleaned.json?v=6` : `/data/${lang}.json?v=6`;
+            const dictPath = isDeepDict ? `/data/${lang}_dictionary.json?v=6` : null;
             
             const [res, dictRes] = await Promise.all([
                 fetch(filePath).catch(() => null),
@@ -70,22 +73,25 @@ export function useJernSession(settings: SessionSettings) {
             }
             
             // Re-check after json parse
-            if (currentLangRef.current !== lang) return;
+            if (currentLangRef.current !== lang) {
+                aborted = true;
+                return;
+            }
             
             if (Array.isArray(data)) {
                 dataPackCache[lang] = data;
                 setDataPack(data);
             } else {
-                setDataPack([{ id: "error", original: "Error Loading", romanized: "Error", translation: "Refresh page", language: lang, definition: "Could not load language data." }]);
+                setDataPack([{ id: "error", original: "Error Loading", romanized: "Error", language: lang, definition: "Could not load language data." }]);
             }
             
             dictionaryCache[lang] = finalDict;
             setDictionary(finalDict);
             setUpcomingWords([]);
-        } catch (err) {
-            console.error("Failed to load data pack:", err);
-            if (currentLangRef.current === lang) {
-                setDataPack([{ id: "error", original: "Network Error", romanized: "Error", translation: "Check connection", language: lang, definition: "Failed to load." }]);
+        } catch (e: any) {
+            console.error("Data load failed:", e);
+            if (!aborted) {
+                setDataPack([{ id: "error", original: "Network Error", romanized: "Error", language: lang, definition: "Failed to load." }]);
                 setDictionary({});
             }
         } finally {

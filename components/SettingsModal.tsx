@@ -183,6 +183,40 @@ export default function SettingsModal({
                         </div>
                     )}
 
+                    {/* ── Desktop Layout (Desktop only) ── */}
+                    {!isIOS && !isPhone && (
+                        <div>
+                            <p className="text-xs font-semibold text-neutral-400 uppercase tracking-[0.08em] mb-3">Desktop Layout</p>
+                            <LayoutGroup id="settings-desktop-layout">
+                                <div className="flex p-1 bg-neutral-100 rounded-2xl -mx-1">
+                                    {[
+                                        { label: "Modern (Split)", val: "modern" as const },
+                                        { label: "Classic (Centered)", val: "classic" as const }
+                                    ].map(m => (
+                                        <button
+                                            key={m.val}
+                                            onClick={() => updateSettings({ desktopLayout: m.val })}
+                                            className={cn(
+                                                "flex-1 py-2.5 rounded-xl text-[14px] font-semibold transition-colors relative z-10",
+                                                (settings.desktopLayout || 'modern') === m.val ? "text-white" : "text-neutral-400 hover:text-neutral-600"
+                                            )}
+                                        >
+                                            {(settings.desktopLayout || 'modern') === m.val && (
+                                                <motion.div
+                                                    layoutId="settings-desktop-layout-pill"
+                                                    className="absolute inset-0 bg-accent rounded-xl"
+                                                    style={{ zIndex: -1 }}
+                                                    transition={{ type: "spring", bounce: 0.2, duration: 0.45 }}
+                                                />
+                                            )}
+                                            {m.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </LayoutGroup>
+                        </div>
+                    )}
+
                     {/* ── Pencil Thickness (iPad only) ── */}
                     {isIOS && (
                         <div>

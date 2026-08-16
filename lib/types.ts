@@ -32,6 +32,7 @@ export interface SessionSettings {
     arabicFont?: ArabicFont;
     mobileInputMode?: 'touch' | 'keyboard';
     handedness?: 'left' | 'right';
+    desktopLayout?: 'modern' | 'classic';
 }
 
 export interface SessionStats {

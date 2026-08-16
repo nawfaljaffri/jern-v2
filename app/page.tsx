@@ -10,7 +10,7 @@ import { SessionSettings, ArabicFont } from "@/lib/types";
 import { useTTS } from "@/hooks/useTTS";
 import { useDeviceDetection } from "@/hooks/useDeviceDetection";
 import { useJernSession } from "@/hooks/useJernSession";
-import { Settings, History, Info, RefreshCw } from "lucide-react";
+import { Settings, History, Info, RefreshCw, RefreshCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -186,84 +186,67 @@ export default function Home() {
                 )}
             </AnimatePresence>
 
-            {!isIOS && (
-                <header className="px-6 md:px-8 py-5 flex justify-between items-center z-20 shrink-0">
-                    <div className="flex items-center cursor-pointer group" onClick={() => window.location.reload()}>
-                        <h1 className="text-xl font-bold tracking-tight text-foreground group-hover:opacity-70 transition-opacity">
-                            JERN<span className="text-accent">.</span>
-                        </h1>
-                    </div>
-                    <div className="flex items-center gap-5">
-                        <button onClick={() => setIsInfoOpen(true)} className="text-muted hover:text-foreground transition-colors" aria-label="About">
-                            <Info className="w-5 h-5" />
+            {/* Unified Top Header */}
+            <div className={cn(
+                "fixed top-0 left-0 right-0 z-40 flex justify-between items-center px-6 md:px-10 pb-4 pointer-events-none",
+                isIOS ? "pt-[max(env(safe-area-inset-top),32px)]" : "pt-8",
+                (!isPhone && settings.desktopLayout !== 'classic') ? (settings.handedness === 'left' ? "lg:pr-[450px]" : "lg:pl-[450px]") : ""
+            )}>
+                <span className="text-base font-semibold text-neutral-400 capitalize tracking-wide flex items-center gap-2 pointer-events-auto">
+                    <span>{LANGUAGES.find(l => l.value === settings.language)?.label} · {settings.difficulty}</span>
+                    {["ja", "ko"].includes(settings.language) && (
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-extra-muted/30 text-muted text-[10px] font-bold uppercase tracking-widest">
+                            Beta
+                        </span>
+                    )}
+                </span>
+                <div className="flex items-center gap-4 md:gap-5 pointer-events-auto">
+                    <span className="text-base text-neutral-400 font-semibold mr-2">{history.length} practiced</span>
+                    <div className="relative">
+                        <button
+                            className="pointer-events-auto w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md border border-black/[0.06] shadow-sm text-neutral-500 hover:text-neutral-800 transition-all active:scale-95"
+                            onClick={() => setIsHistoryOpen(true)}
+                            aria-label="History"
+                            title="History"
+                        >
+                            <History size={24} />
                         </button>
-                        <button onClick={() => setIsHistoryOpen(true)} className="text-muted hover:text-foreground transition-colors relative" aria-label="Lexicon">
-                            <History className="w-5 h-5" />
-                            {history.length > 0 && <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-accent rounded-full" />}
-                        </button>
-                        <button onClick={() => setIsSettingsOpen(true)} className="text-muted hover:text-foreground transition-colors" aria-label="Settings">
-                            <Settings className="w-5 h-5" />
-                        </button>
-                    </div>
-                </header>
-            )}
-
-            {!isIOS && (
-                <div className="flex justify-between items-center px-6 md:px-8 pb-2 z-10 shrink-0">
-                    <span className="text-sm text-muted/50 font-medium capitalize flex items-center gap-2">
-                        <span>{LANGUAGES.find(l => l.value === settings.language)?.label} · {settings.difficulty}</span>
-                        {["ja", "ko"].includes(settings.language) && (
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-extra-muted/30 text-muted text-[10px] font-bold uppercase tracking-widest">
-                                Beta
+                        {history.length > 0 && (
+                            <span className="absolute -top-2 -right-2 min-w-6 h-6 px-1.5 bg-accent rounded-full text-[11px] font-bold text-white flex items-center justify-center border-[2px] border-white shadow-sm pointer-events-none">
+                                {history.length}
                             </span>
                         )}
-                    </span>
-                    <span className="text-sm text-muted/50 font-medium">{history.length} practiced</span>
-                </div>
-            )}
-
-            {isIOS && (
-                <div className={`fixed top-0 left-0 right-0 z-40 flex justify-between items-center px-10 pt-[max(env(safe-area-inset-top),32px)] pb-4 pointer-events-none ${!isPhone ? (settings.handedness === 'left' ? "lg:pr-[450px]" : "lg:pl-[450px]") : ""}`}>
-                    <span className="text-base font-semibold text-neutral-400 capitalize tracking-wide flex items-center gap-2">
-                        <span>{LANGUAGES.find(l => l.value === settings.language)?.label} · {settings.difficulty}</span>
-                        {["ja", "ko"].includes(settings.language) && (
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-extra-muted/30 text-muted text-[10px] font-bold uppercase tracking-widest">
-                                Beta
-                            </span>
-                        )}
-                    </span>
-                    <div className="flex items-center gap-5">
-                        <div className="relative">
-                            <button
-                                className="pointer-events-auto w-12 h-12 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md border border-black/[0.06] shadow-sm text-neutral-500 hover:text-neutral-800 transition-all active:scale-95"
-                                onClick={() => setIsHistoryOpen(true)}
-                                aria-label="History"
-                            >
-                                <History size={20} />
-                            </button>
-                            {history.length > 0 && (
-                                <span className="absolute -top-2 -right-2 min-w-6 h-6 px-1.5 bg-accent rounded-full text-[11px] font-bold text-white flex items-center justify-center border-[2px] border-white shadow-sm pointer-events-none">
-                                    {history.length}
-                                </span>
-                            )}
-                        </div>
-                        <button
-                            className="pointer-events-auto w-12 h-12 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md border border-black/[0.06] shadow-sm text-neutral-500 hover:text-neutral-800 transition-all active:scale-95"
-                            onClick={() => setIsInfoOpen(true)}
-                            aria-label="About"
-                        >
-                            <Info size={20} />
-                        </button>
-                        <button
-                            className="pointer-events-auto w-12 h-12 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md border border-black/[0.06] shadow-sm text-neutral-500 hover:text-neutral-800 transition-all active:scale-95"
-                            onClick={() => setIsSettingsOpen(true)}
-                            aria-label="Settings"
-                        >
-                            <Settings size={20} />
-                        </button>
                     </div>
+                    <button
+                        className="pointer-events-auto w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md border border-black/[0.06] shadow-sm text-neutral-500 hover:text-neutral-800 transition-all active:scale-95"
+                        onClick={() => setIsInfoOpen(true)}
+                        aria-label="About"
+                        title="About / Instructions"
+                    >
+                        <Info size={24} />
+                    </button>
+                    <button 
+                        onClick={() => updateSettings({ loopWord: !settings.loopWord })}
+                        className={cn(
+                            "pointer-events-auto w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-2xl backdrop-blur-md border border-black/[0.06] shadow-sm transition-all active:scale-95",
+                            settings.loopWord ? "bg-accent/10 text-accent" : "bg-white/70 text-neutral-500 hover:text-neutral-800"
+                        )}
+                        aria-label="Loop Word"
+                        title="Loop Word"
+                    >
+                        <RefreshCcw size={24} />
+                        {settings.loopWord && <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-accent rounded-full border-2 border-white" />}
+                    </button>
+                    <button
+                        className="pointer-events-auto w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-2xl bg-white/70 backdrop-blur-md border border-black/[0.06] shadow-sm text-neutral-500 hover:text-neutral-800 transition-all active:scale-95"
+                        onClick={() => setIsSettingsOpen(true)}
+                        aria-label="Settings"
+                        title="Settings"
+                    >
+                        <Settings size={24} />
+                    </button>
                 </div>
-            )}
+            </div>
 
             {!isIOS && (
                 <div className="absolute top-20 w-full flex flex-col items-center gap-2 px-4 z-10 left-0 right-0 pointer-events-none">
@@ -311,6 +294,7 @@ export default function Home() {
                             arabicFontClass={arabicFontClass}
                             arabicFont={settings.arabicFont ?? DEFAULT_ARABIC_FONT}
                             handedness={settings.handedness || 'right'}
+                            desktopLayout={settings.desktopLayout}
                             dictionary={dictionary}
                         />
                     ) : (

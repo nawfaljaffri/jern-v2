@@ -52,6 +52,7 @@ interface TypingTestProps {
     arabicFont?: string;
     handedness: 'left' | 'right';
     mobileInputMode?: 'touch' | 'keyboard';
+    desktopLayout?: 'modern' | 'classic';
     onToggleAudioRepeat?: () => void;
     dictionary?: Record<string, import("@/lib/types").DictionaryEntry>;
 }
@@ -60,7 +61,7 @@ export default function TypingTest({
     word, onComplete, onBack, onMismatch, onSpeak, onStop,
     onUnlockAudio, isSpeaking, isPending, isIOS, isPhone,
     isAudioRepeat, onToggleAudioRepeat, penThickness, penColor, isLooping, onToggleLoop,
-    arabicFontClass = "", arabicFont, handedness, mobileInputMode = 'touch',
+    arabicFontClass = "", arabicFont, handedness, mobileInputMode = 'touch', desktopLayout = 'modern',
     allWords, onSearchSelect, dictionary = {}
 } : TypingTestProps) {
     const [isErasing, setIsErasing] = useState(false);
@@ -193,6 +194,32 @@ export default function TypingTest({
         if (!isIOS) inputRef.current?.focus();
     }, [word, isIOS]);
 
+    // ── Global Keyboard Navigation ───────────────────────────────────────
+    useEffect(() => {
+        const handleKeyUp = (e: KeyboardEvent) => {
+            const isTypingInputFocused = document.activeElement === inputRef.current || document.activeElement === document.body;
+            if (!isTypingInputFocused) return;
+
+            if (e.key === "ArrowLeft") {
+                if (userInput.length === 0) {
+                    if (isCompletingRef.current) return;
+                    isCompletingRef.current = true;
+                    onBack?.();
+                    setUserInput("");
+                }
+            } else if (e.key === "ArrowRight") {
+                if (userInput.length === 0) {
+                    if (isCompletingRef.current) return;
+                    isCompletingRef.current = true;
+                    onComplete();
+                    setUserInput("");
+                }
+            }
+        };
+        window.addEventListener("keyup", handleKeyUp);
+        return () => window.removeEventListener("keyup", handleKeyUp);
+    }, [userInput, onBack, onComplete]);
+
     const isArabicScript = word.language === "ar" || word.language === "ur";
     const isLatin = ['fr', 'es', 'de'].includes(word.language || '');
     const targetFontClass = isArabicScript ? arabicFontClass || "font-arabic" : "font-sans";
@@ -208,197 +235,13 @@ export default function TypingTest({
         return { char, colorClass };
     });
 
+    
     const useTouchLayout = (isIOS && !isPhone) || (isPhone && mobileInputMode === "touch");
+    const useModernDesktop = !isIOS && !isPhone && (desktopLayout || 'modern') === 'modern';
 
-    if (useTouchLayout) {
-        return (
-            <div className="fixed inset-0 overflow-hidden bg-extra-muted/20">
-                <div className={cn(
-                    "flex h-full w-full",
-                    isIOS && !isPhone ? (isRightHanded ? "flex-col lg:flex-row-reverse" : "flex-col lg:flex-row") : "flex-col md:flex-row landscape:flex-row"
-                )}>
-                    {/* ── Left Pane: Massive Tracing Canvas (70%) ── */}
-                    <div className="flex-1 flex flex-col relative h-full bg-white/50">
-                    <div className="absolute inset-0 z-10 pointer-events-auto">
-                        <DrawingCanvas
-                            ref={canvasRef}
-                            key={`${word.id}-${loopCounter}`}
-                            word={word}
-                            onComplete={() => {
-                                if (isCompletingRef.current) return;
-                                isCompletingRef.current = true;
-                                setTimeout(() => {
-                                    if (isLooping) {
-                                        setLoopCounter(p => p + 1);
-                                        const text = audioMode === "en" ? word.definition : word.original;
-                                        const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
-                                        onSpeak(text, lang || "en-US", !!isAudioRepeat);
-                                        isCompletingRef.current = false;
-                                    } else {
-                                        onComplete();
-                                    }
-                                }, 600);
-                            }}
-                            onError={triggerError}
-                            penThickness={penThickness}
-                            penColor={isErasing ? "erase" : penColor}
-                            isIOS={isIOS}
-                            targetFontClass={targetFontClass}
-                            arabicFont={arabicFont}
-                        />
-                    </div>
-
-                    {!isPhone && (
-                        <div 
-                            className="absolute inset-y-0 left-0 right-0 pointer-events-none flex items-center justify-between px-6 z-30"
-                            style={{ transform: "translateY(-5%)" }}
-                        >
-                            <button
-                                onClick={() => { 
-                                    if (isCompletingRef.current) return;
-                                    isCompletingRef.current = true;
-                                    onBack?.(); 
-                                    setUserInput(""); 
-                                }}
-                                aria-label="Previous word"
-                                className="w-16 h-32 flex items-center justify-center group pointer-events-auto rounded-2xl transition-colors"
-                            >
-                                <span className="w-12 h-12 flex items-center justify-center rounded-full bg-white/50 backdrop-blur-sm border border-black/5 shadow-sm group-hover:bg-white group-active:bg-emerald-600 group-active:text-white transition-all">
-                                    <ChevronLeft className="w-8 h-8 text-neutral-400 group-hover:text-emerald-600 group-active:text-white transition-colors" strokeWidth={2} />
-                                </span>
-                            </button>
-                            <button
-                                onClick={() => { 
-                                    if (isCompletingRef.current) return;
-                                    isCompletingRef.current = true;
-                                    onComplete(); 
-                                    setUserInput(""); 
-                                }}
-                                aria-label="Skip word"
-                                className="w-16 h-32 flex items-center justify-center group pointer-events-auto rounded-2xl transition-colors"
-                            >
-                                <span className="w-12 h-12 flex items-center justify-center rounded-full bg-white/50 backdrop-blur-sm border border-black/5 shadow-sm group-hover:bg-white group-active:bg-emerald-600 group-active:text-white transition-all">
-                                    <ChevronRight className="w-8 h-8 text-neutral-400 group-hover:text-emerald-600 group-active:text-white transition-colors" strokeWidth={2} />
-                                </span>
-                            </button>
-                        </div>
-                    )}
-
-                    {isPhone ? (
-                        <div className="absolute bottom-0 left-0 right-0 z-30 pointer-events-auto w-full bg-white border-t border-neutral-200/80 py-2 px-3 flex items-center justify-between shadow-sm">
-                            <button
-                                onClick={() => { 
-                                    if (isCompletingRef.current) return;
-                                    isCompletingRef.current = true;
-                                    onBack?.(); 
-                                    setUserInput(""); 
-                                }}
-                                aria-label="Previous word"
-                                className="w-11 h-11 flex items-center justify-center rounded-xl bg-neutral-100/80 text-neutral-600 hover:bg-neutral-200 active:bg-emerald-600 active:text-white transition-all"
-                            >
-                                <ChevronLeft size={24} strokeWidth={2} />
-                            </button>
-
-                            <div className="flex items-center gap-1.5">
-                                <button
-                                    onClick={() => canvasRef.current?.undo()}
-                                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
-                                    aria-label="Undo stroke"
-                                >
-                                    <Undo2 size={18} strokeWidth={2} />
-                                </button>
-                                <button
-                                    onClick={() => canvasRef.current?.redo()}
-                                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
-                                    aria-label="Redo stroke"
-                                >
-                                    <Redo2 size={18} strokeWidth={2} />
-                                </button>
-                                <button
-                                    onClick={() => setIsErasing(p => !p)}
-                                    className={cn(
-                                        "w-10 h-10 flex items-center justify-center rounded-xl transition-all shadow-sm border",
-                                        isErasing 
-                                            ? "bg-rose-50 text-rose-500 border-rose-100" 
-                                            : "bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 border-neutral-100 active:bg-emerald-600 active:text-white"
-                                    )}
-                                    aria-label="Toggle Eraser"
-                                >
-                                    <Eraser size={18} strokeWidth={2} />
-                                </button>
-                                <div className="w-px h-6 bg-neutral-200 mx-0.5" />
-                                <button
-                                    onClick={() => {
-                                        canvasRef.current?.clear();
-                                        setIsErasing(false);
-                                    }}
-                                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-neutral-400 hover:text-rose-500 hover:bg-rose-50 font-medium transition-all active:scale-95 active:bg-rose-500 active:text-white active:border-rose-500 shadow-sm border border-neutral-100"
-                                    aria-label="Clear canvas"
-                                >
-                                    <Trash2 size={18} strokeWidth={2} />
-                                </button>
-                            </div>
-
-                            <button
-                                onClick={() => { 
-                                    if (isCompletingRef.current) return;
-                                    isCompletingRef.current = true;
-                                    onComplete(); 
-                                    setUserInput(""); 
-                                }}
-                                aria-label="Skip word"
-                                className="w-11 h-11 flex items-center justify-center rounded-xl bg-neutral-100/80 text-neutral-600 hover:bg-neutral-200 active:bg-emerald-600 active:text-white transition-all"
-                            >
-                                <ChevronRight size={24} strokeWidth={2} />
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="absolute bottom-8 left-0 right-0 z-30 pointer-events-auto flex justify-center">
-                            <div className="flex items-center gap-2 p-2.5 bg-white rounded-[2rem] border border-neutral-100 shadow-[0_16px_40px_rgba(0,0,0,0.06)]">
-                                <button
-                                    onClick={() => canvasRef.current?.undo()}
-                                    className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
-                                    aria-label="Undo stroke"
-                                >
-                                    <Undo2 size={22} strokeWidth={2} />
-                                </button>
-                                <button
-                                    onClick={() => canvasRef.current?.redo()}
-                                    className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
-                                    aria-label="Redo stroke"
-                                >
-                                    <Redo2 size={22} strokeWidth={2} />
-                                </button>
-                                <button
-                                    onClick={() => setIsErasing(p => !p)}
-                                    className={cn(
-                                        "w-14 h-14 flex items-center justify-center rounded-[1.25rem] transition-all shadow-sm border",
-                                        isErasing 
-                                            ? "bg-rose-50 text-rose-500 border-rose-100" 
-                                            : "bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 border-neutral-100 active:bg-emerald-600 active:text-white"
-                                    )}
-                                    aria-label="Toggle Eraser"
-                                >
-                                    <Eraser size={22} strokeWidth={2} />
-                                </button>
-                                <div className="w-px h-8 bg-neutral-200 mx-1" />
-                                <button
-                                    onClick={() => {
-                                        canvasRef.current?.clear();
-                                        setIsErasing(false);
-                                    }}
-                                    className="px-6 h-14 flex items-center gap-2 rounded-[1.25rem] bg-white text-neutral-400 hover:text-rose-500 hover:bg-rose-50 font-medium transition-all active:scale-95 active:bg-rose-500 active:text-white active:border-rose-500 shadow-sm border border-neutral-100"
-                                    aria-label="Clear canvas"
-                                >
-                                    <Trash2 size={20} strokeWidth={2} />
-                                    <span className="text-[17px]">Clear</span>
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* ── Right Pane: Permanent Explainer (30%) ── */}
+    const renderDictionaryPane = (
+        <>
+        {/* ── Right Pane: Permanent Explainer (30%) ── */}
                 <div className="w-full md:w-[340px] lg:w-[420px] landscape:w-[340px] landscape:lg:w-[420px] h-[44%] md:h-full landscape:h-full shrink-0 bg-white md:border-b-0 md:border-l landscape:border-b-0 landscape:border-l border-neutral-100 flex flex-col z-40 relative shadow-sm md:shadow-none landscape:shadow-none">
                     <div 
                         className={cn("flex-1 overflow-y-auto lg:pt-[--nav-padding] custom-scrollbar", isPhone ? "px-5 pt-4" : "px-10 pt-6")}
@@ -602,17 +445,12 @@ export default function TypingTest({
                         </div>
                     </div>
                 </div>
-            </div>
-            </div>
-        );
-    }
+        </>
+    );
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // ── Laptop / Desktop Layout — unchanged structure ───────────────────────
-    // ─────────────────────────────────────────────────────────────────────────
-    return (
+    const renderTypingInterface = (isModern: boolean) => (
         <div
-            className="relative flex flex-col items-center justify-center min-h-[400px] md:min-h-[500px] w-full cursor-text pb-16 md:pb-24"
+            className={cn("relative flex flex-col items-center justify-center min-h-[400px] md:min-h-[500px] w-full cursor-text pb-16 md:pb-24", isModern ? "h-full" : "")}
             onClick={() => inputRef.current?.focus()}
         >
             <input
@@ -641,7 +479,7 @@ export default function TypingTest({
                         transition={{ duration: 0.22, ease: [0.32, 0, 0.2, 1] }}
                         className="flex flex-col items-center gap-2 w-full"
                     >
-                        <div className="text-3xl md:text-4xl text-neutral-400 font-medium text-center max-w-2xl leading-relaxed">
+                        <div className="text-4xl md:text-5xl text-neutral-400 font-medium text-center max-w-2xl leading-relaxed">
                             {word.definition}
                         </div>
                     </motion.div>
@@ -688,78 +526,270 @@ export default function TypingTest({
                     >
                         {word.original}
                     </div>
-                    {/* Toolbar */}
-                    <div className="flex items-center justify-center text-muted z-10 mt-8 gap-1">
-                        <button
-                            onClick={(e) => { e.stopPropagation(); setAudioMode("en"); }}
-                            className={cn(
-                                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
-                                audioMode === "en" ? "bg-accent/10 text-accent" : "hover:bg-extra-muted/50 text-muted"
-                            )}
-                        >
-                            EN
-                        </button>
-                        <button
-                            onClick={(e) => { e.stopPropagation(); setAudioMode("original"); }}
-                            className={cn(
-                                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
-                                audioMode === "original" ? "bg-accent/10 text-accent" : "hover:bg-extra-muted/50 text-muted"
-                            )}
-                        >
-                            {(word.language || "EN").toUpperCase()}
-                        </button>
-
-                        <div className="w-px h-4 bg-extra-muted mx-1" />
-
-                        <button
-                            className={cn(
-                                "p-2 rounded-lg transition-colors flex items-center justify-center",
-                                isSpeaking ? "text-accent bg-accent/10" : "hover:bg-extra-muted/50 text-muted hover:text-foreground"
-                            )}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                const text = audioMode === "en" ? word.definition : word.original;
-                                const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
-                                onSpeak(text, lang || "en-US", !!isAudioRepeat);
-                            }}
-                            disabled={isPending}
-                            title="Play Audio"
-                        >
-                            {isPending
-                                ? <Loader2 size={15} className="animate-spin" />
-                                : isSpeaking
-                                    ? <Volume1 size={15} className="animate-pulse" />
-                                    : <Volume2 size={15} />}
-                        </button>
-
-                        <button
-                            className={cn(
-                                "p-2 rounded-lg transition-colors flex items-center justify-center relative",
-                                isAudioRepeat ? "text-accent bg-accent/10" : "hover:bg-extra-muted/50 text-muted hover:text-foreground"
-                            )}
-                            onClick={(e) => { e.stopPropagation(); onToggleAudioRepeat?.(); }}
-                            title="Continuous Audio"
-                        >
-                            <Repeat size={15} />
-                            {isAudioRepeat && <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-accent rounded-full" />}
-                        </button>
-
-                        <div className="w-px h-4 bg-extra-muted mx-1" />
-
-                        <button
-                            className={cn(
-                                "p-2 rounded-lg transition-colors flex items-center justify-center relative",
-                                isLooping ? "text-accent bg-accent/10" : "hover:bg-extra-muted/50 text-muted hover:text-foreground"
-                            )}
-                            onClick={(e) => { e.stopPropagation(); onToggleLoop?.(); }}
-                            title="Loop Word Practice"
-                        >
-                            <RefreshCcw size={15} />
-                            {isLooping && <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-accent rounded-full" />}
-                        </button>
-                    </div>
                 </motion.div>
             </AnimatePresence>
         </div>
     );
+
+    if (useTouchLayout) {
+        return (
+            <div className="fixed inset-0 overflow-hidden bg-extra-muted/20">
+                <div className={cn(
+                    "flex h-full w-full",
+                    isIOS && !isPhone ? (isRightHanded ? "flex-col lg:flex-row-reverse" : "flex-col lg:flex-row") : "flex-col md:flex-row landscape:flex-row"
+                )}>
+                    {/* ── Left Pane: Massive Tracing Canvas (70%) ── */}
+                    <div className="flex-1 flex flex-col relative h-full bg-white/50">
+                    <div className="absolute inset-0 z-10 pointer-events-auto">
+                        <DrawingCanvas
+                            ref={canvasRef}
+                            key={`${word.id}-${loopCounter}`}
+                            word={word}
+                            onComplete={() => {
+                                if (isCompletingRef.current) return;
+                                isCompletingRef.current = true;
+                                setTimeout(() => {
+                                    if (isLooping) {
+                                        setLoopCounter(p => p + 1);
+                                        const text = audioMode === "en" ? word.definition : word.original;
+                                        const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
+                                        onSpeak(text, lang || "en-US", !!isAudioRepeat);
+                                        isCompletingRef.current = false;
+                                    } else {
+                                        onComplete();
+                                    }
+                                }, 600);
+                            }}
+                            onError={triggerError}
+                            penThickness={penThickness}
+                            penColor={isErasing ? "erase" : penColor}
+                            isIOS={isIOS}
+                            targetFontClass={targetFontClass}
+                            arabicFont={arabicFont}
+                        />
+                    </div>
+
+                    {!isPhone && (
+                        <div 
+                            className="absolute inset-y-0 left-0 right-0 pointer-events-none flex items-center justify-between px-6 z-30"
+                            style={{ transform: "translateY(-5%)" }}
+                        >
+                            <button
+                                onClick={(e) => { 
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (isCompletingRef.current) return;
+                                    isCompletingRef.current = true;
+                                    onBack?.(); 
+                                    setUserInput(""); 
+                                }}
+                                aria-label="Previous word"
+                                title="Previous word"
+                                className="w-16 h-32 flex items-center justify-center group pointer-events-auto rounded-2xl transition-colors"
+                            >
+                                <span className="w-12 h-12 flex items-center justify-center rounded-full bg-white/50 backdrop-blur-sm border border-black/5 shadow-sm group-hover:bg-white group-active:bg-emerald-600 group-active:text-white transition-all">
+                                    <ChevronLeft className="w-8 h-8 text-neutral-400 group-hover:text-emerald-600 group-active:text-white transition-colors" strokeWidth={2} />
+                                </span>
+                            </button>
+                            <button
+                                onClick={(e) => { 
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (isCompletingRef.current) return;
+                                    isCompletingRef.current = true;
+                                    onComplete(); 
+                                    setUserInput(""); 
+                                }}
+                                aria-label="Skip word"
+                                title="Skip word"
+                                className="w-16 h-32 flex items-center justify-center group pointer-events-auto rounded-2xl transition-colors"
+                            >
+                                <span className="w-12 h-12 flex items-center justify-center rounded-full bg-white/50 backdrop-blur-sm border border-black/5 shadow-sm group-hover:bg-white group-active:bg-emerald-600 group-active:text-white transition-all">
+                                    <ChevronRight className="w-8 h-8 text-neutral-400 group-hover:text-emerald-600 group-active:text-white transition-colors" strokeWidth={2} />
+                                </span>
+                            </button>
+                        </div>
+                    )}
+
+                    {isPhone ? (
+                        <div className="absolute bottom-0 left-0 right-0 z-30 pointer-events-auto w-full bg-white border-t border-neutral-200/80 py-2 px-3 flex items-center justify-between shadow-sm">
+                            <button
+                                onClick={() => { 
+                                    if (isCompletingRef.current) return;
+                                    isCompletingRef.current = true;
+                                    onBack?.(); 
+                                    setUserInput(""); 
+                                }}
+                                aria-label="Previous word"
+                                className="w-11 h-11 flex items-center justify-center rounded-xl bg-neutral-100/80 text-neutral-600 hover:bg-neutral-200 active:bg-emerald-600 active:text-white transition-all"
+                            >
+                                <ChevronLeft size={24} strokeWidth={2} />
+                            </button>
+
+                            <div className="flex items-center gap-1.5">
+                                <button
+                                    onClick={() => canvasRef.current?.undo()}
+                                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
+                                    aria-label="Undo stroke"
+                                    title="Undo stroke"
+                                >
+                                    <Undo2 size={18} strokeWidth={2} />
+                                </button>
+                                <button
+                                    onClick={() => canvasRef.current?.redo()}
+                                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
+                                    aria-label="Redo stroke"
+                                    title="Redo stroke"
+                                >
+                                    <Redo2 size={18} strokeWidth={2} />
+                                </button>
+                                <button
+                                    onClick={() => setIsErasing(p => !p)}
+                                    className={cn(
+                                        "w-10 h-10 flex items-center justify-center rounded-xl transition-all shadow-sm border",
+                                        isErasing 
+                                            ? "bg-rose-50 text-rose-500 border-rose-100" 
+                                            : "bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 border-neutral-100 active:bg-emerald-600 active:text-white"
+                                    )}
+                                    aria-label="Toggle Eraser"
+                                    title="Toggle Eraser"
+                                >
+                                    <Eraser size={18} strokeWidth={2} />
+                                </button>
+                                <div className="w-px h-6 bg-neutral-200 mx-0.5" />
+                                <button
+                                    onClick={() => {
+                                        canvasRef.current?.clear();
+                                        setIsErasing(false);
+                                    }}
+                                    className="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-neutral-400 hover:text-rose-500 hover:bg-rose-50 font-medium transition-all active:scale-95 active:bg-rose-500 active:text-white active:border-rose-500 shadow-sm border border-neutral-100"
+                                    aria-label="Clear canvas"
+                                    title="Clear canvas"
+                                >
+                                    <Trash2 size={18} strokeWidth={2} />
+                                </button>
+                            </div>
+
+                            <button
+                                onClick={() => { 
+                                    if (isCompletingRef.current) return;
+                                    isCompletingRef.current = true;
+                                    onComplete(); 
+                                    setUserInput(""); 
+                                }}
+                                aria-label="Skip word"
+                                className="w-11 h-11 flex items-center justify-center rounded-xl bg-neutral-100/80 text-neutral-600 hover:bg-neutral-200 active:bg-emerald-600 active:text-white transition-all"
+                            >
+                                <ChevronRight size={24} strokeWidth={2} />
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="absolute bottom-8 left-0 right-0 z-30 pointer-events-auto flex justify-center">
+                            <div className="flex items-center gap-2 p-2.5 bg-white rounded-[2rem] border border-neutral-100 shadow-[0_16px_40px_rgba(0,0,0,0.06)]">
+                                <button
+                                    onClick={() => canvasRef.current?.undo()}
+                                    className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
+                                    aria-label="Undo stroke"
+                                    title="Undo stroke"
+                                >
+                                    <Undo2 size={22} strokeWidth={2} />
+                                </button>
+                                <button
+                                    onClick={() => canvasRef.current?.redo()}
+                                    className="w-14 h-14 flex items-center justify-center rounded-[1.25rem] bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 transition-all active:bg-emerald-600 active:text-white shadow-sm border border-neutral-100"
+                                    aria-label="Redo stroke"
+                                    title="Redo stroke"
+                                >
+                                    <Redo2 size={22} strokeWidth={2} />
+                                </button>
+                                <button
+                                    onClick={() => setIsErasing(p => !p)}
+                                    className={cn(
+                                        "w-14 h-14 flex items-center justify-center rounded-[1.25rem] transition-all shadow-sm border",
+                                        isErasing 
+                                            ? "bg-rose-50 text-rose-500 border-rose-100" 
+                                            : "bg-white text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50 border-neutral-100 active:bg-emerald-600 active:text-white"
+                                    )}
+                                    aria-label="Toggle Eraser"
+                                    title="Toggle Eraser"
+                                >
+                                    <Eraser size={22} strokeWidth={2} />
+                                </button>
+                                <div className="w-px h-8 bg-neutral-200 mx-1" />
+                                <button
+                                    onClick={() => {
+                                        canvasRef.current?.clear();
+                                        setIsErasing(false);
+                                    }}
+                                    className="px-6 h-14 flex items-center gap-2 rounded-[1.25rem] bg-white text-neutral-400 hover:text-rose-500 hover:bg-rose-50 font-medium transition-all active:scale-95 active:bg-rose-500 active:text-white active:border-rose-500 shadow-sm border border-neutral-100"
+                                    aria-label="Clear canvas"
+                                    title="Clear canvas"
+                                >
+                                    <Trash2 size={20} strokeWidth={2} />
+                                    <span className="text-[17px]">Clear</span>
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                    </div>
+                    {renderDictionaryPane}
+                </div>
+            </div>
+        );
+    }
+
+    if (useModernDesktop) {
+        return (
+            <div className="fixed inset-0 overflow-hidden bg-extra-muted/20">
+                <div className="flex h-full w-full flex-col lg:flex-row-reverse">
+                    <div className="flex-1 flex flex-col relative h-full bg-white/50">
+                        {renderTypingInterface(true)}
+                        
+                        <div 
+                            className="absolute inset-y-0 left-0 right-0 pointer-events-none flex items-center justify-between px-6 z-30"
+                            style={{ transform: "translateY(-5%)" }}
+                        >
+                            <button
+                                onClick={(e) => { 
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (isCompletingRef.current) return;
+                                    isCompletingRef.current = true;
+                                    onBack?.(); 
+                                    setUserInput(""); 
+                                }}
+                                aria-label="Previous word"
+                                title="Previous word"
+                                className="w-16 h-32 flex items-center justify-center group pointer-events-auto rounded-2xl transition-colors"
+                            >
+                                <span className="w-12 h-12 flex items-center justify-center rounded-full bg-white/50 backdrop-blur-sm border border-black/5 shadow-sm group-hover:bg-white group-active:bg-emerald-600 group-active:text-white transition-all">
+                                    <ChevronLeft className="w-8 h-8 text-neutral-400 group-hover:text-emerald-600 group-active:text-white transition-colors" strokeWidth={2} />
+                                </span>
+                            </button>
+                            <button
+                                onClick={(e) => { 
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (isCompletingRef.current) return;
+                                    isCompletingRef.current = true;
+                                    onComplete(); 
+                                    setUserInput(""); 
+                                }}
+                                aria-label="Skip word"
+                                title="Skip word"
+                                className="w-16 h-32 flex items-center justify-center group pointer-events-auto rounded-2xl transition-colors"
+                            >
+                                <span className="w-12 h-12 flex items-center justify-center rounded-full bg-white/50 backdrop-blur-sm border border-black/5 shadow-sm group-hover:bg-white group-active:bg-emerald-600 group-active:text-white transition-all">
+                                    <ChevronRight className="w-8 h-8 text-neutral-400 group-hover:text-emerald-600 group-active:text-white transition-colors" strokeWidth={2} />
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                    {renderDictionaryPane}
+                </div>
+            </div>
+        );
+    }
+
+    return renderTypingInterface(false);
 }

@@ -2,8 +2,7 @@ import json
 import os
 import sys
 import time
-from google import genai
-from google.genai import types
+import requests
 
 # Setup Gemini API Keys
 raw_keys = os.environ.get("GEMINI_API_KEY", "")
@@ -17,54 +16,65 @@ if not api_keys:
     sys.exit(1)
 
 current_key_idx = 0
-client = genai.Client(api_key=api_keys[current_key_idx], http_options={'timeout': 120.0})
 print(f"🔑 Loaded {len(api_keys)} API keys. Starting with Key #{current_key_idx + 1}...")
 
-def get_next_client():
-    global current_key_idx, client
+def get_next_key():
+    global current_key_idx
     current_key_idx = (current_key_idx + 1) % len(api_keys)
     print(f"🔄 Switching to API Key #{current_key_idx + 1}...")
-    client = genai.Client(api_key=api_keys[current_key_idx], http_options={'timeout': 120.0})
-    return client
+    return api_keys[current_key_idx]
 
 def process_batch(batch: list) -> dict:
-    global client
-    # Build a dictionary of the batch for lookup by original word
+    global current_key_idx
     batch_dict = {w["original"].strip(): w for w in batch}
     expected_words = set(batch_dict.keys())
     
-    # Format prompt using lightweight pipe format
-    prompt = "Please generate deep dictionary profiles for the following German words. Output ONLY raw pipe-delimited lines in the format original|definition|grammar_tag|syllables|root_letters|root_meaning.\n\n"
+    prompt = "Please generate deep dictionary profiles for the following Chinese words. Output ONLY raw pipe-delimited lines in the format original|definition|grammar_tag|syllables|root_letters|root_meaning.\n\n"
     for w in batch:
         prompt += f"{w['original'].strip()}|{w['romanized'].strip()}|{w['definition'].strip()}\n"
     
-    retries = len(api_keys) * 3
+    retries = 50
     for attempt in range(retries):
         try:
-            response = client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    system_instruction=(
-                        "You are an expert German linguist and master dictionary editor for a premium language learning application. "
-                        "Your task is to take a raw list of German words with their short translation (original|romanized|translation) "
+            api_key = api_keys[current_key_idx]
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+            
+            payload = {
+                "contents": [{"parts": [{"text": prompt}]}],
+                "systemInstruction": {
+                    "parts": [{"text": (
+                        "You are an expert Chinese linguist and master dictionary editor for a premium language learning application. "
+                        "Your task is to take a raw list of Chinese words with their short translation (original|romanized|translation) "
                         "and output a deep, elegant, highly concise dictionary profile for each word.\n\n"
                         "Rules for each field:\n"
                         "1. definition: A crisp, professional 1-to-2 sentence encyclopedic definition of the word in English (maximum 20-25 words). Zero fluff.\n"
-                        "2. grammar_tag: Strictly the capitalized core part of speech (e.g., Noun, Verb, Adjective, Preposition, Pronoun, Adverb, Conjunction).\n"
-                        "3. syllables: A clean, hyphenated phonetic syllable breakdown (e.g., spre - chen, ar - bei - ten).\n"
-                        "4. root_letters: The Proto-Germanic, Old High German, or base etymological root word (e.g., P.Gmc: *sprekan, OHG: wizzan). If not applicable, output N/A or the base root.\n"
-                        "5. root_meaning: A punchy 3-to-5 word summary of the root's original meaning (e.g., to speak, to know). If root_letters is N/A, output N/A.\n\n"
+                        "2. grammar_tag: Strictly the capitalized core part of speech (e.g., Noun, Verb, Adjective, Measure Word, Pronoun, Adverb, Particle).\n"
+                        "3. syllables: The exact Pinyin with tone marks, separated by spaces (e.g., xué xí, zhōng wén).\n"
+                        "4. root_letters: The core radical (部首) or main component character (e.g., 氵, 心, 言). If not applicable, output N/A.\n"
+                        "5. root_meaning: A punchy 3-to-5 word summary of the radical's original meaning (e.g., water, heart, speech). If root_letters is N/A, output N/A.\n\n"
                         "CRITICAL OUTPUT FORMAT:\n"
                         "Output ONLY raw pipe-delimited lines formatted exactly as: original|definition|grammar_tag|syllables|root_letters|root_meaning\n"
                         "Do NOT include markdown formatting (no ```). Do not include any intro or outro text. Every single line must be a valid pipe-delimited entry matching the exact 'original' word passed in."
-                    ),
-                    temperature=0.1
-                )
-            )
+                    )}]
+                },
+                "generationConfig": {
+                    "temperature": 0.1
+                }
+            }
             
-            # Parse response
-            lines = response.text.strip().split("\n")
+            # Use strict 90 second timeout on socket connection and read
+            response = requests.post(url, json=payload, headers={'Content-Type': 'application/json'}, timeout=90.0)
+            
+            if response.status_code != 200:
+                raise Exception(f"API Error {response.status_code}: {response.text}")
+                
+            res_json = response.json()
+            try:
+                response_text = res_json['candidates'][0]['content']['parts'][0]['text']
+            except (KeyError, IndexError):
+                raise Exception(f"Unexpected response structure: {res_json}")
+            
+            lines = response_text.strip().split("\n")
             cleaned_items = {}
             
             for line in lines:
@@ -78,7 +88,7 @@ def process_batch(batch: list) -> dict:
                     grammar_tag = parts[2].strip()
                     syllables = parts[3].strip()
                     root_letters = parts[4].strip()
-                    root_meaning = "|".join(parts[5:]).strip() # in case root_meaning had a pipe
+                    root_meaning = "|".join(parts[5:]).strip()
                     
                     if original in batch_dict and original not in cleaned_items:
                         cleaned_items[original] = {
@@ -91,9 +101,8 @@ def process_batch(batch: list) -> dict:
             
             missing_words = expected_words - set(cleaned_items.keys())
             if missing_words:
-                print(f"Batch completed with {len(missing_words)} missing words. Falling back to default profiles for those words to prevent data loss and save API quota.")
+                print(f"Batch completed with {len(missing_words)} missing words. Falling back to default profiles.")
             
-            # If any words are missing, create a clean default fallback profile so we never break the UI
             for orig in missing_words:
                 orig_data = batch_dict[orig]
                 cleaned_items[orig] = {
@@ -108,24 +117,24 @@ def process_batch(batch: list) -> dict:
 
         except Exception as e:
             error_str = str(e)
-            print(f"⚠️ Attempt {attempt+1} failed with Key #{current_key_idx + 1}: {error_str}")
+            print(f"⚠️ Attempt {attempt+1} failed with Key #{current_key_idx + 1}: {error_str[:200]}")
             if attempt < retries - 1:
-                if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or "503" in error_str or "timed out" in error_str.lower():
-                    print("Rate limit or service unavailable. Sleeping for 60 seconds before switching keys...")
-                    time.sleep(60)
+                if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or "503" in error_str or "timeout" in error_str.lower() or "read timed out" in error_str.lower():
+                    print("Rate limit or service unavailable. Sleeping for 30 seconds before switching keys...")
+                    time.sleep(30)
                 else:
                     time.sleep(5)
-                get_next_client()
+                get_next_key()
             else:
-                print("❌ All retry attempts failed across all keys for this batch. Exiting to prevent dirty data saving.")
+                print("❌ All retry attempts failed. Exiting.")
                 sys.exit(1)
 
 def main():
-    input_file = "public/data/de_cleaned.json"
-    output_file = "public/data/de_dictionary.json"
+    input_file = "public/data/zh_cleaned.json"
+    output_file = "public/data/zh_dictionary.json"
 
     if not os.path.exists(input_file):
-        print(f"Error: {input_file} does not exist. Please run Level 1 first.")
+        print(f"Error: {input_file} does not exist.")
         sys.exit(1)
 
     with open(input_file, "r", encoding="utf-8") as f:
@@ -133,7 +142,6 @@ def main():
 
     print(f"Loaded {len(cleaned_words)} verified words from {input_file}.")
     
-    # Check existing progress in fr_dictionary.json for seamless resume
     dictionary_data = {}
     if os.path.exists(output_file):
         try:
@@ -144,7 +152,6 @@ def main():
             print(f"Error reading existing {output_file}: {e}. Starting fresh.")
             dictionary_data = {}
 
-    # Filter out words that already exist in dictionary_data
     remaining_words = [w for w in cleaned_words if w["original"].strip() not in dictionary_data]
 
     print(f"Already processed: {len(dictionary_data)} words. Remaining to generate: {len(remaining_words)} words.")
@@ -153,10 +160,10 @@ def main():
         print("All dictionary profiles have already been generated! Nothing left to do.")
         sys.exit(0)
 
-    batch_size = 50 # Razor-sharp focus for 5 fields per word
+    batch_size = 50 
     total_batches = (len(remaining_words) + batch_size - 1) // batch_size
     
-    print(f"Starting Level 2 Deep Dictionary generation in {total_batches} batches (batch size: {batch_size})...")
+    print(f"Starting generation in {total_batches} batches (batch size: {batch_size})...")
     
     for i in range(0, len(remaining_words), batch_size):
         batch = remaining_words[i:i+batch_size]
@@ -167,13 +174,12 @@ def main():
         new_entries = process_batch(batch)
         dictionary_data.update(new_entries)
         
-        # Save progress instantly after every batch so nothing is ever lost
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(dictionary_data, f, ensure_ascii=False, indent=2)
             
         print(f"Batch {current_batch_num} saved successfully. Total dictionary entries so far: {len(dictionary_data)}")
         sys.stdout.flush()
-        time.sleep(4) # Rate limit mitigation
+        time.sleep(4) 
 
     print(f"Finished generating all dictionary profiles. Saved {len(dictionary_data)} entries to {output_file}.")
 

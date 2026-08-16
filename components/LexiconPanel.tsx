@@ -17,7 +17,7 @@ function VirtualList({ words, arabicFontClass, onSelectWord }: { words: Word[]; 
     const rowVirtualizer = useVirtualizer({
         count: words.length,
         getScrollElement: () => parentRef.current,
-        estimateSize: () => 64,
+        estimateSize: () => 80,
         overscan: 5,
     });
 
@@ -46,14 +46,14 @@ function VirtualList({ words, arabicFontClass, onSelectWord }: { words: Word[]; 
                             >
                                 <div>
                                     <div
-                                        className={cn("text-base font-medium", isAr ? (arabicFontClass || "font-arabic") : "font-sans")}
+                                        className={cn("text-xl md:text-2xl font-medium", isAr ? (arabicFontClass || "font-arabic") : "font-sans")}
                                         dir={isAr ? "rtl" : "ltr"}
                                     >
                                         {word.original}
                                     </div>
-                                    <div className="text-xs text-muted">{word.romanized}</div>
+                                    <div className="text-sm text-muted mt-0.5">{word.romanized}</div>
                                 </div>
-                                <div className="text-xs text-muted max-w-[100px] text-right truncate">{word.definition}</div>
+                                <div className="text-sm text-muted max-w-[100px] text-right truncate">{word.definition}</div>
                             </div>
                         </div>
                     );
